@@ -33,6 +33,10 @@ public static class RandomF {
 	public static float value {
 		get { return Random.value; }
 	}
+	
+	public static float normal {
+		get { return (Random.value + Random.value + Random.value) / 3.0f; }
+	}
 
 	public static int WeightedChoose(float[] weights) {
 		float total = 0;
