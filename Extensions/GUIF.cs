@@ -14,6 +14,7 @@ public static class GUIF {
 	
 	public static void Label(Rect area, string str, float padding) { Label(area, new GUIContent(str), padding); }
 	public static void Label(Rect area, string str) { Label(area, str, defaultPadding); }
+	public static void Label(Rect area, GUIContent content) { Label(area, content, defaultPadding); }
 	public static void Label(Rect area, GUIContent content, float padding) {
 		if (padding > 0) {
 			float alpha = GUI.color.a;
@@ -92,13 +93,15 @@ public static class GUIF {
 		GUI.color = prev;
 	}
 	
-	public static bool Button(Rect area, GUIContent c) { return Button(area, c, defaultPadding); }
-	public static bool Button(Rect area, string str) { return Button(area, str, defaultPadding); }
-	public static bool Button(Rect area, string str, float padding) { return Button(area, new GUIContent(str), defaultPadding); }
-	public static bool Button(Rect area, GUIContent c, float padding) {
+	public static bool Button(Rect area, string str) { return Button(area, str, defaultPadding, "MenuSelect"); }
+	public static bool Button(Rect area, string str, float padding) { return Button(area, new GUIContent(str), defaultPadding, "MenuSelect"); }
+	public static bool Button(Rect area, string str, float padding, string sound) { return Button(area, new GUIContent(str), defaultPadding, sound); }
+	public static bool Button(Rect area, GUIContent c) { return Button(area, c, defaultPadding, "MenuSelect"); }
+	public static bool Button(Rect area, GUIContent c, float padding) { return Button(area, c, defaultPadding, "MenuSelect"); }
+	public static bool Button(Rect area, GUIContent c, float padding, string sound) {
 		bool ret = GUI.Button(area, "");
 		Label(area, c, padding, GUI.skin.button);
-		if (ret) { SoundMaster.Play("MenuSelect"); }
+		if (ret) { SoundMaster.Play(sound); }
 		return ret;
 	}
 	
@@ -160,10 +163,11 @@ public static class GUIF {
 	}
 	
 	
+	//Depreciated
 	public static bool SelectableButton(Rect area, string str, string name) {
 		return SelectableButton(area, str, name, defaultPadding);
 	}
-
+	//Depreciated
 	public static bool SelectableButton(Rect area, string str, string name, float padding) {
 		//string nn = NextControlName();
 		AddControl(new SelectableControl(area, name));
@@ -220,6 +224,27 @@ public static class GUIF {
 			currentPoint += direction.normalized;
 		}
 		return "";
+	}
+	
+	public static Vector2 ScrollableVerticalSelection(Rect area, Rect buttonSize, Rect repeat, Vector2 scroll, int selection, string[] names) {
+		selection = -1;
+		Rect viewArea = buttonSize ;
+		viewArea.height *= names.Length;
+		Rect brush = buttonSize;
+		brush.x = area.x;
+		brush.y = area.y;
+		
+		scroll = GUI.BeginScrollView(area, scroll, viewArea);
+			for (int i = 0; i < names.Length; i++) {
+				if (GUI.Button(brush, names[i])) {
+					selection = i;
+				}
+				brush.y += brush.height;
+			}
+			
+		GUI.EndScrollView();
+		
+		return scroll;
 	}
 	
 	
@@ -295,4 +320,96 @@ public static class GUIF {
 		}
 	}
 	
+	
+	
+	public class Layout {
+		public List<GUIElement> elements;
+		
+		public void Draw(Component caller) {
+			foreach (GUIElement element in elements) { element.Draw(caller); }
+		}
+		
+		
+	}
+	
+	public abstract class GUIElement {
+		public string name;
+		public GUIContent content;
+		public string function;
+		public Rect area;
+		
+		public virtual void Draw(Component caller) {}
+		
+		public void Call(Component caller) { caller.SendMessage(function, SendMessageOptions.DontRequireReceiver); }
+		public void Call(Transform target) { target.SendMessage(function, SendMessageOptions.DontRequireReceiver); }
+		public void Call(GameObject target) { target.SendMessage(function, SendMessageOptions.DontRequireReceiver); }
+		
+	}
+	
+	public class GUILabel : GUIElement {
+		public new void Draw(Component caller) { GUIF.Label(area, content); }
+	}
+	
+	public class GUIBox : GUIElement {
+		public new void Draw(Component caller) { GUIF.Box(area, content); }
+	}
+	
+	public class GUIButton : GUIElement {
+		private bool clicked = false;
+		public bool wasClicked { get { return clicked; } }
+		
+		public new void Draw(Component caller) {
+			clicked = false;
+			if (GUIF.Button(area, content)) { clicked = true; Call(caller); }
+		}
+		
+	}
+	
+	public class GUISelectionButton : GUIElement {
+		private bool clicked = false;
+		public bool wasClicked { get { return clicked; } }
+		
+		public new void Draw(Component caller) {
+			clicked = false;
+			if (GUIF.SButton(area, content)) { clicked = true; Call(caller); }
+		}
+	}
+	
+	
+	public class GUISlider : GUIElement {
+		public float value = 0;
+		public float minValue = 0;
+		public float maxValue = 10;
+		private bool changed = false;
+		public bool horizontal = true;
+		public bool wasChanged { get { return changed; } }
+		
+		public new void Draw(Component caller) {
+			changed = false;
+			float prevValue = value;
+			if (horizontal) { value = GUI.HorizontalSlider(area, value, minValue, maxValue); }
+			else { value = GUI.VerticalSlider(area, value, minValue, maxValue); }
+			
+			if (value != prevValue) { changed = true; ZScript.SetValue(name, value); }
+		}
+		
+	}
+		
+	
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
