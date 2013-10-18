@@ -6,7 +6,7 @@ public static class ZScript {
 	public static Table data;
 	public static Table flags;
 	
-	static ZScript {
+	static ZScript() {
 		data = new Table();
 		flags = new Table();
 		

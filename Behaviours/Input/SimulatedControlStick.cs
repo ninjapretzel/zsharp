@@ -36,8 +36,8 @@ public class SimulatedControlStick : MonoBehaviour {
 	private Vector2 val;
 	
 	void OnGUI() {
-		overzone = Screen.height * overzoneRatio;
-		padding = Screen.height * paddingRatio;
+		overzone = (int) (Screen.height * overzoneRatio);
+		padding = (int) (Screen.height * paddingRatio);
 		
 		pixelSize = size * Screen.height;
 		pixelCenter = new Vector2(position.x * Screen.width, position.y * Screen.height);
@@ -67,7 +67,7 @@ public class SimulatedControlStick : MonoBehaviour {
 				if (t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled) { continue; }
 				
 				hasHadGoodTouch = true;
-				val = -difference.normalized * Matfh.Min(1, (difference.magnitude / pixelSize));
+				val = -difference.normalized * Mathf.Min(1, (difference.magnitude / pixelSize));
 				if (lockXaxis) { val.x = 0; }
 				if (lockYaxis) { val.y = 0; }
 				val.Normalize();
@@ -76,13 +76,14 @@ public class SimulatedControlStick : MonoBehaviour {
 			}
 			
 			if (!hasHadGoodTouch) { val = Vector2.zero; }
-			insideBrush.x += value * pixelSize;
+			insideBrush.x += value.x * pixelSize;
+			insideBrush.y += value.y * pixelSize;
 			
 			if (invertXout) { val.x *= -1; }
 			if (invertYout) { val.y *= -1; }
 			
 			GUI.color = mainColor;
-			GUI.DrawTexture(insideBrush, mainColor);
+			GUI.DrawTexture(insideBrush, mainGraphic);
 			
 		}
 		
