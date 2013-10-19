@@ -9,5 +9,11 @@ public static class FloatF {
 	public static float RoundUp(this float f) { return f.Ceil(); }
 	public static float Fract(this float f) { return f - f.Floor(); }
 	
+	public static float CosInterp(float a, float b, float x) {
+		float ft = x * 3.1415927f;
+		float f = (1 - Mathf.Cos(ft)) * .5f;
+		return  a * (1-f) + b * f;
+	}
+	
 }
 	

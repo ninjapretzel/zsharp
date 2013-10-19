@@ -13,10 +13,8 @@ public class StickToSurfaceOnStart : MonoBehaviour {
 			transform.position = hit.point + offset;
 			if (changeRotation) { transform.up = hit.normal; }
 		}	
+		Destroy(this);
 	}
 	
-	// Update is called once per frame
-	void Update () {
 	
-	}
 }

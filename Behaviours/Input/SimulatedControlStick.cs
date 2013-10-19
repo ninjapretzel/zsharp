@@ -3,9 +3,11 @@ using System.Collections;
 
 public class SimulatedControlStick : MonoBehaviour {
 	public Vector2 position;
-	public float size = .125f;
+	public float size = .1f;
+	
 	public float paddingRatio = .0555556f;
 	public int padding = 40;
+	
 	public float overzoneRatio = .222222f;
 	public int overzone = 160;
 	
@@ -30,12 +32,15 @@ public class SimulatedControlStick : MonoBehaviour {
 	public Color backColor = new Color(1, 1, 1, .3f);
 	public Color perimColor = new Color(1, 1, 1, .5f);
 	
+	public bool hidden = false;
+	
 	public Vector2 value {
 		get { return val; }
 	}
 	private Vector2 val;
 	
 	void OnGUI() {
+		if (hidden) { val = Vector2.zero; return; }
 		overzone = (int) (Screen.height * overzoneRatio);
 		padding = (int) (Screen.height * paddingRatio);
 		
@@ -55,7 +60,6 @@ public class SimulatedControlStick : MonoBehaviour {
 		
 		Vector2 difference;
 		Vector2 realTouchPosition;
-		Rect tempBrush;
 		bool hasHadGoodTouch = false;
 		
 		foreach (Touch t in Input.touches) {
@@ -75,19 +79,20 @@ public class SimulatedControlStick : MonoBehaviour {
 				break;
 			}
 			
-			if (!hasHadGoodTouch) { val = Vector2.zero; }
-			insideBrush.x += value.x * pixelSize;
-			insideBrush.y += value.y * pixelSize;
-			
-			if (invertXout) { val.x *= -1; }
-			if (invertYout) { val.y *= -1; }
-			
-			GUI.color = mainColor;
-			GUI.DrawTexture(insideBrush, mainGraphic);
 			
 		}
 		
 		
+		if (!hasHadGoodTouch) { val = Vector2.zero; }
+		insideBrush.x += value.x * pixelSize;
+		insideBrush.y += value.y * pixelSize;
+		
+		if (invertXout) { val.x *= -1; }
+		if (invertYout) { val.y *= -1; }
+		
+		GUI.color = mainColor;
+		GUI.DrawTexture(insideBrush, mainGraphic);
+	
 		
 	}
 	

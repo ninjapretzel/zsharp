@@ -31,7 +31,7 @@ public static class RandomF {
 	}
 	
 	public static float value {
-		get { return Random.value; }
+		get { return Random.value * .99999999f; }
 	}
 	
 	public static float normal {
@@ -43,7 +43,7 @@ public static class RandomF {
 		int i;
 		for (i = 0; i < weights.Length; i++) { total += weights[i]; }
 		
-		float choose = Random.value * total * .99999999f; //offset the value slightly because of the range of random being [0, 1] instead of [0, 1)
+		float choose = value * total; 
 		float check = 0;
 		for (i = 0; i < weights.Length; i++) {
 			check += weights[i];

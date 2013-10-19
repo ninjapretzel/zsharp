@@ -4,6 +4,7 @@ using System.Collections;
 public class Billboard : MonoBehaviour {
 	public bool flip = false;
 	public float zrotation;
+	
 	void LateUpdate() {
 		if (renderer != null && !renderer.enabled) { return; }
 		transform.LookAt(Camera.main.transform);
