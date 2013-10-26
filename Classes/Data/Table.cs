@@ -78,6 +78,31 @@ public class Table : Dictionary<string, float> {
 		}
 	}
 	
+	public static Table operator +(Table a, float b) {
+		Table c = new Table();
+		foreach (string key in a.Keys) { c[key] = a[key] + b; }
+		return c;
+	}
+	
+	public static Table operator -(Table a, float b) {
+		Table c = new Table();
+		foreach (string key in a.Keys) { c[key] = a[key] - b; }
+		return c;
+	}
+	
+	public static Table operator *(Table a, float b) {
+		Table c = new Table();
+		foreach (string key in a.Keys) { c[key] = a[key] * b; }
+		return c;
+	}
+	
+	public static Table operator /(Table a, float b) {
+		if (b == 0) { Debug.LogWarning("Trying to divide table by zero..."); return a; }
+		Table c = new Table();
+		foreach (string key in a.Keys) { c[key] = a[key] / b; }
+		return c;
+	}
+	
 	public static Table operator +(Table a, Table b) {
 		Table c = new Table();
 		foreach (string key in a.Keys) { c[key] += a[key]; }
@@ -121,7 +146,16 @@ public class Table : Dictionary<string, float> {
 		}
 	}
 	
+	public void Set() {
+		Clear();
+		int max = Mathf.Min(strings.Length, floats.Length);
+		for (int i = 0; i < max; i++) {
+			Add(strings[i], floats[i]);
+		}
+	}
+	
 	public new void Add(string s, float f) { this[s] = f; }
+	public void Add(string s) { this[s] = 0; }
 	public void Add(float f, string s) { this[s] = f; }
 	
 	public void Add(float f) { foreach (string s in Keys) { this[s] += f; } }
@@ -133,8 +167,19 @@ public class Table : Dictionary<string, float> {
 	public void AddRandomly(float f) { foreach (string s in Keys) { this[s] += f; } }
 	public void AddRandomly(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * Random.value; } }
 
-	public void Multiply(float f) {  foreach (string s in Keys) { this[s] *= f; } }
+	public void Multiply(float f) { foreach (string s in Keys) { this[s] *= f; } }
+	public void Multiply(Table t) { 
+		foreach (string s in Keys) {
+			if (t.ContainsKey(s)) { this[s] *= t[s]; }
+		}
+	}
+	
 	public void Divide(float f) { foreach (string s in Keys) { this[s] /= f; } }
+	public void Divide(Table t) { 
+		foreach (string s in Keys) {
+			if (t.ContainsKey(s) && t[s] != 0) { this[s] /= t[s]; }
+		}
+	}
 	
 	public override string ToString() {
 		StringBuilder str = new StringBuilder("#Formatted Table as .csv:");

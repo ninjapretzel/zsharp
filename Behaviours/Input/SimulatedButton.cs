@@ -3,29 +3,32 @@ using System.Collections;
 
 public class SimulatedButton : MonoBehaviour {
 	public Vector2 position;
-	public Vector2 pixelPosition;
-	public Vector2 pixelCenter;
-	
 	public float size = 0.225f;
-	public float pixelSize = 0.0f;
 	
-	public bool tapped  = false;
-	public bool wasTapped = false;
+	public bool hidden = false;
+	
+	public bool tapped = false;
+	public bool doubleTapped = false;
+	public bool released = false;
 	public bool held = false;
 	public float hitTime = 0;
+	public float releaseTime = 0;
+	public float doubleTapTime = .2f;
 	
 	public Color color = Color.white;
 	public Color hitColor = Color.red;
-	
 	public Texture2D graphic;
 	
 	public bool frameAlready = false;
 	
-	public bool hidden = false;
+	private	Vector2 pixelPosition;
+	private Vector2 pixelCenter;
+	private float pixelSize = 0.0f;
 	
 	void LateUpdate() {
 		frameAlready = false;
 		hitTime += Time.deltaTime;
+		releaseTime += Time.deltaTime;
 	}
 	
 	void OnGUI() {
@@ -41,10 +44,13 @@ public class SimulatedButton : MonoBehaviour {
 			if (held) { GUI.color = hitColor; }
 			GUI.DrawTexture(brush, graphic);
 		} else {
+			bool wasHeld = held;
+			doubleTapped = false;
 			tapped = false;
 			held = false;
-			
+			released = false;
 			GUI.color = color;
+			bool hadGoodTouch = false;
 			
 			foreach (Touch t in Input.touches) {
 				Vector2 realTouchPosition = t.position;
@@ -52,18 +58,27 @@ public class SimulatedButton : MonoBehaviour {
 				Vector2 difference = pixelCenter - realTouchPosition;
 				
 				if (difference.magnitude < pixelSize / 2.0f) {
+					hadGoodTouch = true;
 					if (t.phase == TouchPhase.Canceled) { continue; }
 					if (t.phase == TouchPhase.Began) {
+						if (hitTime < doubleTapTime) { doubleTapped = true; }
 						tapped = true;
-						wasTapped = true;
 						hitTime = 0;
 					} else if ((t.phase == TouchPhase.Stationary) || (t.phase == TouchPhase.Moved)) {
 						held = true;
 						GUI.color = hitColor;
+					} else if (t.phase == TouchPhase.Ended) {
+						released = true;
+						releaseTime = 0;
 					}
 					
+					if (wasHeld && !held) { released = true; }
+					
+					break;
 				}
+				
 			}
+			
 			GUI.DrawTexture(brush, graphic);
 			frameAlready = true;
 			
