@@ -192,6 +192,38 @@ public class Table : Dictionary<string, float> {
 		return str.ToString();
 	}
 	
+	public string ToLine() {
+		StringBuilder str = new StringBuilder();
+		foreach (string key in Keys) {
+			if (str.Length > 0) { str.Append(","); }
+			str.Append(key);
+			str.Append(",");
+			str.Append(this[key]);
+		}
+		return str.ToString();
+	}
+	
+	
+	public static Table CreateFromLine(string line) { 
+		Table tb = new Table();
+		tb.LoadLine(line);
+		return tb;
+	}
+	public void LoadLine(string line) {
+		Clear();
+		string[] content = line.Split(',');
+		
+		for (int i = 0; i < content.Length; i += 2) {
+			this[content[i]] = float.Parse(content[i+1]);
+		}
+		
+	}
+	
+	public static Table CreateFromCSV(string csv) {
+		Table tb = new Table();
+		tb.LoadCSV(csv);
+		return tb;
+	}
 	public void LoadCSV(string csv) {
 		Clear();
 		string[] lines = csv.Split('\n');
@@ -204,6 +236,19 @@ public class Table : Dictionary<string, float> {
 			}
 		}
 		
+	}
+	
+	public void Save(string name) {
+		PlayerPrefs.SetString(name, ToString());
+	}
+	
+	public void Load(string name) {
+		string str = PlayerPrefs.GetString(name);
+		if (str.Length > "#Formatted Table as .csv:".Length) {
+			LoadCSV(str);
+		} else {
+			Debug.Log("Unable to load Table from CSV from player pref: " + name + "\nLoaded:\n" + str);
+		}
 	}
 	
 	public void SaveToPlayerPrefs(string name) {

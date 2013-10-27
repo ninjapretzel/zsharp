@@ -109,6 +109,10 @@ public static class StringF {
 		return str;
 	}
 	
+	public static void Save(this string s, string key) {
+		PlayerPrefs.SetString(key, s);
+	}
+	
 	
 }
 
