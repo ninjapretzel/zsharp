@@ -204,14 +204,17 @@ public class Table : Dictionary<string, float> {
 	}
 	
 	
-	public static Table CreateFromLine(string line) { 
+	public static Table CreateFromLine(string line) { return CreateFromLine(line, ','); }
+	public static Table CreateFromLine(string line, char separator) { 
 		Table tb = new Table();
-		tb.LoadLine(line);
+		tb.LoadLine(line, separator);
 		return tb;
 	}
-	public void LoadLine(string line) {
+	
+	public void LoadLine(string line) { LoadLine(line, ','); }
+	public void LoadLine(string line, char separator) {
 		Clear();
-		string[] content = line.Split(',');
+		string[] content = line.Split(separator);
 		
 		for (int i = 0; i < content.Length; i += 2) {
 			this[content[i]] = float.Parse(content[i+1]);
@@ -219,18 +222,20 @@ public class Table : Dictionary<string, float> {
 		
 	}
 	
-	public static Table CreateFromCSV(string csv) {
+	public static Table CreateFromCSV(string csv) { return CreateFromCSV(csv, ','); }
+	public static Table CreateFromCSV(string csv, char separator) {
 		Table tb = new Table();
-		tb.LoadCSV(csv);
+		tb.LoadCSV(csv, separator);
 		return tb;
 	}
-	public void LoadCSV(string csv) {
+	public void LoadCSV(string csv) { LoadCSV(csv, ','); }
+	public void LoadCSV(string csv, char separator) {
 		Clear();
 		string[] lines = csv.Split('\n');
 		
 		for (int i = 0; i < lines.Length; i++) {
 			if (lines[i][0] == '#') { continue; }
-			string[] content = lines[i].Split(',');
+			string[] content = lines[i].Split(separator);
 			for (int j = 0; j < content.Length; j += 2) {
 				this[content[j]] = float.Parse(content[j+1]);
 			}

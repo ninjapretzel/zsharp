@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Text;
 using System.Collections;
+using System.Collections.Generic;
 
 public static class StringF {
 	public static bool IsNumber(this char c) { return c >= 48 && c < 57; }
@@ -113,6 +114,44 @@ public static class StringF {
 		PlayerPrefs.SetString(key, s);
 	}
 	
+	public static string ExtractSection(this string s) { return s.ExtractSection(0); }
+	public static string ExtractSection(this string s, int st) {
+		int start = s.IndexOf('{', st);
+		Stack<int> stack = new Stack<int>();
+		
+		stack.Push(start);
+		
+		int end = s.Length;
+		int i = start;
+		while (stack.Count > 0) {
+			int open = s.IndexOf('{', i+1);
+			int close = s.IndexOf('}', i+1);
+			
+			if (open == -1 || close == -1) {
+				if (close == -1) {
+					return s.Substring(start);
+				} else {
+					stack.Pop();
+					if (stack.Count == 0) { end = close; }
+					i = close;
+				}
+			
+			} else {
+				if (open < close) {
+					stack.Push(open);
+					i = open;
+				} else {
+					stack.Pop();
+					if (stack.Count == 0) { end = close; }
+					i = close;
+				}
+			}
+			
+		}
+		
+		
+		return s.Substring(start+1, (end-start-1));
+	}
 	
 }
 
