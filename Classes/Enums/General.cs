@@ -13,6 +13,12 @@ public enum RandomType {
 	Perlin,
 }
 
+public enum CollisionAction {
+	Enter,
+	Stay,
+	Exit,
+}
+
 public class General {
 	
 	
