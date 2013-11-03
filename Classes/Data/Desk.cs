@@ -44,7 +44,7 @@ public class Desk : Dictionary<string, Table> {
 	}
 	
 	
-	public void LoadCSV(string csv) {
+	public new void LoadCSV(string csv) {
 		Clear();
 		string[] lines = csv.Split('\n');
 		

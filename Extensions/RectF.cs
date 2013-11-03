@@ -3,6 +3,10 @@ using System.Collections;
 
 public static class RectF {
 	
+	public static Rect FromCenter(Vector2 center, Vector2 size) { return FromCenter(center, size.x, size.y); }
+	public static Rect FromCenter(Vector2 center, float s) { return FromCenter(center, s, s); }
+	public static Rect FromCenter(Vector2 center, float x, float y) { return new Rect(center.x - x / 2f, center.y - y / 2f, x, y); }
+	
 	public static Rect ScreenOverscan(Rect normalized, float overscan) {
 		float ratio = Mathf.Clamp(overscan, 0, .05f);
 		
@@ -31,6 +35,17 @@ public static class RectF {
 						r.y + y * r.height, 
 						r.width, 
 						r.height);
+	}
+	
+	public static Rect ShrinkTo(this Rect r, Rect t) {
+		if (r.width < t.width && r.height < t.height) { return r; }
+		float hRatio = t.height / r.height;
+		float wRatio = t.width / r.width;
+		if (hRatio < wRatio) {
+			return FromCenter(r.MiddleCenter(), hRatio * r.width, hRatio * r.height);
+		} else {
+			return FromCenter(r.MiddleCenter(), wRatio * r.width, wRatio * r.height);
+		}
 	}
 	
 	public static Rect MoveLeft(this Rect r) { return r.MoveLeft(1); }

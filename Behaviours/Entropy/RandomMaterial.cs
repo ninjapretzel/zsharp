@@ -19,7 +19,7 @@ public class RandomMaterial : MonoBehaviour {
 	}
 	
 	void SetMaterial() { 
-		int index = Generation.WeightedChoose(weights);
+		int index = RandomF.WeightedChoose(weights);
 		
 		renderer.material = materials[index];
 		

@@ -74,10 +74,9 @@ public static class Bars {
 		GUI.DrawTextureWithTexCoords(filled, g, filledReps);
 		GUI.color = back;
 		GUI.DrawTextureWithTexCoords(empty, g, emptyReps);
-		
-		
-		
 	}
+	
+	
 	
 	public static Texture2D GetGraphic(Rect area) {
 		if (area.width > area.height || vertical == null) { return graphic; }

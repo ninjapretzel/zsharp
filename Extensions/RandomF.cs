@@ -37,7 +37,19 @@ public static class RandomF {
 	public static float normal {
 		get { return (Random.value + Random.value + Random.value) / 3.0f; }
 	}
-
+	
+	public static char lowercase {
+		get { return (char)((int)'a'+(int)(Random.value * 25.9999999f)); }
+	}
+	
+	public static char uppercase {
+		get { return (char)((int)'A'+(int)(Random.value * 25.9999999f)); }
+	}
+	
+	public static char numeric {
+		get { return (char)((int)'0'+(int)(Random.value * 9.9999999f)); }
+	}
+	
 	public static int WeightedChoose(float[] weights) {
 		float total = 0;
 		int i;
