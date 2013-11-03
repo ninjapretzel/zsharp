@@ -3,6 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
+
+/**
+Desks and tables are best buddies.
+
+*/
 public class Desk : Dictionary<string, Table> {
 	
 	public Desk Clone() {
