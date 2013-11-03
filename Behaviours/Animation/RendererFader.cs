@@ -10,6 +10,10 @@ public class RendererFader : MonoBehaviour {
 	public float fadeTime = 1;
 	public bool wantsToBeVisible = true;
 	
+	public float fullAlpha = 1;
+	public float fadedAlpha = .2f;
+	
+	
 	float time = 1;
 	
 	public float percentage {
