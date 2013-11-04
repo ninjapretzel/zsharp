@@ -5,15 +5,29 @@ using System.Collections.Generic;
 //Extensded function classes with lots of useful functions for dictionaries
 
 //Dictionary float 
-public static class DictionaryStringFloat  {
+public static class DictionaryF  {
 	
-	public static void LoadCSV(this Dictionary<string, string> d, string csv) {
+	public static List<string> GetKeyList(this Dictionary<string, float> d) {
+		List<string> l = new List<string>();
+		foreach (string s in d.Keys) { l.Add(s); }
+		return l;
+	}
+	
+	public static List<string> GetKeyList(this Dictionary<string, string> d) {
+		List<string> l = new List<string>();
+		foreach (string s in d.Keys) { l.Add(s); }
+		return l;
+	}
+	
+	public static void LoadCSV(this Dictionary<string, string> d, string csv) { d.LoadCSV(csv, ','); }
+	public static void LoadCSV(this Dictionary<string, string> d, string csv, char delim) { 
 		d.Clear();
 		string[] lines = csv.Split('\n');
 		
 		for (int i = 0; i < lines.Length; i++) {
 			if (lines[i][0] == '#') { continue; }
-			string[] content = lines[i].Split(',');
+			if (lines[i].Length == 0) { continue; }
+			string[] content = lines[i].Split(delim);
 			for (int j = 0; j < content.Length; j += 2) {
 				d.Add(content[j], content[j+1]);
 			}

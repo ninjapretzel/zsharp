@@ -153,6 +153,10 @@ public static class StringF {
 		return s.Substring(start+1, (end-start-1));
 	}
 	
+	public static string ParseNewlines(this string input) {
+		return input.Replace("\\n", "\n");
+	}
+	
 }
 
 

@@ -4,22 +4,31 @@ using System.Collections.Generic;
 
 public static class DataF {
 	
-	public static Object Choose(this Object[] objs) {
-		return (objs[(int)(Random.value * objs.Length)]);
+	public static Object Choose(this List<Object> list) {
+		return list[(int)(RandomF.value * list.Count)];
 	}
 	
-	public static Object Choose(this Object[] objs, float[] weights) {
-		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, objs.Length-1);
-		return objs[index];
+	public static string Choose(this List<string> list) {
+		return list[(int)(RandomF.value * list.Count)];
 	}
 	
-	public static string Choose(this string[] strs) {
-		return (strs[(int)(Random.value * strs.Length)]);
+	
+	public static Object Choose(this Object[] array) {
+		return array[(int)(RandomF.value * array.Length)];
 	}
 	
-	public static string Choose(this string[] strs, float[] weights) {
-		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, strs.Length-1);
-		return strs[index];
+	public static Object Choose(this Object[] array, float[] weights) {
+		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, array.Length-1);
+		return array[index];
+	}
+	
+	public static string Choose(this string[] array) {
+		return array[(int)(RandomF.value * array.Length)];
+	}
+	
+	public static string Choose(this string[] array, float[] weights) {
+		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, array.Length-1);
+		return array[index];
 	}
 	
 	

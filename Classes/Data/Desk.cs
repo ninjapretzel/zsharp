@@ -49,7 +49,7 @@ public class Desk : Dictionary<string, Table> {
 	}
 	
 	
-	public new void LoadCSV(string csv) {
+	public void LoadCSV(string csv) {
 		Clear();
 		string[] lines = csv.Split('\n');
 		
