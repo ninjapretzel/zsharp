@@ -24,30 +24,38 @@ public static class RandomF {
 	
 	public static Vector3 insideUnitCube {
 		get {
-			return new Vector3(Random.Range(-.5f, .5f), 
-								Random.Range(-.5f, .5f),
-								Random.Range(-.5f, .5f));
+			return new Vector3(Range(-.5f, .5f), 
+								Range(-.5f, .5f),
+								Range(-.5f, .5f));
 		}
 	}
 	
+	public static int Range(int a, int b) {
+		return (a + (int)((float)(b-a) * value));
+	}
+	
+	public static float Range(float a, float b) {
+		return (a + (b-a) * value);
+	}
+	
 	public static float value {
-		get { return Random.value * .99999999f; }
+		get { return Random.value * .9999999999f; }
 	}
 	
 	public static float normal {
-		get { return (Random.value + Random.value + Random.value) / 3.0f; }
+		get { return (value + value + value) / 3.0f; }
 	}
 	
 	public static char lowercase {
-		get { return (char)((int)'a'+(int)(Random.value * 25.9999999f)); }
+		get { return (char)((int)'a'+(int)(value * 26)); }
 	}
 	
 	public static char uppercase {
-		get { return (char)((int)'A'+(int)(Random.value * 25.9999999f)); }
+		get { return (char)((int)'A'+(int)(value * 26)); }
 	}
 	
 	public static char numeric {
-		get { return (char)((int)'0'+(int)(Random.value * 9.9999999f)); }
+		get { return (char)((int)'0'+(int)(value * 10)); }
 	}
 	
 	public static int WeightedChoose(float[] weights) {

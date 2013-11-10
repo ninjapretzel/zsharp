@@ -32,12 +32,14 @@ public class SoundMaster : MonoBehaviour {
 	}
 	
 	public static AudioSource Play(AudioClip sc) {
+		if (audioSettings == null) { return null; }
 		Vector3 pos = Vector3.zero;
 		if (Camera.main) { pos = Camera.main.transform.position; }
 		return Play(sc, pos);
 	}
 	
 	public static AudioSource Play(AudioClip sc, Vector3 pos) {
+		if (audioSettings == null) { return null; }
 		AudioSource source = Instantiate(audioSettings, pos, Quaternion.identity) as AudioSource;
 		source.clip = sc;
 		source.Play();
@@ -48,6 +50,7 @@ public class SoundMaster : MonoBehaviour {
 	public static AudioSource Play(string sc, Vector3 pos) { return Play(GetSound(sc), pos); }
 	
 	public static AudioClip GetSound(string sc) {
+		if (audioSettings == null) { return null; }
 		if (sounds == null || sounds.Length == 0) { return null; }
 		foreach (Sound snd in sounds) {
 			if (snd.name == sc) { return snd.GetSound(); }
