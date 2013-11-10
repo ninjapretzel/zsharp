@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 
 public static class GUIF {
+	
 	public static float defaultPadding = 1.0f;
 	
 	public static List<SelectableControl> controls = new List<SelectableControl>();
@@ -10,6 +11,10 @@ public static class GUIF {
 	
 	public static int currentSelectedControl = -1;
 	public static bool controlHit = false;
+	
+	public static Rect screen { 
+		get { return new Rect(0, 0, Screen.width, Screen.height); }
+	}
 	
 	
 	public static void Label(Rect area, string str, float padding) { Label(area, new GUIContent(str), padding); }
@@ -400,7 +405,69 @@ public static class GUIF {
 }
 
 
-
+public static class GUIStyleF {
+	public static GUIStyle ScaledFontTo(this GUIStyle style, float p) {
+		GUIStyle copy = new GUIStyle(style);
+		copy.fontSize = (int)(p * (float)Screen.height);
+		return copy;
+	}
+	
+	public static GUIStyle Alligned(this GUIStyle style, TextAnchor a) {
+		GUIStyle copy = new GUIStyle(style);
+		copy.alignment = a;
+		return copy;
+	}
+	
+	public static GUIStyle LeftAligned(this GUIStyle style) {
+		GUIStyle copy = new GUIStyle(style);
+		TextAnchor a = style.alignment;
+		int b = (int)a / 3;
+		copy.alignment = (TextAnchor)(b * 3);
+		return copy;
+	}
+	
+	public static GUIStyle CenterAligned(this GUIStyle style) {
+		GUIStyle copy = new GUIStyle(style);
+		TextAnchor a = style.alignment;
+		int b = (int)a / 3;
+		copy.alignment = (TextAnchor)(b * 3 + 1);
+		return copy;
+	}	
+	
+	public static GUIStyle RightAligned(this GUIStyle style) {
+		GUIStyle copy = new GUIStyle(style);
+		TextAnchor a = style.alignment;
+		int b = (int)a / 3;
+		copy.alignment = (TextAnchor)(b * 3 + 2);
+		return copy;
+	}
+	
+	public static GUIStyle UpperAligned(this GUIStyle style) {
+		GUIStyle copy = new GUIStyle(style);
+		TextAnchor a = style.alignment;
+		int b = (int)a % 3;
+		copy.alignment = (TextAnchor)b;
+		return copy;
+	}
+	
+	public static GUIStyle MiddleAligned(this GUIStyle style) {
+		GUIStyle copy = new GUIStyle(style);
+		TextAnchor a = style.alignment;
+		int b = (int)a % 3;
+		copy.alignment = (TextAnchor)3 + b;
+		return copy;
+	}
+	
+	public static GUIStyle LowerAligned(this GUIStyle style) {
+		GUIStyle copy = new GUIStyle(style);
+		TextAnchor a = style.alignment;
+		int b = (int)a % 3;
+		copy.alignment = (TextAnchor)6 + b;
+		return copy;
+	}
+	
+	
+}
 
 
 

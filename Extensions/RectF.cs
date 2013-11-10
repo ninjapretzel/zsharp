@@ -48,6 +48,8 @@ public static class RectF {
 		}
 	}
 	
+	public static Rect Aspect(this Rect r, float ratio) { return FromCenter(r.center, r.height * ratio, r.height); }
+	
 	public static Rect MoveLeft(this Rect r) { return r.MoveLeft(1); }
 	public static Rect MoveLeft(this Rect r, float val) { return r.Move(-val, 0); }
 	
@@ -79,6 +81,16 @@ public static class RectF {
 	public static Vector2 Size(this Rect r, float x, float y) { return new Vector2(r.width * x, r.height * y); }
 	
 	public static Rect Craft(Vector2 pos, Vector2 size) { return new Rect(pos.x, pos.y, size.x, size.y); }
+	
+	public static Rect Top(this Rect r, float p) { return r.UpperLeft(1, p); }
+	public static Rect Upper(this Rect r, float p) { return r.UpperLeft(1, p); }
+	public static Rect Middle(this Rect r, float p) { return r.MiddleLeft(1, p); }
+	public static Rect Bottom(this Rect r, float p) { return r.BottomLeft(1, p); }
+	public static Rect Lower(this Rect r, float p) { return r.BottomLeft(1, p); }
+	
+	public static Rect Left(this Rect r, float p) { return r.UpperLeft(p, 1); }
+	public static Rect Center(this Rect r, float p) { return r.UpperCenter(p, 1); }
+	public static Rect Right(this Rect r, float p) { return r.UpperRight(p, 1); }
 	
 	public static Vector2 TopLeft(this Rect r) { return r.UpperLeft(); }
 	public static Rect TopLeft(this Rect r, Vector2 v) { return r.UpperLeft(v); }

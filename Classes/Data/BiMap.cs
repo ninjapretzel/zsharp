@@ -15,7 +15,7 @@ public class BiMap<T> {
 		listB = new List<T>();
 	}
 	
-	public string ToString() { return ToString('|'); }
+	public override string ToString() { return ToString('|'); }
 	public string ToString(char delim) {
 		StringBuilder str = new StringBuilder();
 		for (int i = 0; i < Count; i++) {
@@ -41,6 +41,9 @@ public class BiMap<T> {
 		}
 		return c;
 	}
+	
+	public T GetA(int i) { return listA[i]; }
+	public T GetB(int i) { return listB[i]; }
 	
 	public List<T> GetAMatch(T key) {
 		List<T> c = new List<T>();
