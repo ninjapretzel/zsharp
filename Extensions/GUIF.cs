@@ -47,7 +47,11 @@ public static class GUIF {
 		GUI.Label(area, content);
 	}
 	
+	public static void Label(Rect area, string str, GUIStyle callingFrom) { Label(area, new GUIContent(str), defaultPadding, callingFrom); }
+	public static void Label(Rect area, Texture2D tex, GUIStyle callingFrom) { Label(area, new GUIContent(tex), defaultPadding, callingFrom); }
+	public static void Label(Rect area, string str, Texture2D tex, GUIStyle callingFrom) { Label(area, new GUIContent(str, tex), defaultPadding, callingFrom); }
 	public static void Label(Rect area, string str, float padding, GUIStyle callingFrom) { Label(area, new GUIContent(str), padding, callingFrom); }
+	public static void Label(Rect area, string str, Texture2D tex, float padding, GUIStyle callingFrom) { Label(area, new GUIContent(str, tex), padding, callingFrom); }
 	public static void Label(Rect area, GUIContent content, float padding, GUIStyle callingFrom) {
 		//GUIStyle prevStyle = GUI.skin.label;
 		//GUI.skin.label = callingFrom;
@@ -99,6 +103,7 @@ public static class GUIF {
 	}
 	
 	public static bool Button(Rect area, string str) { return Button(area, str, defaultPadding, "MenuSelect"); }
+	public static bool Button(Rect area, string str, string sound) { return Button(area, str, defaultPadding, sound); }
 	public static bool Button(Rect area, string str, float padding) { return Button(area, new GUIContent(str), defaultPadding, "MenuSelect"); }
 	public static bool Button(Rect area, string str, float padding, string sound) { return Button(area, new GUIContent(str), defaultPadding, sound); }
 	public static bool Button(Rect area, GUIContent c) { return Button(area, c, defaultPadding, "MenuSelect"); }
@@ -201,6 +206,7 @@ public static class GUIF {
 	public static bool SelectableToggle(Rect area, bool value, string text) {
 		return SelectableToggle(area, value, text, NextControlName());
 	}
+	
 	public static bool SelectableToggle(Rect area, bool value, string text, string name) {
 		AddControl(new SelectableControl(area, name));
 		GUI.SetNextControlName(name);
@@ -231,7 +237,7 @@ public static class GUIF {
 		return "";
 	}
 	
-	public static Vector2 ScrollableVerticalSelection(Rect area, Rect buttonSize, Rect repeat, Vector2 scroll, int selection, string[] names) {
+	public static Vector2 ScrollableVerticalSelection(Rect area, Rect buttonSize, Rect repeat, Vector2 scroll, out int selection, string[] names) {
 		selection = -1;
 		Rect viewArea = buttonSize ;
 		viewArea.height *= names.Length;
@@ -314,7 +320,6 @@ public static class GUIF {
 		
 	}
 	
-	
 	public class SelectableControl {
 		public string name;
 		public Rect area;
@@ -326,7 +331,10 @@ public static class GUIF {
 	}
 	
 	
-	
+	///////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	//WORK IN PROGRESS
 	public class Layout {
 		public List<GUIElement> elements;
 		

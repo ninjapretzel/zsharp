@@ -4,38 +4,36 @@ using System.Collections.Generic;
 
 public static class DataF {
 	
-	public static Object Choose(this List<Object> list) {
+	public static T Choose<T>(this List<T> list) {
 		return list[(int)(RandomF.value * list.Count)];
 	}
 	
-	public static string Choose(this List<string> list) {
-		return list[(int)(RandomF.value * list.Count)];
+	public static T Choose<T>(this List<T> list, float[] weights) {
+		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, list.Count-1);
+		return list[index];
 	}
 	
-	
-	public static Object Choose(this Object[] array) {
+	public static T Choose<T>(this T[] array) {
 		return array[(int)(RandomF.value * array.Length)];
 	}
 	
-	public static Object Choose(this Object[] array, float[] weights) {
+	public static T Choose<T>(this T[] array, float[] weights) {
 		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, array.Length-1);
 		return array[index];
 	}
 	
-	public static string Choose(this string[] array) {
-		return array[(int)(RandomF.value * array.Length)];
-	}
-	
-	public static string Choose(this string[] array, float[] weights) {
-		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, array.Length-1);
-		return array[index];
-	}
-	
-	public static List<string> Clone(this List<string> list) {
-		List<string> clone = new List<string>();
-		foreach (string s in list) { clone.Add(s); }
+	public static List<T> Clone<T>(this List<T> list) {
+		List<T> clone = new List<T>();
+		foreach (T s in list) { clone.Add(s); }
 		return clone;
 	}
+	
+	public static void Append<T>(this List<T> list, List<T> add) {
+		foreach (T o in add) {
+			list.Add(o);
+		}
+	}
+	
 	
 	//Returns the lines as a string array from a csv formatted TextAsset (.txt)
 	//Removes all tabs and splits the file by newlines. 

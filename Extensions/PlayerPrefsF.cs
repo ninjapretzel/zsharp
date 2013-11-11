@@ -33,10 +33,7 @@ public static class PlayerPrefsF {
 	}
 	
 	
-	public static void SetBool(string name, bool b) { 
-		int val = 0; if (b) { val = 1; }
-		PlayerPrefs.SetInt(name, val);
-	}
+	public static void SetBool(string name, bool b) { PlayerPrefs.SetInt(name, (b ? 1 : 0) ); }
 	
 	public static void SetIntArray(string name, int[] ray) { ray.Save(name); }
 	public static void SetFloatArray(string name, float[] ray) { ray.Save(name); }

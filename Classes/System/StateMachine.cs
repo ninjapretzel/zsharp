@@ -45,15 +45,25 @@ public class StateMachine<T> where T : Component {
 		if (doneSwitching) { doneSwitching = false; switchedLastFrame = false; }
 		if (switchedLastFrame) { currentState.EnterFrame(); doneSwitching = true; }
 		currentState.Update(); 
+		if (previousState != null) { previousState.OffUpdate(); }
+	}
+	
+	public void LateUpdate() { 
+		currentState.LateUpdate(); 
+		if (previousState != null) { previousState.OffLateUpdate(); }
 		
 	}
 	
-	public void LateUpdate() { currentState.LateUpdate(); }
-	public void FixedUpdate() { currentState.FixedUpdate(); }
+	public void FixedUpdate() { 
+		currentState.FixedUpdate();
+		if (previousState != null) { previousState.OffFixedUpdate(); }
+		
+	}
 	
-	public void OnGUI() {		
+	public void OnGUI() {
 		currentState.OnGUI(); 
 		if (switchedLastFrame) { currentState.EnterGUI(); GUI.FocusControl("nothing"); }
+		if (previousState != null) { previousState.OffGUI(); }
 		
 	}
 	
@@ -90,8 +100,12 @@ public class State<T> where T : Component {
 	public virtual void Update() {}
 	public virtual void LateUpdate() {}
 	public virtual void FixedUpdate() {}
-	
 	public virtual void OnGUI() {}
+	
+	public virtual void OffUpdate() {}
+	public virtual void OffLateUpdate() {}
+	public virtual void OffFixedUpdate() {}
+	public virtual void OffGUI() {}
 	
 	public virtual void OnTriggerEnter(Collider c) {}
 	public virtual void OnTriggerStay(Collider c) {}
