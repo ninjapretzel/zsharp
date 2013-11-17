@@ -7,7 +7,18 @@ public class SoundVolume : MonoBehaviour {
 	void Awake() {
 		baseVolume = audio.volume;
 	}
+	
+	void Start() {
+		SetVolume();
+	}
+	
+	
 	void Update() {
+		SetVolume();
+	}
+	
+	void SetVolume() {
 		audio.volume = baseVolume * Settings.soundVolume;
 	}
+	
 }

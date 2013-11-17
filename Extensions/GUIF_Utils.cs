@@ -5,6 +5,10 @@ using System.Collections;
 public static class GUIStyleF {
 	public static GUIStyle Clone(this GUIStyle c) { return new GUIStyle(c); }
 
+	public static void SetFontSize(this GUIStyle style, float p) {
+		style.fontSize = (int)(p * (float)Screen.height);
+	}
+	
 	public static GUIStyle ScaledFontTo(this GUIStyle style, float p) {
 		GUIStyle copy = new GUIStyle(style);
 		copy.fontSize = (int)(p * (float)Screen.height);
@@ -70,7 +74,33 @@ public static class GUIStyleF {
 
 public static class GUISkinF {
 	
-	public static void FontSize(this GUISkin skin, float size) { skin.ScaleFontTo(size/720.0f); }
+	public static void FontSize(this GUISkin skin, float size) { skin.SetFontSize(size/720.0f); }
+	public static void SetFontSize(this GUISkin skin, float size) {
+		skin.label.SetFontSize(size);
+		skin.button.SetFontSize(size);
+		skin.box.SetFontSize(size);
+		skin.textField.SetFontSize(size);
+		skin.textArea.SetFontSize(size);
+		skin.toggle.SetFontSize(size);
+		skin.window.SetFontSize(size);
+		skin.horizontalSlider.SetFontSize(size);
+		skin.horizontalSliderThumb.SetFontSize(size);
+		skin.verticalSlider.SetFontSize(size);
+		skin.verticalSliderThumb.SetFontSize(size);
+		skin.horizontalScrollbar.SetFontSize(size);
+		skin.horizontalScrollbarThumb.SetFontSize(size);
+		skin.horizontalScrollbarLeftButton.SetFontSize(size);
+		skin.horizontalScrollbarRightButton.SetFontSize(size);
+		skin.verticalScrollbar.SetFontSize(size);
+		skin.verticalScrollbarThumb.SetFontSize(size);
+		skin.verticalScrollbarUpButton.SetFontSize(size);
+		skin.verticalScrollbarDownButton.SetFontSize(size);
+		skin.scrollView.SetFontSize(size);
+		if (skin.customStyles != null) {
+			foreach (GUIStyle s in skin.customStyles) { s.SetFontSize(size); }
+		}
+	}
+	
 	public static void ScaleFontTo(this GUISkin skin, float size) {
 		skin.label 							= skin.label.ScaledFontTo(size);
 		skin.button 						= skin.button.ScaledFontTo(size);

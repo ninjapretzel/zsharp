@@ -2,6 +2,11 @@ using UnityEngine;
 using System.Collections;
 
 public static class RectF {
+	public static Rect unit { get { return new Rect(0, 0, 1, 1); } }
+	
+	public static Rect Scaled(this Rect r, Vector2 s) { return r.Scaled(s.x, s.y); }
+	public static Rect Scaled(this Rect r, float x, float y) { return new Rect(r.x * x, r.y * y, r.width * x, r.height * y); }
+	public static Rect Denormalized(this Rect r) { return r.Scaled(Screen.width, Screen.height); }
 	
 	public static Rect FromCenter(Vector2 center, Vector2 size) { return FromCenter(center, size.x, size.y); }
 	public static Rect FromCenter(Vector2 center, float s) { return FromCenter(center, s, s); }
@@ -36,6 +41,13 @@ public static class RectF {
 						r.width, 
 						r.height);
 	}
+	
+	public static Slider Slide(this Rect r, Cardinal direction) {
+		Slider s = new Slider(r);
+		s.Slide(direction);
+		return s;
+	}
+	
 	
 	public static Rect ShrinkTo(this Rect r, Rect t) {
 		if (r.width < t.width && r.height < t.height) { return r; }

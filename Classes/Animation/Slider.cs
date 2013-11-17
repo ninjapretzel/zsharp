@@ -2,18 +2,19 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
+
 public class Slider {
 	public Rect baseArea;
 	
-	public Rect IN { get { return slideIn; } }
-	public Rect In { get { return slideIn; } }
-	public Rect ON { get { return slideIn; } }
-	public Rect On { get { return slideIn; } }
+	public Rect IN { get { return slideIn.Denormalized(); } }
+	public Rect In { get { return slideIn.Denormalized(); } }
+	public Rect ON { get { return slideIn.Denormalized(); } }
+	public Rect On { get { return slideIn.Denormalized(); } }
 	
-	public Rect OUT { get { return slideOut; } }
-	public Rect Out { get { return slideOut; } }
-	public Rect OFF { get { return slideOut; } }
-	public Rect Off { get { return slideOut; } }
+	public Rect OUT { get { return slideOut.Denormalized(); } }
+	public Rect Out { get { return slideOut.Denormalized(); } }
+	public Rect OFF { get { return slideOut.Denormalized(); } }
+	public Rect Off { get { return slideOut.Denormalized(); } }
 	
 	public Rect slideIn;
 	public Rect slideOn { get { return slideIn; } }
@@ -26,12 +27,14 @@ public class Slider {
 	public bool done { get { return slideChange.magnitude < .04f; } }
 	public Vector2 slideChange = Vector2.zero;
 	
+	//Constructor
 	public Slider(Rect area) { baseArea = area; }
+	//Normalized Factory
 	public static Slider Normalized(Rect area) {
-		Rect a = new Rect(area.x * Screen.width, area.y * Screen.height, area.width * Screen.width, area.height * Screen.height);
-		
+		Rect a = new Rect(area);
 		return new Slider(a);
 	}
+	
 	
 	public static Slider Up(Rect area) { Slider s = Normalized(area); s.SlideUp(); return s; }
 	public static Slider Down(Rect area) { Slider s = Normalized(area); s.SlideDown(); return s; }
@@ -52,6 +55,14 @@ public class Slider {
 		slideChange -= slideChange * time * dampening;
 	}
 	
+	public void Slide(Cardinal direction) { Slide(direction, 1); }
+	public void Slide(Cardinal direction, float power) {
+		if (direction == Cardinal.Up) { SlideUp(power); }
+		else if (direction == Cardinal.Down) { SlideDown(power); }
+		else if (direction == Cardinal.Left) { SlideLeft(power); }
+		else if (direction == Cardinal.Right) { SlideRight(power); }
+	}
+	
 	public void Slide(Vector2 v) { Slide(v.x, v.y); }
 	public void Slide(float x, float y) {
 		slideIn = baseArea.Move(-x, -y);
@@ -59,10 +70,15 @@ public class Slider {
 		slideChange = new Vector2(x * baseArea.width, y * baseArea.height);
 	}
 	
-	public void SlideLeft() { Slide(-1, 0); }
-	public void SlideRight() { Slide(1, 0); }
-	public void SlideUp() { Slide(0, -1); }
-	public void SlideDown() { Slide(0, 1); }
+	public void SlideLeft(float f) { Slide(-f, 0f); }
+	public void SlideRight(float f) { Slide(f, 0f); }
+	public void SlideUp(float f) { Slide(0f, -f); }
+	public void SlideDown(float f) { Slide(0f, f); }
+	
+	public void SlideLeft() { SlideLeft(1); }
+	public void SlideRight() { SlideRight(1); }
+	public void SlideUp() { SlideUp(1); }
+	public void SlideDown() { SlideDown(1); }
 	
 	public void Finish() {
 		slideIn.x += slideChange.x;

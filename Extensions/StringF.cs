@@ -28,7 +28,8 @@ public static class StringF {
 	}
 	
 	//treating the float as if it is storing seconds
-	public static string TimeFormat(this float f) {
+	public static string TimeFormat(this float f) { return f.TimeFormat(2); }
+	public static string TimeFormat(this float f, int places) {
 		float hr = Mathf.Floor((f / 3600.0f));
 		float min = Mathf.Floor((f / 60.0f) % 60.0f);
 		
@@ -42,7 +43,7 @@ public static class StringF {
 		
 		s += min + ":";
 		if (sec < 10) { s += "0"; }
-		s += sec.Format(2);
+		s += sec.Format(places);
 		
 		return s;
 	}

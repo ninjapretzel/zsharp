@@ -80,6 +80,7 @@ public static class GUIF {
 		//GUI.skin.label = prevStyle;
 	}
 	
+	public static void Box(Rect area, Texture2D t) { Box(area, new GUIContent(t), defaultPadding); }
 	public static void Box(Rect area, string str) { Box(area, new GUIContent(str), defaultPadding); }
 	public static void Box(Rect area, string str, float padding) { Box(area, new GUIContent(str), padding); }
 	public static void Box(Rect area, string str, Texture2D tex) { Box(area, new GUIContent(str, tex), defaultPadding); }
@@ -90,6 +91,20 @@ public static class GUIF {
 		Label(area, c, padding, GUI.skin.box);
 	}
 	
+	
+	public static void Box(Rect area, Texture2D t, GUIStyle style) { Box(area, new GUIContent(t), defaultPadding, style); }
+	public static void Box(Rect area, Texture2D t, float padding, GUIStyle style) { Box(area, new GUIContent(t), padding, style); }
+	public static void Box(Rect area, string s, GUIStyle style) { Box(area, new GUIContent(s), defaultPadding, style); }
+	public static void Box(Rect area, string s, Texture2D t, GUIStyle style) { Box(area, new GUIContent(s,t), defaultPadding, style); }
+	public static void Box(Rect area, string s, float padding, GUIStyle style) { Box(area, new GUIContent(s), padding, style); }
+	public static void Box(Rect area, string s, Texture2D t, float padding, GUIStyle style) { Box(area, new GUIContent(s,t), padding, style); }
+	public static void Box(Rect area, GUIContent c, GUIStyle style) { Box(area, c, defaultPadding, style); }
+	public static void Box(Rect area, GUIContent c, float padding, GUIStyle style) {
+		GUIStyle oldBox = GUI.skin.box;
+		GUI.skin.box = style;
+		Box(area, c, padding);
+		GUI.skin.box = oldBox;
+	}
 	
 	public static void Background(Rect area, string str, Color background, GUIStyle style) { Background(area, str, background, style, Vector2.zero); }
 	public static void Background(Rect area, string str, Color background, GUIStyle style, Vector2 trim) {
@@ -330,6 +345,42 @@ public static class GUIF {
 		}
 	}
 	
+	///////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+	//Matrix shit
+	
+	public static void ResetProjection() {
+		GUI.matrix = Matrix4x4.identity;
+		
+	}
+	
+	//sets the GUI matrix to map normal screen coords to the normalized target area, at the target rotation
+	public static void Rotate90Left() {
+		GUI.matrix = Matrix4x4.identity;
+		float aspect = ((float)Screen.width) / ((float)Screen.height);
+		
+		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
+		GUIUtility.RotateAroundPivot(-90, center);
+		GUI.matrix *= Matrix4x4.TRS(new Vector3(1/aspect * Screen.height, -1/aspect * Screen.height, 0), Quaternion.identity, Vector3.one);
+		//GUIUtility.ScaleAroundPivot(new Vector2(0, 0), center);
+		
+		
+	}
+	
+	public static void Rotate90Right() {
+		GUI.matrix = Matrix4x4.identity;
+		float aspect = ((float)Screen.width) / ((float)Screen.height);
+		
+		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
+		GUIUtility.RotateAroundPivot(90, center);
+		GUI.matrix *= Matrix4x4.TRS(new Vector3(1/aspect * Screen.height, -1/aspect * Screen.height, 0), Quaternion.identity, Vector3.one);
+		//GUIUtility.ScaleAroundPivot(new Vector2(0, 0), center);
+		
+	}
+	
+	
+	
 	
 	///////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////
@@ -407,6 +458,7 @@ public static class GUIF {
 		}
 		
 	}
+
 		
 	
 	

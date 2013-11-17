@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+
+public enum Cardinal { Up,Left,Down,Right }
+
 public enum UpdateType {
 	Update,
 	LateUpdate,
@@ -19,8 +22,10 @@ public enum CollisionAction {
 	Exit,
 }
 
-public class General {
-	
+public static class General {
+
+	public static Cardinal Flipped(this Cardinal c) { return c.Flip(); }
+	public static Cardinal Flip(this Cardinal c) { return (Cardinal)( ( (int)c + 2) % 4); }
 	
 	
 	
