@@ -117,6 +117,14 @@ public static class GUIF {
 		GUI.color = prev;
 	}
 	
+	public static bool InvisibleButton(Rect area) {
+		GUISkin oldSkin = GUI.skin;
+		GUI.skin = Resources.Load("blank", typeof(GUISkin)) as GUISkin;
+		bool ret = GUI.Button(area, "");
+		GUI.skin = oldSkin;
+		return ret;
+	}
+	
 	public static bool Button(Rect area, string str) { return Button(area, str, defaultPadding, "MenuSelect"); }
 	public static bool Button(Rect area, string str, string sound) { return Button(area, str, defaultPadding, sound); }
 	public static bool Button(Rect area, string str, float padding) { return Button(area, new GUIContent(str), defaultPadding, "MenuSelect"); }
@@ -362,10 +370,20 @@ public static class GUIF {
 		
 		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
 		GUIUtility.RotateAroundPivot(-90, center);
-		GUI.matrix *= Matrix4x4.TRS(new Vector3(1/aspect * Screen.height, -1/aspect * Screen.height, 0), Quaternion.identity, Vector3.one);
+		Vector3 offset = Vector3.zero;
+		offset.x = (Screen.width - Screen.height) / 2;
+		offset.y = -(Screen.width - Screen.height) / 2;
+		GUI.matrix *= Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one);
+	}
+	
+	public static void Rotate90Left(Vector3 offset) {
+		GUI.matrix = Matrix4x4.identity;
+		float aspect = ((float)Screen.width) / ((float)Screen.height);
+		
+		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
+		GUIUtility.RotateAroundPivot(-90, center);
+		GUI.matrix *= Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one);
 		//GUIUtility.ScaleAroundPivot(new Vector2(0, 0), center);
-		
-		
 	}
 	
 	public static void Rotate90Right() {
@@ -374,12 +392,22 @@ public static class GUIF {
 		
 		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
 		GUIUtility.RotateAroundPivot(90, center);
-		GUI.matrix *= Matrix4x4.TRS(new Vector3(1/aspect * Screen.height, -1/aspect * Screen.height, 0), Quaternion.identity, Vector3.one);
-		//GUIUtility.ScaleAroundPivot(new Vector2(0, 0), center);
+		Vector3 offset = Vector3.zero;
+		offset.x = (Screen.width - Screen.height) / 2;
+		offset.y = -(Screen.width - Screen.height) / 2;
+		GUI.matrix *= Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one);
 		
 	}
 	
-	
+	public static void Rotate90Right(Vector3 offset) {
+		GUI.matrix = Matrix4x4.identity;
+		float aspect = ((float)Screen.width) / ((float)Screen.height);
+		
+		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
+		GUIUtility.RotateAroundPivot(90, center);
+		GUI.matrix *= Matrix4x4.TRS(offset, Quaternion.identity, Vector3.one);
+		//GUIUtility.ScaleAroundPivot(new Vector2(0, 0), center);
+	}
 	
 	
 	///////////////////////////////////////////////////////////////////////////////

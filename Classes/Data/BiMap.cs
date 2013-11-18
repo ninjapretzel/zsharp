@@ -3,8 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
+//Map from T, T that 'swings both ways'.
+//Used in the quiz games to weed out duplicate answers
 public class BiMap<T> {
-	
 	public List<T> listA;
 	public List<T> listB;
 	
@@ -35,6 +36,16 @@ public class BiMap<T> {
 	public List<T> GetKeyList() {
 		List<T> c = new List<T>();
 		foreach (T t in listA) {
+			if (!c.Contains(t)) {
+				c.Add(t);
+			}
+		}
+		return c;
+	}
+	
+	public List<T> GetValueList() {
+		List<T> c = new List<T>();
+		foreach (T t in listB) {
 			if (!c.Contains(t)) {
 				c.Add(t);
 			}

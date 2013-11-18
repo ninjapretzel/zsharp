@@ -11,10 +11,21 @@ public class Slider {
 	public Rect ON { get { return slideIn.Denormalized(); } }
 	public Rect On { get { return slideIn.Denormalized(); } }
 	
+	public Rect ON90 { get { return slideIn.Scaled(ScreenF.rot90size); } }
+	public Rect On90 { get { return slideIn.Scaled(ScreenF.rot90size); } }
+	public Rect IN90 { get { return slideIn.Scaled(ScreenF.rot90size); } }
+	public Rect In90 { get { return slideIn.Scaled(ScreenF.rot90size); } }
+	
 	public Rect OUT { get { return slideOut.Denormalized(); } }
 	public Rect Out { get { return slideOut.Denormalized(); } }
 	public Rect OFF { get { return slideOut.Denormalized(); } }
 	public Rect Off { get { return slideOut.Denormalized(); } }
+	
+	public Rect OUT90 { get { return slideOut.Scaled(ScreenF.rot90size); } }
+	public Rect Out90 { get { return slideOut.Scaled(ScreenF.rot90size); } }
+	public Rect OFF90 { get { return slideOut.Scaled(ScreenF.rot90size); } }
+	public Rect Off90 { get { return slideOut.Scaled(ScreenF.rot90size); } }
+	
 	
 	public Rect slideIn;
 	public Rect slideOn { get { return slideIn; } }
@@ -36,11 +47,15 @@ public class Slider {
 	}
 	
 	
-	public static Slider Up(Rect area) { Slider s = Normalized(area); s.SlideUp(); return s; }
-	public static Slider Down(Rect area) { Slider s = Normalized(area); s.SlideDown(); return s; }
-	public static Slider Left(Rect area) { Slider s = Normalized(area); s.SlideLeft(); return s; }
-	public static Slider Right(Rect area) { Slider s = Normalized(area); s.SlideRight(); return s; }
+	public static Slider Up(Rect area) { return Up(area, 1); }
+	public static Slider Down(Rect area) { return Down(area, 1); }
+	public static Slider Left(Rect area) { return Left(area, 1); }
+	public static Slider Right(Rect area) { return Right(area, 1); }
 	
+	public static Slider Up(Rect area, float power) { Slider s = Normalized(area); s.SlideUp(power); return s; }
+	public static Slider Down(Rect area, float power) { Slider s = Normalized(area); s.SlideDown(power); return s; }
+	public static Slider Left(Rect area, float power) { Slider s = Normalized(area); s.SlideLeft(power); return s; }
+	public static Slider Right(Rect area, float power) { Slider s = Normalized(area); s.SlideRight(power); return s; }
 	
 	public void Update() { Update(Time.deltaTime); }
 	public void FixedUpdate() { Update(.02f); }

@@ -40,7 +40,7 @@ public class GUISliderMessage : MonoBehaviour {
 	}
 	
 	void OnGUI() {
-		GUI.depth = -1;
+		GUI.depth = -100000;
 		
 		if (dismissed) { Draw(slider.OUT); }
 		else { Draw(slider.IN); }
@@ -48,6 +48,7 @@ public class GUISliderMessage : MonoBehaviour {
 	}
 	
 	void Draw(Rect a) {
+		
 		GUI.skin = skin;
 		GUI.skin.FontSize(fontSize);
 		
@@ -55,13 +56,15 @@ public class GUISliderMessage : MonoBehaviour {
 		if (tex != null) { c = new GUIContent(message); }
 		else { c = new GUIContent(message, tex); }
 		
+		
 		GUIF.Box(a, c);
 		
-		if (GUIF.Button(a.BottomCenter(.3f, .2f), "Ok")) { 
+		if (GUIF.Button(a.BottomCenter(.3f, .2f).MoveUp(.1f), "Ok")) {
 			dismissed = true; 
 			slider.Slide(direction.Flip(), slidePower);
 		}
 		
+		GUIF.InvisibleButton(ScreenF.all);
 	}
 	
 	

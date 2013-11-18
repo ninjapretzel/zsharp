@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Collections;
 
 public static class ScreenF {
+	public static Vector2 size { get { return new Vector2(width, height); } }
+	public static Vector2 rot90size { get { return new Vector2(height, width); } }
+	
+	
 	public static float width { get { return Screen.width; } }
 	public static float height { get { return Screen.height; } }
 	public static float w { get { return width; } }
