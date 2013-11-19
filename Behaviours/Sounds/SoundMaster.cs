@@ -77,9 +77,23 @@ public class SoundMaster : MonoBehaviour {
 	
 	public static bool Has(string sc) { return sounds.ContainsKey(sc); }
 	
-	public static void Add(Sound sc) {
+	public static bool Load(string sc) { 
+		AudioClip ac = Resources.Load(sc, typeof(AudioClip)) as AudioClip;
+		return (ac != null);
+	}
+	
+	public static bool Add(string sc) {
+		if (Has(sc)) { return true; }
+		AudioClip ac = Resources.Load(sc, typeof(AudioClip)) as AudioClip;
+		if (ac != null) { return Add(new Sound(sc, ac)); }
+		return false;
+		
+	}
+	
+	public static bool Add(Sound sc) {
 		if (sounds.ContainsKey(sc.name)) { sounds[sc.name].AddClips(sc.clips); }
 		else { sounds.Add(sc.name, sc); }
+		return true;
 	}
 	
 }
