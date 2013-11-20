@@ -13,7 +13,8 @@ public static class ColorF {
 	public static Color cyan(float f, float a = 1) { return new Color(0, f, f, a); }
 
 	
-	public static Color Blend(this Color a, Color b, float f = .5f) { return Color.Lerp(a, b, f); }
+	public static Color Blend(this Color a, Color b) { return Color.Lerp(a, b, .5f); }
+	public static Color Blend(this Color a, Color b, float f) { return Color.Lerp(a, b, f); }
 	
 	
 	public static Color MultRGB(this Color c, float f) { return new Color(c.r * f, c.g * f, c.b * f, c.a); }

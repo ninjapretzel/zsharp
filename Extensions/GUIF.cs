@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 
 public static class GUIF {
-	
+	public static GUISkin blankSkin { get { return Resources.Load("blank", typeof(GUISkin)) as GUISkin; } }
 	public static float defaultPadding = 1.0f;
 	
 	public static List<SelectableControl> controls = new List<SelectableControl>();
@@ -119,7 +119,7 @@ public static class GUIF {
 	
 	public static bool InvisibleButton(Rect area) {
 		GUISkin oldSkin = GUI.skin;
-		GUI.skin = Resources.Load("blank", typeof(GUISkin)) as GUISkin;
+		GUI.skin = blankSkin;
 		bool ret = GUI.Button(area, "");
 		GUI.skin = oldSkin;
 		return ret;
