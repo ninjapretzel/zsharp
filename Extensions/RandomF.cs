@@ -30,33 +30,16 @@ public static class RandomF {
 		}
 	}
 	
-	public static int Range(int a, int b) {
-		return (a + (int)((float)(b-a) * value));
-	}
+	public static int Range(int a, int b) { return (a + (int)((float)(b-a) * value)); }
+	public static float Range(float a, float b) { return (a + (b-a) * value); }
 	
-	public static float Range(float a, float b) {
-		return (a + (b-a) * value);
-	}
+	public static float value { get { return Random.value * .9999999999f; } }
+	public static float unit { get { return -1 + (2 * RandomF.value); } }
+	public static float normal { get { return (value + value + value) / 3.0f; } }
 	
-	public static float value {
-		get { return Random.value * .9999999999f; }
-	}
-	
-	public static float normal {
-		get { return (value + value + value) / 3.0f; }
-	}
-	
-	public static char lowercase {
-		get { return (char)((int)'a'+(int)(value * 26)); }
-	}
-	
-	public static char uppercase {
-		get { return (char)((int)'A'+(int)(value * 26)); }
-	}
-	
-	public static char numeric {
-		get { return (char)((int)'0'+(int)(value * 10)); }
-	}
+	public static char lowercase { get { return (char)((int)'a'+(int)(value * 26)); } }
+	public static char uppercase { get { return (char)((int)'A'+(int)(value * 26)); } }
+	public static char numeric { get { return (char)((int)'0'+(int)(value * 10)); } }
 	
 	public static int WeightedChoose(float[] weights) {
 		float total = 0;
