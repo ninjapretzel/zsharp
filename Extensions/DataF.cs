@@ -58,7 +58,7 @@ public static class DataF {
 		if (file == null) { 
 			Debug.Log("Tried to load " + filename + ".txt. File does not exist");
 			Debug.Log("If the file is " + filename + ".csv - Fix file extension to .txt");
-			return null;
+			return "";
 		}
 		return file.text.Replace("\t", "");
 	}

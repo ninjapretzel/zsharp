@@ -48,14 +48,14 @@ public class Desk : Dictionary<string, Table> {
 		
 	}
 	
-	
-	public void LoadCSV(string csv) {
+	public void LoadCSV(string csv) { LoadCSV(csv, ','); }
+	public void LoadCSV(string csv, char delim) {
 		Clear();
 		string[] lines = csv.Split('\n');
 		
 		for (int i = 0; i < lines.Length; i++) {
 			if (lines[i][0] == '#') { continue; }
-			string[] content = lines[i].Split(',');
+			string[] content = lines[i].Split(delim);
 			string key = content[0];
 			this[key] = new Table();
 			for (int j = 1; j < content.Length; j += 2) {

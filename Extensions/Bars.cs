@@ -2,9 +2,19 @@ using UnityEngine;
 using System.Collections;
 
 public static class Bars {
+	public static int defaultPadding = 2;
+	
 	public static Texture2D graphic;
 	public static Texture2D vertical;
 	
+	static Bars() {
+		graphic = Resources.Load("pixel", typeof(Texture2D)) as Texture2D;
+		vertical = Resources.Load("pixel", typeof(Texture2D)) as Texture2D;
+		
+	}
+	
+	public static void Draw(Rect area, float pp, Color tint) { Draw(area, pp, tint, Color.black, defaultPadding); }
+	public static void Draw(Rect area, float pp, Color tint, Color back) { Draw(area, pp, tint, back, defaultPadding); }
 	public static void Draw(Rect area, float pp, Color tint, Color back, int padding) {
 		Rect brush = area.Trim(-padding);
 		float p = Mathf.Clamp01(pp);
