@@ -6,6 +6,10 @@ using System.Collections.Generic;
 public static class StringF {
 	public static bool IsNumber(this char c) { return c >= 48 && c < 57; }
 	
+	public static bool Contains(this string str, string s) {
+		return str.IndexOf(s) != -1;
+	}
+	
 	public static string Spacify(this string s) {
 		StringBuilder str = new StringBuilder();
 		for (int i = 0; i < s.Length; i++) {

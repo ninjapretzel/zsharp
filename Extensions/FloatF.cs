@@ -11,6 +11,14 @@ public static class FloatF {
 	
 	public static float Abs(this float f) { return Mathf.Abs(f); }
 	
+	public static float Outside(this float val, float a, float b) {
+		float min = Mathf.Min(a, b);
+		float max = Mathf.Max(a, b);
+		if (val > min && val < max) { return 0; }
+		if (val > max) { return val - max; }
+		return val - min;
+	}
+	
 	public static float CosInterp(float a, float b, float x) {
 		float ft = x * 3.1415927f;
 		float f = (1 - Mathf.Cos(ft)) * .5f;
