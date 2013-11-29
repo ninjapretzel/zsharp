@@ -8,21 +8,23 @@ public static class UnityF {
 		GameObject.Destroy(c.gameObject);
 	}
 	
-	public static Component Require<T>(this Component c) where T : Component {
+	public static T Require<T>(this Component c) where T : Component {
 		Component check = c.GetComponent<T>();
-		return check != null ? check : c.gameObject.AddComponent<T>();
+		return (check != null ? check : c.gameObject.AddComponent<T>()) as T;
 		
 	}
 	
-	public static Component GetComponentAbove<T>(this Component c) where T : Component {
+	public static T GetComponentAbove<T>(this Component c) where T : Component {
 		Transform test = c.transform;
 		Component check;
 		while (test.parent != null) {
 			test = test.parent;
 			check = test.GetComponent<T>();
-			if (check) { return check; }
+			if (check) { return check as T; }
 		}
 		return null;
 	}
+	
+	
 
 }

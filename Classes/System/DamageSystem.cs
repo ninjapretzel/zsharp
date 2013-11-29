@@ -5,6 +5,10 @@ using System.Collections;
 [System.Serializable]
 public class Attack : Table {
 	
+	public Attack() {
+		Add("slash", 10);
+	}
+	
 	public float total {
 		get {
 			return this.Sum();
@@ -29,10 +33,9 @@ public static class HealthModList {
 	
 	static HealthModList() {
 		mods = new Desk();
-		string str = DataF.Load("healthMods");
-		if (str != "") { 
-			mods.LoadCSV(str);
-		}
+		string str = DataF.Load("HealthMods");
+		if (str == "") { str = DataF.Load("BaseHealthMods"); }
+		mods.LoadCSV(str);
 		
 	}
 	

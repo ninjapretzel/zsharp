@@ -1,0 +1,3 @@
+Health,slash,1,pierce,1,impact,1,fire,2,ice,1,elec,1,toxic,1
+Shield,slash,1,pierce,1,impact,2,fire,1,ice,2,elec,2,toxic,.5
+Armor,slash,.5,pierce,1,impact,.5,fire,.5,ice,.5,elec,.5,toxic,.5

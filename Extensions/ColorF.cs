@@ -28,4 +28,9 @@ public static class ColorF {
 		return col;
 	}
 	
+	public static string ToString(this Color c, char delim) { 
+		return "" + c.r + delim + c.g + delim + c.b + delim + c.a;
+	}
+	
+	
 }

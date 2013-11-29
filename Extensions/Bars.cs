@@ -13,6 +13,7 @@ public static class Bars {
 		
 	}
 	
+	public static void Draw(Rect area, float pp) { Draw(area, pp, Color.white, Color.black, defaultPadding); }
 	public static void Draw(Rect area, float pp, Color tint) { Draw(area, pp, tint, Color.black, defaultPadding); }
 	public static void Draw(Rect area, float pp, Color tint, Color back) { Draw(area, pp, tint, back, defaultPadding); }
 	public static void Draw(Rect area, float pp, Color tint, Color back, int padding) {
@@ -54,6 +55,10 @@ public static class Bars {
 		GUI.DrawTexture(brush, g);
 	}
 	
+	
+	public static void Draw(Rect area, Rect repeat, float pp) { Draw(area, repeat, pp, Color.white, Color.black, defaultPadding); }
+	public static void Draw(Rect area, Rect repeat, float pp, Color tint) { Draw(area, repeat, pp, tint, Color.black, defaultPadding); }
+	public static void Draw(Rect area, Rect repeat, float pp, Color tint, Color back) { Draw(area, repeat, pp, tint, back, defaultPadding); }
 	public static void Draw(Rect area, Rect repeat, float pp, Color tint, Color back, int padding) {
 		Rect brush = area.Pad(padding);
 		float p = Mathf.Clamp01(pp);
@@ -84,6 +89,28 @@ public static class Bars {
 		GUI.DrawTextureWithTexCoords(filled, g, filledReps);
 		GUI.color = back;
 		GUI.DrawTextureWithTexCoords(empty, g, emptyReps);
+	}
+	
+	
+	
+	public static void Draw(Rect area, Vector2 iconRepeat, float pp) { Draw(area, iconRepeat, pp, Color.white, Color.black); }
+	public static void Draw(Rect area, Vector2 iconRepeat, float pp, Color tint) { Draw(area, iconRepeat, pp, tint, Color.black); }
+	public static void Draw(Rect area, Vector2 iconRepeat, float pp, Color tint, Color back) {
+		float numRows = Mathf.Floor(iconRepeat.y);
+		Texture2D g = graphic;
+		Rect row = new Rect(area.x, area.y, area.width, area.height / numRows);
+		Rect repeat = new Rect(0, 0, iconRepeat.x, 1);
+		
+		
+		for (int i = (int)numRows-1; i >= 0; i--) {
+			float p = (pp*numRows) - i;
+			Draw(row, repeat, p, tint, back, 0);
+			
+			row = row.MoveDown();
+			
+			
+		}
+		
 	}
 	
 	

@@ -155,8 +155,8 @@ public class Table : Dictionary<string, float> {
 	}
 	
 	public new void Add(string s, float f) { this[s] = f; }
-	public void Add(string s) { this[s] = 0; }
 	public void Add(float f, string s) { this[s] = f; }
+	public void Add(string s) { this[s] = 0; }
 	
 	public void Add(float f) { foreach (string s in Keys) { this[s] += f; } }
 	public void Add(Table t) { foreach (string s in t.Keys) { this[s] += t[s]; } }
@@ -181,23 +181,25 @@ public class Table : Dictionary<string, float> {
 		}
 	}
 	
-	public override string ToString() {
+	public override string ToString() { return ToString(','); }
+	public string ToString(char delim) {
 		StringBuilder str = new StringBuilder("#Formatted Table as .csv:");
 		foreach (string key in Keys) {
 			str.Append("\n");
 			str.Append(key);
-			str.Append(",");
+			str.Append(delim);
 			str.Append(this[key]);
 		}
 		return str.ToString();
 	}
 	
-	public string ToLine() {
+	public string ToLine() { return ToLine(','); }
+	public string ToLine(char delim) {
 		StringBuilder str = new StringBuilder();
 		foreach (string key in Keys) {
-			if (str.Length > 0) { str.Append(","); }
+			if (str.Length > 0) { str.Append(delim); }
 			str.Append(key);
-			str.Append(",");
+			str.Append(delim);
 			str.Append(this[key]);
 		}
 		return str.ToString();
