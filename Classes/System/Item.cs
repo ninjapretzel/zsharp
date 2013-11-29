@@ -10,7 +10,7 @@ public class Item {
 	public string type = "Loot";
 	public string iconName = "";
 	public Texture2D iconLoaded;
-	public Color color;
+	public Color color = Color.white;
 	public Table stats;
 	public Table properties;
 	
@@ -92,13 +92,37 @@ public class Item {
 		str.Append(type + delim);
 		str.Append(iconName + delim);
 		str.Append(color.ToString(',') + delim);
-		str.Append(stats.ToString(',') + delim);
-		str.Append(properties.ToString(',') + delim);
+		str.Append(stats.ToLine(',') + delim);
+		str.Append(properties.ToLine(',') + delim);
 		return str.ToString();
 	}
 	
-	public void Load(string s, char delim) {
+	public void LoadFromString(string s) { LoadFromString(s, '|'); }
+	public void LoadFromString(string s, char delim) {
 		string[] content = s.Split(delim);
+		if (content.Length < 8) {
+			Debug.LogWarning("Tried to load a malformed string as an item.\nDelim: " + delim + "\n" + s);
+			return;
+		}
+		
+		name = 			content[0];
+		baseName = 		content[1];
+		desc = 			content[2];
+		type = 			content[3];
+		iconName = 		content[4];
+		color = 		content[5].ParseColor(',');
+		stats = 		content[6].ParseTable(',');
+		properties =	content[7].ParseTable(',');
+		
+	}
+	
+	public void Save(string key) {
+		PlayerPrefs.SetString(key, ToString());
+	}
+	public void Load(string key) {
+		if (PlayerPrefs.HasKey(key)) {
+			LoadFromString(PlayerPrefs.GetString(key));
+		}
 	}
 	
 	

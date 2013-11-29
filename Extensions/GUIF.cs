@@ -366,7 +366,6 @@ public static class GUIF {
 	//sets the GUI matrix to map normal screen coords to the normalized target area, at the target rotation
 	public static void Rotate90Left() {
 		GUI.matrix = Matrix4x4.identity;
-		float aspect = ((float)Screen.width) / ((float)Screen.height);
 		
 		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
 		GUIUtility.RotateAroundPivot(-90, center);
@@ -378,7 +377,6 @@ public static class GUIF {
 	
 	public static void Rotate90Left(Vector3 offset) {
 		GUI.matrix = Matrix4x4.identity;
-		float aspect = ((float)Screen.width) / ((float)Screen.height);
 		
 		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
 		GUIUtility.RotateAroundPivot(-90, center);
@@ -388,7 +386,6 @@ public static class GUIF {
 	
 	public static void Rotate90Right() {
 		GUI.matrix = Matrix4x4.identity;
-		float aspect = ((float)Screen.width) / ((float)Screen.height);
 		
 		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
 		GUIUtility.RotateAroundPivot(90, center);
@@ -401,7 +398,6 @@ public static class GUIF {
 	
 	public static void Rotate90Right(Vector3 offset) {
 		GUI.matrix = Matrix4x4.identity;
-		float aspect = ((float)Screen.width) / ((float)Screen.height);
 		
 		Vector2 center = new Vector2(Screen.width/2, Screen.height/2);
 		GUIUtility.RotateAroundPivot(90, center);

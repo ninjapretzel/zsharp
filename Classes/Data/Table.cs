@@ -52,10 +52,27 @@ public class Table : Dictionary<string, float> {
 
 	
 	public void Init() {
+		SetInternalToExternal();
+	}
+	
+	public void SetInternalToExternal() {
 		Clear();
 		for (int i = 0; i < Mathf.Min(strings.Length, floats.Length); i++) {
 			this[strings[i]] = floats[i];
 		}
+	}
+	
+	public void SetExternalToInternal() {
+		strings = new string[Count];
+		floats = new float[Count];
+		
+		int i = 0;
+		foreach (string s in Keys) {
+			strings[i] = s;
+			floats[i] = this[s];
+			i++;
+		}
+		
 	}
 	
 	public Table Clone() {
@@ -202,6 +219,7 @@ public class Table : Dictionary<string, float> {
 			str.Append(delim);
 			str.Append(this[key]);
 		}
+		//Debug.Log("ToLine: [" + str.ToString() + "]");
 		return str.ToString();
 	}
 	
@@ -217,6 +235,10 @@ public class Table : Dictionary<string, float> {
 	public void LoadLine(string line, char separator) {
 		Clear();
 		string[] content = line.Split(separator);
+		if (line.Length == 0) { 
+			Debug.LogWarning("Table.LoadLine passed blank string, Table cleared.");
+			return;
+		}
 		
 		for (int i = 0; i < content.Length; i += 2) {
 			this[content[i]] = float.Parse(content[i+1]);
@@ -230,6 +252,7 @@ public class Table : Dictionary<string, float> {
 		tb.LoadCSV(csv, separator);
 		return tb;
 	}
+	
 	public void LoadCSV(string csv) { LoadCSV(csv, ','); }
 	public void LoadCSV(string csv, char separator) {
 		Clear();

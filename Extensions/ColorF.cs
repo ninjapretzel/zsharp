@@ -32,5 +32,22 @@ public static class ColorF {
 		return "" + c.r + delim + c.g + delim + c.b + delim + c.a;
 	}
 	
+	public static Color FromString(string s) { return FromString(s, ','); }
+	public static Color FromString(string s, char delim) {
+		string[] strs = s.Split(delim);
+		Color c = Color.white;
+		if (strs.Length < 3) {
+			Debug.LogWarning("Tried to load color from malformed string.\nDelim:" + delim + "\n" + s); 
+			return c; 
+		}
+		c.r = strs[0].ParseFloat();
+		c.g = strs[1].ParseFloat();
+		c.b = strs[2].ParseFloat();
+		if (strs.Length >= 4) { c.a = strs[3].ParseFloat(); }
+		return c;
+	}
+	
+	
+	
 	
 }

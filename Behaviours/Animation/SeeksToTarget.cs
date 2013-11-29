@@ -9,7 +9,7 @@ public class SeeksToTarget : MonoBehaviour {
 	public float speed = 200;
 	public float turning = 150;
 	
-	private float curTime = 0;
+	//private float curTime = 0;
 	public float maxTime = 5;
 	
 	public bool diesOnCollision = false;

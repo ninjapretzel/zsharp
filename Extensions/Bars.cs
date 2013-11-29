@@ -97,7 +97,6 @@ public static class Bars {
 	public static void Draw(Rect area, Vector2 iconRepeat, float pp, Color tint) { Draw(area, iconRepeat, pp, tint, Color.black); }
 	public static void Draw(Rect area, Vector2 iconRepeat, float pp, Color tint, Color back) {
 		float numRows = Mathf.Floor(iconRepeat.y);
-		Texture2D g = graphic;
 		Rect row = new Rect(area.x, area.y, area.width, area.height / numRows);
 		Rect repeat = new Rect(0, 0, iconRepeat.x, 1);
 		

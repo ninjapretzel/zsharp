@@ -50,7 +50,7 @@ public class SimulatedButton : MonoBehaviour {
 			held = false;
 			released = false;
 			GUI.color = color;
-			bool hadGoodTouch = false;
+			//bool hadGoodTouch = false;
 			
 			foreach (Touch t in Input.touches) {
 				Vector2 realTouchPosition = t.position;
@@ -58,7 +58,7 @@ public class SimulatedButton : MonoBehaviour {
 				Vector2 difference = pixelCenter - realTouchPosition;
 				
 				if (difference.magnitude < pixelSize / 2.0f) {
-					hadGoodTouch = true;
+					//hadGoodTouch = true;
 					if (t.phase == TouchPhase.Canceled) { continue; }
 					if (t.phase == TouchPhase.Began) {
 						if (hitTime < doubleTapTime) { doubleTapped = true; }

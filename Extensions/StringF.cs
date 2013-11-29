@@ -63,6 +63,14 @@ public static class StringF {
 		return str;
 	}
 	
+	
+	public static float ParseFloat(this string s) { return float.Parse(s); }
+	public static int ParseInt(this string s) { return int.Parse(s); }
+	public static Color ParseColor(this string s) { return ColorF.FromString(s); }
+	public static Color ParseColor(this string s, char delim) { return ColorF.FromString(s, delim); }
+	public static Table ParseTable(this string s) { return Table.CreateFromLine(s); }
+	public static Table ParseTable(this string s, char delim) { return Table.CreateFromLine(s, delim); }
+	
 	public static System.DateTime ParseDate(this string s) {
 		char[] splits = new char[3];
 		splits[0] = '/';
