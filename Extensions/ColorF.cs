@@ -2,7 +2,18 @@
 using System.Collections;
 
 public static class ColorF {
-
+	public static Color Lerp(this Color[] colors, float position) {
+		if (colors.Length == 0) { return Color.white; }
+		else if (colors.Length == 1) { return colors[0]; }
+		
+		
+		int segments = colors.Length-1;
+		int segment = (int)(0f + RandomF.value * ((float)segments));
+		float f = (position * segments) % 1f;
+		
+		return Color.Lerp(colors[segment], colors[segment+1], f);
+	}
+	
 	public static Color white(float f, float a = 1) { return new Color(f, f, f, a); }
 	public static Color gray(float f, float a = 1) { return new Color(f, f, f, a); }
 	public static Color red(float f, float a = 1) { return new Color(f, 0, 0, a); }

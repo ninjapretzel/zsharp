@@ -6,10 +6,10 @@ public class SeeksToTarget : MonoBehaviour {
 	
 	public Vector3 velocity;
 	
-	public float speed = 200;
+	public float speed = 2;
 	public float turning = 150;
 	
-	//private float curTime = 0;
+	public float timeout = 0;
 	public float maxTime = 5;
 	
 	public bool diesOnCollision = false;
@@ -20,6 +20,17 @@ public class SeeksToTarget : MonoBehaviour {
 	}
 	
 	void Update() {
+		timeout += Time.deltaTime;
+		if (timeout > maxTime) { Destroy(gameObject); }
+		
+		if (target) {
+			Vector3 direction = target.position - transform.position;
+			float dturning = turning * Mathf.Deg2Rad * Time.deltaTime;
+			velocity = Vector3.RotateTowards(velocity, direction, dturning, 0);
+		}
+		
+		transform.position += velocity * Time.deltaTime;
+		
 		
 	}
 	

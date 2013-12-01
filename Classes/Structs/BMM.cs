@@ -13,7 +13,14 @@ public class BMM {
 	public float value {
 		get {
 			if (!randomize) { return 1.0f; }
-			return Random.Range(min, max);
+			return RandomF.Range(min, max);
+		}
+	}
+	
+	public float normal {
+		get {
+			if (!randomize) { return 1.0f; }
+			return RandomF.Normal(min, max);
 		}
 	}
 	 

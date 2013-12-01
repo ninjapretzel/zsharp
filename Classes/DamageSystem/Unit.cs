@@ -7,6 +7,8 @@ public class Unit : MonoBehaviour {
 	public Weapon weapon;
 	public string team = "Enemy";
 	
+	public Transform deadEffect;
+	
 	public bool triggerHeld = false;
 	public bool triggerDown = false;
 	public bool startReload = false;
@@ -35,6 +37,14 @@ public class Unit : MonoBehaviour {
 			startReload = false;
 			weapon.StartReload();
 		}
+	}
+	
+	
+	void Die() {
+		if (deadEffect != null) {
+			Instantiate(deadEffect, transform.position, transform.rotation);
+		}
+		Destroy(gameObject);
 	}
 	
 }

@@ -4,6 +4,7 @@ using System.Collections;
 public class RandomScale : MonoBehaviour {
 	public Vector3 min = Vector3.one;
 	public Vector3 max = Vector3.one;
+	public bool uniformXY;
 	public bool uniformXZ;
 	
 	public bool onAwake = false;
@@ -25,7 +26,9 @@ public class RandomScale : MonoBehaviour {
 		Vector3 scales = Vector3.zero;
 		
 		scales.x = Random.Range(min.x, max.x);
-		scales.y = Random.Range(min.y, max.y);
+		
+		if (uniformXY) { scales.y = scales.x; }
+		else { scales.y = Random.Range(min.y, max.y); }
 		
 		if (uniformXZ) { scales.z = scales.x; }
 		else { scales.z = Random.Range(min.z, max.z); }

@@ -41,6 +41,12 @@ public static class RandomF {
 	public static char uppercase { get { return (char)((int)'A'+(int)(value * 26)); } }
 	public static char numeric { get { return (char)((int)'0'+(int)(value * 10)); } }
 	
+	public static float Normal(float min, float max) { 
+		float distance = max - min;
+		float center = min + distance;
+		return center + distance * normal;
+	}
+	
 	public static int WeightedChoose(float[] weights) {
 		float total = 0;
 		int i;

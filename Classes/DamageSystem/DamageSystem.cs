@@ -104,7 +104,7 @@ public class Health {
 	
 	public float Hit(string s, float a) {
 		float mod = 1;
-		if (mods.ContainsKey(s)) { mod = mods[s]; }
+		if (mods != null && mods.ContainsKey(s)) { mod = mods[s]; }
 		return Hit(a * mod);
 	}
 	

@@ -53,7 +53,7 @@ public class GUISliderMessage : MonoBehaviour {
 		GUI.skin.FontSize(fontSize);
 		
 		GUIContent c;
-		if (tex != null) { c = new GUIContent(message); }
+		if (tex == null) { c = new GUIContent(message); }
 		else { c = new GUIContent(message, tex); }
 		
 		

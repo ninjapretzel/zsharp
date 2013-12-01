@@ -1,13 +1,17 @@
 using UnityEngine;
 using System.Collections;
 
-public class SpawnsStuffInAnArea : MonoBehaviour {
+public class SpawnsStuffInAnAreaOverTime : MonoBehaviour {
 	public Transform[] things;
 	public Bounds area;
-	public int min = 5;
-	public int max = 10;
+	public float minTime = 1;
+	public float maxTime = 1.5f;
+	public int minNum = 5;
+	public int maxNum = 10;
 	public Vector3 orientation = Vector3.zero;
 	
+	public float timeout;
+	public float spawnTime;
 	public bool makePushable = false;
 	
 	public RandomType randomness = RandomType.Normal;
@@ -15,6 +19,19 @@ public class SpawnsStuffInAnArea : MonoBehaviour {
 	public const int SEEDSCALE = 1230123414;
 	
 	void Start() {
+		spawnTime = RandomF.Range(minTime, maxTime);
+	}
+	
+	void Update() {
+		timeout += Time.deltaTime;
+		if (timeout >= spawnTime) {
+			timeout -= spawnTime;
+			spawnTime = RandomF.Range(minTime, maxTime);
+			Spawn();
+		}
+	}
+	
+	void Spawn() {
 		if (randomness == RandomType.Seeded) {
 			RandomF.Push(seed++);
 		} else if (randomness == RandomType.Perlin) {
@@ -23,8 +40,7 @@ public class SpawnsStuffInAnArea : MonoBehaviour {
 		}
 		
 		
-		int num = Random.Range(min, max);
-		//Debug.Log(num + " : " + min + "-" + max);
+		int num = Random.Range(minNum, maxNum);
 		
 		for (int i = 0; i < num; i++) {
 			Transform obj = Instantiate(things[(int)(things.Length * Random.value * .99999f)], transform.position + area.RandomInside(), Quaternion.identity) as Transform;
@@ -38,12 +54,10 @@ public class SpawnsStuffInAnArea : MonoBehaviour {
 		if (randomness != RandomType.Normal) { 
 			RandomF.Pop();
 		}
-		Destroy(this);
 	}
 	
 	void OnDrawGizmosSelected() {
-		if (Application.isPlaying) { return; }
-		Color c = Color.red;
+		Color c = Color.yellow;
 		c.a = .1f;
 		Gizmos.color = c;
 		Gizmos.DrawCube(transform.position + area.center, area.size);

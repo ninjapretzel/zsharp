@@ -51,11 +51,16 @@ public class LerpsToTarget : MonoBehaviour {
 			if (lerpToRotation) {
 				transform.rotation = Quaternion.Lerp(transform.rotation, target.rotation, rotateSpeed * time);
 			}
+		} else {
+			transform.position = Vector3.Lerp(transform.position, offset, moveSpeed * Time.deltaTime);
+			
 		}
+		
 	}
 	
 	
 	public void Finish() {
-		transform.position = target.position + offset;
+		if (target != null) { transform.position = target.position + offset; }
+		else { transform.position = offset; }
 	}
 }

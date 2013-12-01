@@ -12,7 +12,7 @@ public class Weapon {
 
 	[System.Serializable]
 	public class Settings {
-		public Transform projectile;
+		public DealsDamage projectile;
 		
 		public float pellets = 1;
 		public float spread = 3;
@@ -34,6 +34,7 @@ public class Weapon {
 		public float maxAmmo = 30;
 		public float maxExtra = 180;
 		
+		public bool uniform = false;
 		
 	}
 	
@@ -41,7 +42,7 @@ public class Weapon {
 	public Settings settings;
 	public Transform holder;
 	//Wrapper accessors
-	public Transform projectile { get { return settings.projectile; } }
+	public DealsDamage projectile { get { return settings.projectile; } }
 	public float pellets { get { return settings.pellets; } }
 	public float kickback { get { return Random.Range(settings.minRecoil, settings.maxRecoil); } }
 	public float recoilAbsorb { get { return settings.recoilAbsorb; } }
@@ -55,6 +56,8 @@ public class Weapon {
 	public float ammoUse { get { return settings.ammoUse; } }
 	public float maxAmmo { get { return settings.maxAmmo; } }
 	public float maxExtra { get { return settings.maxExtra; } }
+	
+	public bool uniform { get { return settings.uniform; } }
 	
 	public float ammo = 30;
 	public float extraAmmo = 180;
@@ -77,6 +80,7 @@ public class Weapon {
 			if (syncedDamages) { return calcedDamages; }
 			
 			Attack dmg = new Attack();
+			dmg.Clear();
 			foreach (Damage s in damages) { dmg.Add(s.type, s.amount); }
 			calcedDamages = dmg;
 			syncedDamages = true;
@@ -155,14 +159,22 @@ public class Weapon {
 			
 			
 			if (projectile) {
+				
 				for (int i = 0; i < pellets; i++) {
-					Transform bullet = Transform.Instantiate(projectile, transform.position, transform.rotation) as Transform;
-					Vector3 forward = bullet.forward;
+					float rot = RandomF.unit * spread * .5f;
+					if (uniform) { 
+						rot = -spread/2f + ((float)i+.5f) * (spread / pellets); 
+						if (pellets == 1) { rot = 0; }
+					}
+					
+					DealsDamage bullet = Transform.Instantiate(projectile, transform.position, transform.rotation) as DealsDamage;
+					bullet.source = holder.GetComponent<Unit>();
+					bullet.atk = damage;
+					
+					Vector3 forward = bullet.transform.forward;
 					forward.y = 0;
-					bullet.forward = forward;
-					bullet.Rotate(0, RandomF.unit * spread * .5f, 0);
-					
-					
+					bullet.transform.forward = forward;
+					bullet.transform.Rotate(0, rot, 0);
 					
 				}
 				

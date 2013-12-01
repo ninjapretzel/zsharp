@@ -46,12 +46,15 @@ public class Mortal : MonoBehaviour {
 		float remain = 0;
 		foreach (string s in a.Keys) {
 			remain = Hit(s, a[s]);
-			if (dead) { return remain; }
+			if (dead) { 
+				transform.SendMessage("Die", SendMessageOptions.DontRequireReceiver);
+				return remain; 
+			}
 		}
 		return remain;
 	}
 	
-	public float Hit(string s, float d) {
+	private float Hit(string s, float d) {
 		Health h = FindHighestLayer();
 		Health h2 = FindSecondHighestLayer();
 		
@@ -64,11 +67,8 @@ public class Mortal : MonoBehaviour {
 			remain = h.Hit(s, d);
 			if (h.armor > 0 && !h.protective) {
 				remain = h2.Hit(s, remain);
-			} else if (h.armor > 0 && h.protective) {
-			
-			} else {
-				
 			}
+			
 			h = FindHighestLayer();
 			h2 = FindSecondHighestLayer();
 			
