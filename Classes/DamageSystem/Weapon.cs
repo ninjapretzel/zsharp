@@ -15,7 +15,8 @@ public class Weapon {
 		public DealsDamage projectile;
 		
 		//Distribution Settings
-		public bool uniform = false;
+		public bool uniformDirection = false;
+		public bool uniformPosition = true;
 		public Vector3 offset = Vector3.zero;
 		public Vector3 mirrorOffset = Vector3.zero;
 		public float pellets = 1;
@@ -47,7 +48,8 @@ public class Weapon {
 	public Transform holder;
 	//Wrapper accessors
 	public DealsDamage projectile { get { return settings.projectile; } }
-	public bool uniform { get { return settings.uniform; } }
+	public bool uniformDirection { get { return settings.uniformDirection; } }
+	public bool uniformPosition { get { return settings.uniformPosition; } }
 	public Vector3 offset { get { return settings.offset; } } 
 	public Vector3 mirrorOffset { get { return settings.mirrorOffset; } }
 	public float pellets { get { return settings.pellets; } }
@@ -80,6 +82,8 @@ public class Weapon {
 	public List<Damage> damages;
 	private Attack calcedDamages;
 	private bool syncedDamages = false;
+	
+	public static bool use2dRotation = true;
 	
 	public Attack damage { 
 		get {
@@ -224,35 +228,47 @@ public class Weapon {
 	
 	public void CreateProjectiles(Transform transform) {
 		int num = (int)pellets;
-		Debug.Log("" + num.MidA() + "-" + num.MidB());
+		//Debug.Log("" + num.MidA() + "-" + num.MidB());
 		
 		for (int i = 0; i < num; i++) {
 			float rot = RandomF.unit * spread * .5f;
 			float f = ((float)i+.5f) / pellets;
 			
-			if (uniform) {
+			if (uniformDirection) {
 				rot = -spread/2f + spread * f;
 				if (num == 1) { rot = 0; }
 			}
 			
-			//Adds offset for index position
-			Vector3 off = -offset/2f + offset * f;
+			Vector3 off = Vector3.Scale(Random.insideUnitSphere, offset * .5f);
 			
-			//Adds mirrorOffset for index position
-			int n = 0;
-			if (i < num.MidA()) { n = i - num.MidA(); } 
-			else if (i > num.MidB()) { n = i - num.MidB(); }
-			off += ((float)n).Abs() * 2f * mirrorOffset / pellets;
+			if (uniformPosition) {
+				//Adds offset for index position
+				off = -offset/2f + offset * f;
+				
+				//Adds mirrorOffset for index position
+				int n = 0;
+				if (i < num.MidA()) { n = i - num.MidA(); } 
+				else if (i > num.MidB()) { n = i - num.MidB(); }
+				off += (-.5f + ((float)n).Abs() * 2f / pellets) * mirrorOffset;
+			}
 			
-			
-			DealsDamage bullet = Transform.Instantiate(projectile, transform.position + off, transform.rotation) as DealsDamage;
+			DealsDamage bullet = Transform.Instantiate(projectile, transform.position, transform.rotation) as DealsDamage;
+			if (bullet.sticksToSource) { 
+				bullet.transform.parent = transform;
+			}
 			bullet.source = holder.GetComponent<Unit>();
 			bullet.atk = damage;
+			bullet.transform.Translate(off);
 			
-			Vector3 forward = bullet.transform.forward;
-			forward.y = 0;
-			bullet.transform.forward = forward;
-			bullet.transform.Rotate(0, rot, 0);
+			if (use2dRotation) {
+				Vector3 forward = bullet.transform.forward;
+				forward.y = 0;
+				bullet.transform.forward = forward;
+				bullet.transform.Rotate(0, rot, 0);				
+			} else {
+				Vector3 axis = Random.onUnitSphere;
+				bullet.transform.Rotate(axis * rot);
+			}
 			
 		}
 	}

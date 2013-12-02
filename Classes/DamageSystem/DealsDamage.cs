@@ -3,8 +3,8 @@ using System.Collections;
 
 public class DealsDamage : MonoBehaviour {
 	public Unit source;
+	public bool sticksToSource = false;
 	public Attack atk;
-	
 	
 	void OnTriggerEnter(Collider c) {
 		Unit unit = c.GetComponent<Unit>();
