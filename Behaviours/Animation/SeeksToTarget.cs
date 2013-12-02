@@ -14,7 +14,6 @@ public class SeeksToTarget : MonoBehaviour {
 	
 	public bool diesOnCollision = false;
 	
-	
 	void Start() {
 		
 	}

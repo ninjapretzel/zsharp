@@ -9,6 +9,7 @@ public class Seeker : MonoBehaviour {
 	public bool stopWhenDone = true;
 	public bool startAtTarget = false;
 	
+	
 	public float startWaitTime = 3;
 	float waitTime = 3;
 	

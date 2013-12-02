@@ -14,8 +14,13 @@ public class Weapon {
 	public class Settings {
 		public DealsDamage projectile;
 		
+		//Distribution Settings
+		public bool uniform = false;
+		public Vector3 offset = Vector3.zero;
+		public Vector3 mirrorOffset = Vector3.zero;
 		public float pellets = 1;
 		public float spread = 3;
+		
 		public float minRecoil = 2;
 		public float maxRecoil = 5;
 		public float recoilAbsorb = 5;
@@ -34,7 +39,6 @@ public class Weapon {
 		public float maxAmmo = 30;
 		public float maxExtra = 180;
 		
-		public bool uniform = false;
 		
 	}
 	
@@ -43,6 +47,9 @@ public class Weapon {
 	public Transform holder;
 	//Wrapper accessors
 	public DealsDamage projectile { get { return settings.projectile; } }
+	public bool uniform { get { return settings.uniform; } }
+	public Vector3 offset { get { return settings.offset; } } 
+	public Vector3 mirrorOffset { get { return settings.mirrorOffset; } }
 	public float pellets { get { return settings.pellets; } }
 	public float kickback { get { return Random.Range(settings.minRecoil, settings.maxRecoil); } }
 	public float recoilAbsorb { get { return settings.recoilAbsorb; } }
@@ -57,7 +64,6 @@ public class Weapon {
 	public float maxAmmo { get { return settings.maxAmmo; } }
 	public float maxExtra { get { return settings.maxExtra; } }
 	
-	public bool uniform { get { return settings.uniform; } }
 	
 	public float ammo = 30;
 	public float extraAmmo = 180;
@@ -156,27 +162,8 @@ public class Weapon {
 			timeout = 0;
 			ammo -= ammoUse;
 			
-			
-			
-			if (projectile) {
-				
-				for (int i = 0; i < pellets; i++) {
-					float rot = RandomF.unit * spread * .5f;
-					if (uniform) { 
-						rot = -spread/2f + ((float)i+.5f) * (spread / pellets); 
-						if (pellets == 1) { rot = 0; }
-					}
-					
-					DealsDamage bullet = Transform.Instantiate(projectile, transform.position, transform.rotation) as DealsDamage;
-					bullet.source = holder.GetComponent<Unit>();
-					bullet.atk = damage;
-					
-					Vector3 forward = bullet.transform.forward;
-					forward.y = 0;
-					bullet.transform.forward = forward;
-					bullet.transform.Rotate(0, rot, 0);
-					
-				}
+			if (projectile) {	
+				CreateProjectiles(transform);
 				
 				
 			}
@@ -232,8 +219,45 @@ public class Weapon {
 		Bars.graphic = tex;
 		Rect brush = new Rect(position.x, position.y, tex.width * maxAmmo / lines, tex.height * lines);
 		Bars.Draw(brush, new Vector2(maxAmmo/lines, lines), ammoPercent);
-		
 	}
+	
+	
+	public void CreateProjectiles(Transform transform) {
+		int num = (int)pellets;
+		Debug.Log("" + num.MidA() + "-" + num.MidB());
+		
+		for (int i = 0; i < num; i++) {
+			float rot = RandomF.unit * spread * .5f;
+			float f = ((float)i+.5f) / pellets;
+			
+			if (uniform) {
+				rot = -spread/2f + spread * f;
+				if (num == 1) { rot = 0; }
+			}
+			
+			//Adds offset for index position
+			Vector3 off = -offset/2f + offset * f;
+			
+			//Adds mirrorOffset for index position
+			int n = 0;
+			if (i < num.MidA()) { n = i - num.MidA(); } 
+			else if (i > num.MidB()) { n = i - num.MidB(); }
+			off += ((float)n).Abs() * 2f * mirrorOffset / pellets;
+			
+			
+			DealsDamage bullet = Transform.Instantiate(projectile, transform.position + off, transform.rotation) as DealsDamage;
+			bullet.source = holder.GetComponent<Unit>();
+			bullet.atk = damage;
+			
+			Vector3 forward = bullet.transform.forward;
+			forward.y = 0;
+			bullet.transform.forward = forward;
+			bullet.transform.Rotate(0, rot, 0);
+			
+		}
+	}
+	
+	
 	
 }
 
