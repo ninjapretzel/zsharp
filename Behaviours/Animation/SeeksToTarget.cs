@@ -13,6 +13,7 @@ public class SeeksToTarget : MonoBehaviour {
 	public float maxTime = 5;
 	
 	public bool diesOnCollision = false;
+	public bool lookInDirection = false;
 	
 	void Start() {
 		
@@ -29,7 +30,7 @@ public class SeeksToTarget : MonoBehaviour {
 		}
 		
 		transform.position += velocity * Time.deltaTime;
-		
+		if (lookInDirection) { transform.forward = velocity.normalized; }
 		
 	}
 	

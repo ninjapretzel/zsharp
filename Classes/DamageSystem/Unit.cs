@@ -4,7 +4,18 @@ using System.Collections;
 public class Unit : MonoBehaviour {
 	
 	public Mortal mortality { get { return GetComponent<Mortal>(); } }
-	public Weapon weapon;
+	private Weapon wp;
+	public Weapon weapon { 
+		get {
+			if (wp != null) { return wp; }
+			return transform.Require<Weapon>();
+		}
+		
+		set {
+			wp = value;
+		}
+	}
+	
 	public string team = "Enemy";
 	
 	public Transform deadEffect;
@@ -15,12 +26,15 @@ public class Unit : MonoBehaviour {
 	
 	
 	void Start() {
-		weapon.holder = transform;
+		if (weapon == null) {
+			weapon = transform.Require<Weapon>();
+		}
+		Equip(weapon);
 		
 	}
 	
 	void Update() {
-		weapon.Update();
+		
 		UpdateFire();
 	}
 	
@@ -39,12 +53,19 @@ public class Unit : MonoBehaviour {
 		}
 	}
 	
-	
 	void Die() {
 		if (deadEffect != null) {
 			Instantiate(deadEffect, transform.position, transform.rotation);
 		}
 		Destroy(gameObject);
 	}
+	
+	public void Equip(Weapon w) {
+		weapon = w;
+		weapon.holder = transform;
+	}
+	
+	
+	
 	
 }

@@ -18,6 +18,8 @@ public class AchievableRequirement {
 	public string name;
 	public float value;
 	
+	public NumberCompare relationship;
+	
 	public bool Check() {
 		if (done) { return false; }
 		
@@ -25,7 +27,7 @@ public class AchievableRequirement {
 			case AchievableType.Flag: 
 				return ZScript.GetFlag(name);
 			case AchievableType.Value:
-				return ZScript.GetData(name) > value;
+				return relationship.Comparator()(ZScript.GetData(name), value);
 			case AchievableType.Action:
 				return done;
 			default:
@@ -46,6 +48,7 @@ public class Achievable {
 	public bool awardable = false;
 	public System.DateTime firstEarned;
 	public System.DateTime lastEarned;
+	
 	
 	
 	public void CheckAchieved() {

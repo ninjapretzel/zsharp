@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections;
 
 public static class FloatF {
+	public static float Clamp(this float f, float min, float max) { return Mathf.Clamp(f, min, max); }
 	public static float Floor(this float f) { return Mathf.Floor(f); }
 	public static float Ceil(this float f) { return Mathf.Ceil(f); }
 	public static float Round(this float f) { return Mathf.Round(f); }
