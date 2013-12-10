@@ -2,8 +2,35 @@
 using System.Collections.Generic;
 using System.Collections;
 
+
+public interface IWeapon {
+	float ammoPercent { get; }
+	float extraAmmoPercent { get; }
+	float reloadPercent { get; }
+	Transform holder { get; set; }
+	bool hasAmmo { get; } 
+	bool canFire { get; }
+	bool canFireBurst { get; } 
+	bool canFireDown { get; }
+	bool canFireHold { get; }
+	bool isAuto { get; }
+	bool isSemi { get; } 
+	
+	void CreateProjectiles(Transform tr);
+	string AmmoString();
+	bool Fire();
+	bool Fire(Transform tr);
+	
+	void StartReload();
+	void StartReload(bool free);
+	
+	void Refill();
+	
+}
+
+
 [System.Serializable]
-public class Weapon : MonoBehaviour {
+public class Weapon : MonoBehaviour, IWeapon {
 	[System.Serializable]
 	public class Damage {
 		public string type = "slash";
@@ -80,7 +107,8 @@ public class Weapon : MonoBehaviour {
 	
 	public string wepName = "M16";
 	public Settings settings;
-	public Transform holder;
+	private Transform heldBy;
+	public Transform holder { get { return heldBy; } set { heldBy = value; }  }
 	//Wrapper accessors
 	
 	public DealsDamage projectile { get { return settings.projectile; } }
@@ -227,6 +255,7 @@ public class Weapon : MonoBehaviour {
 		timeout += time;
 		
 		if (reloading) {
+			reloadTicked = false;
 			if (timeout > reloadTime) { ReloadTick(); }
 			return false;
 		}

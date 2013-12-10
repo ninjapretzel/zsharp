@@ -4,11 +4,11 @@ using System.Collections;
 public class Unit : MonoBehaviour {
 	
 	public Mortal mortality { get { return GetComponent<Mortal>(); } }
-	private Weapon wp;
-	public Weapon weapon { 
+	private IWeapon wp;
+	public IWeapon weapon { 
 		get {
 			if (wp != null) { return wp; }
-			return transform.Require<Weapon>();
+			return transform.Require<Weapon>() as IWeapon;
 		}
 		
 		set {
@@ -60,7 +60,7 @@ public class Unit : MonoBehaviour {
 		Destroy(gameObject);
 	}
 	
-	public void Equip(Weapon w) {
+	public void Equip(IWeapon w) {
 		weapon = w;
 		weapon.holder = transform;
 	}
