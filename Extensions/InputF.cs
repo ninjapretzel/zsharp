@@ -15,6 +15,8 @@ public static class InputF {
 	public static Vector2 TouchScroll(this Vector2 v, Rect area) {
 		foreach (Touch t in Input.touches) {
 			if (t.phase == TouchPhase.Moved) {
+				Vector2 pos = t.position;
+				pos.y = Screen.height - pos.y;
 				if (area.Contains(t.position)) {
 					return v - t.deltaPosition;
 				}

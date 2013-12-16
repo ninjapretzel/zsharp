@@ -125,6 +125,32 @@ public static class GUIF {
 		return ret;
 	}
 	
+	public static bool TouchButtonDown(Rect area) {
+		foreach (Touch t in Input.touches) {
+			if (t.phase == TouchPhase.Began) {
+				Vector2 pos = t.position;
+				pos.y = Screen.height - pos.y;
+				if (area.Contains(pos)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public static bool TouchButton(Rect area) {
+		foreach (Touch t in Input.touches) {
+			if (t.phase == TouchPhase.Began || t.phase == TouchPhase.Stationary || t.phase == TouchPhase.Moved) { 
+				Vector2 pos = t.position;
+				pos.y = Screen.height - pos.y;
+				if (area.Contains(pos)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	public static bool Button(Rect area, string str) { return Button(area, str, defaultPadding, "MenuSelect"); }
 	public static bool Button(Rect area, string str, string sound) { return Button(area, str, defaultPadding, sound); }
 	public static bool Button(Rect area, string str, float padding) { return Button(area, new GUIContent(str), defaultPadding, "MenuSelect"); }
