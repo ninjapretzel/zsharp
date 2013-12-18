@@ -2,13 +2,34 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
-public static class GUIStyleF {
-	public static GUIStyle Clone(this GUIStyle c) { return new GUIStyle(c); }
+public static class GUIFontSize {
+	public static Table fontSizes;
+	static GUIFontSize() {
+		TextAsset t = Resources.Load("BaseFontSizes", typeof(TextAsset)) as TextAsset;
+		fontSizes = Table.CreateFromCSV(t.text);
+		
+		t = Resources.Load("FontSizes", typeof(TextAsset)) as TextAsset;
+		if (t != null) { fontSizes += Table.CreateFromCSV(t.text); }
+		
+	}
+	
+	public static float Get(string s) {
+		if (!fontSizes.ContainsKey(s)) { return fontSizes["default"]; }
+		return fontSizes[s];
+	}
+}
 
+public static class GUIStyleF {
+	
+	
+	public static GUIStyle Clone(this GUIStyle c) { return new GUIStyle(c); }
+	
+	public static void SetFontSize(this GUIStyle style, string s) { style.SetFontSize(GUIFontSize.Get(s)); }
 	public static void SetFontSize(this GUIStyle style, float p) {
 		style.fontSize = (int)(p * (float)Screen.height);
 	}
 	
+	public static GUIStyle ScaledFontTo(this GUIStyle style, string s) { return style.ScaledFontTo(GUIFontSize.Get(s)); }
 	public static GUIStyle ScaledFontTo(this GUIStyle style, float p) {
 		GUIStyle copy = new GUIStyle(style);
 		copy.fontSize = (int)(p * (float)Screen.height);
@@ -74,8 +95,20 @@ public static class GUIStyleF {
 
 public static class GUISkinF {
 	
+	
+	public static void FontSize(this GUISkin skin, string s) { skin.FontSize(GUIFontSize.Get(s)); }
+	public static void FontSizeFull(this GUISkin skin, string s) { skin.FontSizeFull(GUIFontSize.Get(s)); }
+	
 	public static void FontSize(this GUISkin skin, float size) { skin.SetFontSize(size/720.0f); }
+	public static void FontSizeFull(this GUISkin skin, float size) { skin.SetFontSizeFull(size/720.0f); }
+	
 	public static void SetFontSize(this GUISkin skin, float size) {
+		skin.label.SetFontSize(size);
+		skin.button.SetFontSize(size);
+		skin.box.SetFontSize(size);
+	}
+	
+	public static void SetFontSizeFull(this GUISkin skin, float size) {
 		skin.label.SetFontSize(size);
 		skin.button.SetFontSize(size);
 		skin.box.SetFontSize(size);

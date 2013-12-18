@@ -34,8 +34,23 @@ public class SoundMaster : MonoBehaviour {
 	public List<Sound> soundSet;
 	
 	public static Dictionary<string, Sound> sounds;
-	public static AudioSource audioSettings;
+	private static AudioSource audioSetStatic;
+	public static AudioSource audioSettings {
+		get { return audioSetStatic != null ? audioSetStatic : audioSettingsFactory; }
+		set { audioSetStatic = value; }
+	}
+	
 	public static bool started = false;
+	
+	public static AudioSource audioSettingsFactory {
+		get {
+			GameObject o = new GameObject("Audio");
+			o.AddComponent<AudioSource>();
+			o.AddComponent<SoundVolume>();
+			o.AddComponent<AutodestructSound>();
+			return o.audio;
+		}
+	}
 	
 	static SoundMaster() {
 		sounds = new Dictionary<string, Sound>();

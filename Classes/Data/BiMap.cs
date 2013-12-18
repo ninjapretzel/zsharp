@@ -93,6 +93,13 @@ public class BiMap<T> {
 		listB.Clear();
 	}
 	
+	public BiMap<T> Flopped() {
+		BiMap<T> f = new BiMap<T>();
+		f.listA = listB;
+		f.listB = listA;
+		return f;
+	}
+	
 	
 }
 
@@ -101,11 +108,10 @@ public static class BiMapExtensions {
 	public static void LoadCSV(this BiMap<string> d, string csv, char delim) {
 		d.Clear();
 		string[] lines = csv.Split('\n');
-		Debug.Log(lines.Length);
 		
 		for (int i = 0; i < lines.Length; i++) {
+			if (lines[i].Length < 3) { continue; }
 			if (lines[i][0] == '#') { continue; }
-			if (lines[i].Length == 0) { continue; }
 			string[] content = lines[i].Split(delim);
 			for (int j = 0; j < content.Length; j += 2) {
 				d.Add(content[j], content[j+1]);

@@ -47,33 +47,7 @@ from multiplying the stats table with each of the 'instructional' tables.
 
 [System.Serializable]
 public class Table : Dictionary<string, float> {
-	public string[] strings;
-	public float[] floats;
-
 	
-	public void Init() {
-		SetInternalToExternal();
-	}
-	
-	public void SetInternalToExternal() {
-		Clear();
-		for (int i = 0; i < Mathf.Min(strings.Length, floats.Length); i++) {
-			this[strings[i]] = floats[i];
-		}
-	}
-	
-	public void SetExternalToInternal() {
-		strings = new string[Count];
-		floats = new float[Count];
-		
-		int i = 0;
-		foreach (string s in Keys) {
-			strings[i] = s;
-			floats[i] = this[s];
-			i++;
-		}
-		
-	}
 	
 	public Table Clone() {
 		Table d = new Table();
@@ -148,27 +122,6 @@ public class Table : Dictionary<string, float> {
 			if (a.ContainsKey(key)) { c[key] /= b[key]; }
 		}
 		return c;
-	}
-	
-	
-	public void Update() {
-		strings = new string[Count];
-		floats = new float[Count];
-		
-		int i = 0;
-		foreach (string key in Keys) {
-			strings[i] = key;
-			floats[i] = this[key];
-			i++;
-		}
-	}
-	
-	public void Set() {
-		Clear();
-		int max = Mathf.Min(strings.Length, floats.Length);
-		for (int i = 0; i < max; i++) {
-			Add(strings[i], floats[i]);
-		}
 	}
 	
 	public new void Add(string s, float f) { this[s] = f; }
@@ -259,6 +212,7 @@ public class Table : Dictionary<string, float> {
 		string[] lines = csv.Split('\n');
 		
 		for (int i = 0; i < lines.Length; i++) {
+			if (lines[i].Length < 3) { continue; }
 			if (lines[i][0] == '#') { continue; }
 			string[] content = lines[i].Split(separator);
 			for (int j = 0; j < content.Length; j += 2) {
