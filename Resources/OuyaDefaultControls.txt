@@ -1,0 +1,11 @@
+#virtual name,hardware name
+Horizontal1-,Joystick1Axis0-
+Horizontal1+,Joystick1Axis0+
+Vertical1-,Joystick1Axis1-
+Vertical1+,Joystick1Axis1+
+Horizontal2-,Joystick1Axis2-
+Horizontal2+,Joystick1Axis2+
+Vertical2-,Joystick1Axis3-
+Vertical2+,Joystick1Axis3+
+Jump,Joystick1Button0
+Pause,Joystick1Button1
