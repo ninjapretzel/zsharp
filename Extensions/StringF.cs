@@ -19,6 +19,10 @@ public static class StringF {
 		return str.ToString();
 	}
 	
+	
+	public static string RemoveAll(this string str, string s) { return str.Replace(s, ""); }
+	public static string RemoveAll(this string str, char c) { return str.Replace(""+c, ""); }
+	
 	public static string Format(this float f, int dec) {
 		int ir = (int)f;
 		float fr = f - ir;

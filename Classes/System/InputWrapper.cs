@@ -11,28 +11,36 @@ public static class InputWrapper {
 	public const float axisDownMagnitude = 0.5f;
 	public static Dictionary<string, PreviousAxis> prevAxes = new Dictionary<string, PreviousAxis>();
 	public static ControlBindings bindings = new ControlBindings();
-	public static Dictionary<string, string> binddict;
+	public static Dictionary<string, string> defaults;
 
-	public static void Start() {
-		binddict = new Dictionary<string, string>();
-		TextAsset file;
-		if(SystemInfo.deviceModel == "OUYA OUYA Console") {
-			file = Resources.Load("OuyaControls", typeof(TextAsset)) as TextAsset;
-			if(file == null) {
-				file = Resources.Load("OuyaDefaultControls", typeof(TextAsset)) as TextAsset;
+	public static TextAsset file {
+		get {
+			TextAsset f;
+			if(SystemInfo.deviceModel == "OUYA OUYA Console") {
+				f = Resources.Load("OuyaControls", typeof(TextAsset)) as TextAsset;
+				if (f == null) {
+					f = Resources.Load("OuyaDefaultControls", typeof(TextAsset)) as TextAsset;
+				}
+			} else {
+				f = Resources.Load("Controls", typeof(TextAsset)) as TextAsset;
+				if (f == null) {
+					f = Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset;
+				}
 			}
-		} else {
-			file = Resources.Load("Controls", typeof(TextAsset)) as TextAsset;
-			if(file == null) {
-				file = Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset;
-			}
+			return f;
 		}
-		if(file != null) {
-			binddict.LoadCSV(file.text);
-		} else {
-			Debug.Log("WARNING: DEFAULT CONTROLS FILE NOT FOUND!");
-		}
-		foreach (string key in binddict.Keys) {
+	}
+	
+	static InputWrapper() {
+		defaults = new Dictionary<string, string>();
+		
+		string text = file.text;
+		text = text.RemoveAll((char)0x0D);
+		
+		if (file != null) { defaults.LoadCSV(text); } 
+		else { LogWarning("DEFAULT CONTROLS FILE NOT FOUND!"); }
+		
+		foreach (string key in defaults.Keys) {
 			bindings.Load(key);
 			if(key[key.Length-1] == '+' || key[key.Length-1] == '-') {
 				prevAxes[key.Substring(0, key.Length-1)] = new PreviousAxis(key.Substring(0, key.Length-1));
@@ -41,7 +49,11 @@ public static class InputWrapper {
 			}
 		}
 	}
+	
+	static void Log(string s) { Debug.Log("InputWrapper: " + s); }
+	static void LogWarning(string s) { Debug.LogWarning("InputWrapper: " + s); }
 
+	
 	public static void LateUpdate() {
 		foreach (string key in prevAxes.Keys) {
 			prevAxes[key].val = GetAxis(key);
@@ -52,12 +64,14 @@ public static class InputWrapper {
 		float val = 0.0f;
 		ControlBinding positiveBinding = null;
 		ControlBinding negativeBinding = null;
+		
 		if(!bindings.ContainsKey(axis+"+") && !bindings.ContainsKey(axis+"-")) {
 			positiveBinding = bindings[axis]; // A button, in this case
 		} else {
 			positiveBinding = bindings[axis+"+"];
 			negativeBinding = bindings[axis+"-"];
 		}
+		
 		if (positiveBinding.key != KeyCode.None) {
 			if (Input.GetKey(positiveBinding.key)) { val += 1.0f; }
 		} else {
@@ -71,10 +85,11 @@ public static class InputWrapper {
 					val -= postemp;
 				}
 			} else {
-				Debug.Log("WARNING: Axis "+axis+"+ is unbound!");
+				LogWarning("Axis " + axis + "+ is unbound!");
 			}
 		}
-		if(negativeBinding != null) {
+		
+		if (negativeBinding != null) {
 			if (negativeBinding.key != KeyCode.None) {
 				if (Input.GetKey(negativeBinding.key)) { val -= 1.0f; }
 			} else {
@@ -88,7 +103,7 @@ public static class InputWrapper {
 						val += negtemp;
 					}
 				} else {
-					Debug.Log("WARNING: Axis "+axis+"- is unbound!");
+					LogWarning("Axis "+axis+"- is unbound!");
 				}
 			}
 		}
@@ -99,7 +114,7 @@ public static class InputWrapper {
 		try {
 			return (Mathf.Abs(prevAxes[key].val) > axisDownMagnitude);
 		} catch(KeyNotFoundException) {
-			Debug.Log("The control "+key+" is undefined!");
+			LogWarning("The control "+key+" is undefined!");
 			return false;
 		}
 	}
@@ -108,7 +123,7 @@ public static class InputWrapper {
 		try {
 			return (Mathf.Abs(prevAxes[key].val) < axisDownMagnitude && Mathf.Abs(GetAxis(key)) >= axisDownMagnitude);
 		} catch(KeyNotFoundException) {
-			Debug.Log("The control "+key+" is undefined!");
+			LogWarning("The control "+key+" is undefined!");
 			return false;
 		}
 	}
@@ -117,7 +132,7 @@ public static class InputWrapper {
 		try {
 			return (Mathf.Abs(prevAxes[key].val) >= axisDownMagnitude && Mathf.Abs(GetAxis(key)) < axisDownMagnitude);
 		} catch(KeyNotFoundException) {
-			Debug.Log("The control "+key+" is undefined!");
+			LogWarning("The control "+key+" is undefined!");
 			return false;
 		}
 	}
@@ -345,8 +360,8 @@ public class ControlBinding {
 	}
 	
 	public void LoadDefault(String name) {
-		/*if(binddict == null) {
-			binddict = new Dictionary<string, string>();
+		/*if(defaults == null) {
+			defaults = new Dictionary<string, string>();
 			if(SystemInfo.deviceModel == "OUYA OUYA Console") {
 				TextAsset file = Resources.Load("OuyaDefaultControls", typeof(TextAsset)) as TextAsset;
 			} else {
@@ -355,24 +370,23 @@ public class ControlBinding {
 			if(file == null) {
 				Debug.Log("Default controls file not found!");
 			} else {
-				binddict.LoadCSV(file.text);
+				defaults.LoadCSV(file.text);
 			}
 		}*/
-		string val = InputWrapper.binddict[name];
-		this.key = KeyCode.None;
-		this.axis = null;
-		if(val[val.Length-1]=='+') {
-			this.axis = val.Substring(0, val.Length - 1);
-			this.positive = true;
-		}
-		else if(val[val.Length-1]=='-') {
-			this.axis = val.Substring(0, val.Length - 1);
-			this.positive = false;
+		string keyString = InputWrapper.defaults[name];
+		key = KeyCode.None;
+		axis = null;
+		if (keyString[keyString.Length-1]=='+') {
+			axis = keyString.Substring(0, keyString.Length - 1);
+			positive = true;
+		} else if (keyString[keyString.Length-1]=='-') {
+			axis = keyString.Substring(0, keyString.Length - 1);
+			positive = false;
 		} else {
 			try {
-				this.key = (KeyCode)Enum.Parse(typeof(KeyCode), val);
+				key = (KeyCode)Enum.Parse(typeof(KeyCode), keyString);
 			} catch(ArgumentException) {
-				Debug.Log("INVALID HARDWARE NAME DEFINED IN DEFAULT CONTROLS FILE: "+val);
+				Debug.LogWarning("ControlBinding: INVALID HARDWARE NAME DEFINED IN DEFAULT CONTROLS FILE: " + keyString);
 			}
 		}
 			
