@@ -4,7 +4,11 @@ using System.Collections;
 public class FakeParent : MonoBehaviour {
 	public Transform target;
 	public Vector3 offset = Vector3.zero;
+	
 	public bool doLate = false;
+	
+	public bool takeRotation = false;
+	public Vector3 offsetRotation;
 	
 	void Update() {
 		if (doLate) { return; }
@@ -18,5 +22,9 @@ public class FakeParent : MonoBehaviour {
 	
 	void Move() {
 		transform.position = target.position + offset;
+		if (takeRotation) { 
+			transform.rotation = target.rotation;
+		}
+		transform.Rotate(offsetRotation);
 	}
 }

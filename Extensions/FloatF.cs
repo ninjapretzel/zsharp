@@ -2,6 +2,11 @@ using UnityEngine;
 using System.Collections;
 
 public static class FloatF {
+
+	public static float TLerp(this float f, float target) { return f.TLerp(target, 1); }
+	public static float TLerp(this float f, float target, float v) { return f.Lerp(target, Time.deltaTime * v); }
+	
+	public static float Lerp(this float f, float target, float v) { return Mathf.Lerp(f, target, v); }
 	public static float Clamp(this float f, float min, float max) { return Mathf.Clamp(f, min, max); }
 	public static float Floor(this float f) { return Mathf.Floor(f); }
 	public static float Ceil(this float f) { return Mathf.Ceil(f); }

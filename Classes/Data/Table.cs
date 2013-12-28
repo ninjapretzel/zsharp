@@ -124,6 +124,28 @@ public class Table : Dictionary<string, float> {
 		return c;
 	}
 	
+	public Color GetColor(string s) { return new Color(this[s+".r"], this[s+".g"], this[s+".b"], this[s+".a"]); }
+	public Vector2 GetVector2(string s) { return new Vector2(this[s+".x"], this[s+".y"]); }
+	public Vector3 GetVector3(string s) { return new Vector3(this[s+".x"], this[s+".y"], this[s+".z"]); }
+	
+	public void SetColor(string s, Color c) { 
+		this[s+".r"] = c.r;
+		this[s+".g"] = c.g;
+		this[s+".b"] = c.b;
+		this[s+".a"] = c.a;
+	}
+	
+	public void SetVector3(string s, Vector3 v) {
+		this[s+".x"] = v.x;
+		this[s+".y"] = v.y;
+		this[s+".z"] = v.z;
+	}
+	
+	public void SetVector2(string s, Vector2 v) {
+		this[s+".x"] = v.x;
+		this[s+".y"] = v.y;
+	}
+	
 	public new void Add(string s, float f) { this[s] = f; }
 	public void Add(float f, string s) { this[s] = f; }
 	public void Add(string s) { this[s] = 0; }

@@ -4,6 +4,11 @@ using System.Collections;
 
 public static class VectorF {
 
+	public static Vector3 TLerp(this Vector3 v, float t) { return v.TLerp(Vector3.zero, t); }
+	public static Vector3 TLerp(this Vector3 v, Vector3 target) { return v.TLerp(target, 1); }
+	public static Vector3 TLerp(this Vector3 v, Vector3 target, float t) { return v.Lerp(target, Time.deltaTime * t); }
+	public static Vector3 Lerp(this Vector3 v, Vector3 target, float t) { return Vector3.Lerp(v, target, t); }
+
 	public static Vector2 ClampX(this Vector2 v, float min, float max) { return new Vector2(Mathf.Clamp(v.x, min, max), v.y); }
 	public static Vector2 ClampY(this Vector2 v, float min, float max) { return new Vector2(v.x, Mathf.Clamp(v.y, min, max)); }
 	

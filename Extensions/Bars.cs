@@ -13,6 +13,7 @@ public static class Bars {
 		
 	}
 	
+	//General drawing functions
 	public static void Draw(Rect area, float pp) { Draw(area, pp, Color.white, Color.black, defaultPadding); }
 	public static void Draw(Rect area, float pp, Color tint) { Draw(area, pp, tint, Color.black, defaultPadding); }
 	public static void Draw(Rect area, float pp, Color tint, Color back) { Draw(area, pp, tint, back, defaultPadding); }
@@ -33,6 +34,7 @@ public static class Bars {
 		GUI.color = tint;
 		GUI.DrawTexture(brush, g);
 	}
+	
 	
 	public static void DrawFixed(Rect area, float pp, Color tint, Color back, int padding) {
 		Rect brush = area.Trim(-padding);
@@ -56,6 +58,7 @@ public static class Bars {
 	}
 	
 	
+	//Draws a repeated texture
 	public static void Draw(Rect area, Rect repeat, float pp) { Draw(area, repeat, pp, Color.white, Color.black, defaultPadding); }
 	public static void Draw(Rect area, Rect repeat, float pp, Color tint) { Draw(area, repeat, pp, tint, Color.black, defaultPadding); }
 	public static void Draw(Rect area, Rect repeat, float pp, Color tint, Color back) { Draw(area, repeat, pp, tint, back, defaultPadding); }
@@ -92,7 +95,7 @@ public static class Bars {
 	}
 	
 	
-	
+	//Draws bars as icons
 	public static void Draw(Rect area, Vector2 iconRepeat, float pp) { Draw(area, iconRepeat, pp, Color.white, Color.black); }
 	public static void Draw(Rect area, Vector2 iconRepeat, float pp, Color tint) { Draw(area, iconRepeat, pp, tint, Color.black); }
 	public static void Draw(Rect area, Vector2 iconRepeat, float pp, Color tint, Color back) {

@@ -8,7 +8,8 @@ public class Unit : MonoBehaviour {
 	public IWeapon weapon { 
 		get {
 			if (wp != null) { return wp; }
-			return transform.Require<Weapon>() as IWeapon;
+			wp = transform.Require<Weapon>() as IWeapon;
+			return wp;
 		}
 		
 		set {
@@ -18,7 +19,9 @@ public class Unit : MonoBehaviour {
 	
 	public string team = "Enemy";
 	
+	public bool useLateUpdate = false;
 	public Transform deadEffect;
+	public Transform hitEffect;
 	
 	public bool triggerHeld = false;
 	public bool triggerDown = false;
@@ -34,8 +37,11 @@ public class Unit : MonoBehaviour {
 	}
 	
 	void Update() {
-		
-		UpdateFire();
+		if (!useLateUpdate) { UpdateFire(); }
+	}
+	
+	void LateUpdate() {
+		if (useLateUpdate) { UpdateFire(); }
 	}
 	
 	void UpdateFire() {
@@ -63,6 +69,12 @@ public class Unit : MonoBehaviour {
 	public void Equip(IWeapon w) {
 		weapon = w;
 		weapon.holder = transform;
+	}
+	
+	public void HitEffect(Vector3 v) {
+		if (hitEffect == null) { return; }
+		Instantiate(hitEffect, v, Quaternion.identity);
+		
 	}
 	
 	

@@ -40,6 +40,12 @@ public class Mortal : MonoBehaviour {
 	public void Update() { Update(Time.deltaTime); }
 	public void Update(float time) {
 		foreach (Health h in healths) { h.Update(time); }
+		if (total < .01) { dead = true; }
+		
+		if (dead) { 
+			SayDie();
+		}
+		
 	}
 	
 	public float Hit(Attack a) { 
@@ -47,14 +53,19 @@ public class Mortal : MonoBehaviour {
 		foreach (string s in a.Keys) {
 			remain = Hit(s, a[s]);
 			if (dead) { 
-				transform.SendMessage("Die", SendMessageOptions.DontRequireReceiver);
+				SayDie();
 				return remain; 
 			}
 		}
 		return remain;
 	}
 	
-	private float Hit(string s, float d) {
+	public void SayDie() {
+		transform.SendMessage("Die", SendMessageOptions.DontRequireReceiver);
+	}
+	
+	public float Hit(float d) { return Hit("", d); }
+	public float Hit(string s, float d) {
 		Health h = FindHighestLayer();
 		Health h2 = FindSecondHighestLayer();
 		

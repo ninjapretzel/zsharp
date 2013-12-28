@@ -52,6 +52,7 @@ public class Weapon : MonoBehaviour, IWeapon {
 		
 		public float minRecoil = 2;
 		public float maxRecoil = 5;
+		public float recoilEffect = 1;
 		public float spin = 15;
 		public float repeatAngle = 720;
 		public float recoilAbsorb = 5;
@@ -103,36 +104,112 @@ public class Weapon : MonoBehaviour, IWeapon {
 			maxExtra = source.maxExtra;
 		}
 		
+		public static Settings LoadFromTable(Table t) {
+			Settings s = new Settings();
+			s.Load(t);
+			return s;
+		}
+		
+		public void Load(Table t) {
+			projectile = null;
+			
+			uniformDirection = t["uniformDirection"] == 1;
+			uniformPosition = t["uniformPosition"] == 1;
+			spins = t["spins"] == 1;
+			offset = t.GetVector3("offset");
+			mirrorOffset = t.GetVector3("mirrorOffset");
+			pellets = t["pellets"];
+			spread = t["spread"];
+			
+			minRecoil = t["minRecoil"];
+			maxRecoil = t["maxRecoil"];
+			spin = t["spin"];
+			repeatAngle = t["repeatAngle"];
+			recoilAbsorb = t["recoilAbsorb"];
+			
+			bursts = t["bursts"];
+			burstTime = t["burstTime"];
+			
+			fireTimeHold = t["fireTimeHold"];
+			fireTimeDown = t["fireTimeDown"];
+			reloadStart = t["reloadStart"];
+			reloadTick = t["reloadTick"];
+			reloadRounds = t["reloadRounds"];
+			
+			ammoUse = t["ammoUse"];
+			maxAmmo = t["maxAmmo"];
+			maxExtra = t["maxExtra"];
+		}
+		
+		public Table GetTable() {
+			Table t = new Table();
+			t["uniformDirection"] = uniformDirection ? 1 : 0;
+			t["uniformPosition"] = uniformPosition ? 1 : 0;
+			t["spins"] = spins ? 1 : 0;
+			t.SetVector3("offset", offset);
+			t.SetVector3("mirrorOffset", mirrorOffset);
+			t["pellets"] = pellets;
+			t["spread"] = spread;
+			
+			t["minRecoil"] = minRecoil;
+			t["maxRecoil"] = maxRecoil;
+			t["spin"] = spin;
+			t["repeatAngle"] = repeatAngle;
+			t["recoilAbsorb"] = recoilAbsorb;
+			
+			t["bursts"] = bursts;
+			t["burstTime"] = burstTime;
+			
+			t["fireTimeHold"] = fireTimeHold;
+			t["fireTimeDown"] = fireTimeDown;
+			t["reloadStart"] = reloadStart;
+			t["reloadTick"] = reloadTick;
+			t["reloadRounds"] = reloadRounds;
+			
+			t["ammoUse"] = ammoUse;
+			t["maxAmmo"] = maxAmmo;
+			t["maxExtra"] = maxExtra;
+			
+			return t;
+		}
+		
 	}
 	
 	public string wepName = "M16";
 	public Settings settings;
+	public Transform bulletSourceOverride;
+	
 	private Transform heldBy;
+	public Transform bulletSource { get { return bulletSourceOverride != null ? bulletSourceOverride : holder; } }
 	public Transform holder { get { return heldBy; } set { heldBy = value; }  }
 	//Wrapper accessors
 	
-	public DealsDamage projectile { get { return settings.projectile; } }
-	public bool uniformDirection { get { return settings.uniformDirection; } }
-	public bool uniformPosition { get { return settings.uniformPosition; } }
-	public bool spins { get { return settings.spins; } }
-	public Vector3 offset { get { return settings.offset; } } 
-	public Vector3 mirrorOffset { get { return settings.mirrorOffset; } }
-	public float pellets { get { return settings.pellets; } }
+	public DealsDamage projectile { get { return settings.projectile; } set { settings.projectile = value; } }
+	public bool uniformDirection { get { return settings.uniformDirection; } set { settings.uniformDirection = value; } }
+	public bool uniformPosition { get { return settings.uniformPosition; } set { settings.uniformPosition = value; } }
+	public bool spins { get { return settings.spins; } set { settings.spins = value; } }
+	public Vector3 offset { get { return settings.offset; } set { settings.offset = value; } } 
+	public Vector3 mirrorOffset { get { return settings.mirrorOffset; } set { settings.mirrorOffset = value; } }
+	public float pellets { get { return settings.pellets; } set { settings.pellets = value; } }
 	
 	public float kickback { get { return Random.Range(settings.minRecoil, settings.maxRecoil); } }
-	public float spinPerBurst { get { return settings.spin; } }
-	public float repeatAngle { get { return settings.repeatAngle; } }
-	public float recoilAbsorb { get { return settings.recoilAbsorb; } }
-	public float bursts { get { return settings.bursts; } }
-	public float burstTime { get { return settings.burstTime; } }
-	public float fireTimeHold { get { return settings.fireTimeHold; } }
-	public float fireTimeDown { get { return settings.fireTimeDown; } }
+	public float spinPerBurst { get { return settings.spin; } set { settings.spin = value; } }
+	public float repeatAngle { get { return settings.repeatAngle; } set { settings.repeatAngle = value; } }
+	public float recoilEffect { get { return settings.recoilEffect; } set { settings.recoilEffect = value;; } }
+	public float recoilAbsorb { get { return settings.recoilAbsorb; } set { settings.recoilAbsorb = value; } }
+	public float bursts { get { return settings.bursts; } set { settings.bursts = value; } }
+	public float burstTime { get { return settings.burstTime; } set { settings.burstTime = value; } }
+	public float fireTimeHold { get { return settings.fireTimeHold; } set { settings.fireTimeHold = value; } }
+	public float fireTimeDown { get { return settings.fireTimeDown; } set { settings.fireTimeDown = value; } }
+	
 	public float reloadTime { get { return reloadTicked ? settings.reloadTick : settings.reloadStart; } }
-	public float reloadRounds { get { return settings.reloadRounds; } }
-	public float spread { get { return settings.spread + recoil; } }
-	public float ammoUse { get { return settings.ammoUse; } }
-	public float maxAmmo { get { return settings.maxAmmo; } }
-	public float maxExtra { get { return settings.maxExtra; } }
+	
+	public float reloadRounds { get { return settings.reloadRounds; } set { settings.reloadRounds = value; } }
+	public float spread { get { return settings.spread + recoil * recoilEffect; } }
+	public float ammoUse { get { return settings.ammoUse; } set { settings.ammoUse = value; } }
+	public float maxAmmo { get { return settings.maxAmmo; } set { settings.maxAmmo = value; } }
+	public float maxExtra { get { return settings.maxExtra; } set { settings.maxExtra = value; } }
+	
 	
 	
 	public float ammo = 30;
@@ -145,12 +222,15 @@ public class Weapon : MonoBehaviour, IWeapon {
 	
 	public bool bursting = false;
 	public bool reloading = false;
+	public bool doneReloading = false;
 	public bool reloadTicked = false;
 	public bool freeReload = false;
+	
 	
 	public List<Damage> damages;
 	private Attack calcedDamages;
 	private bool syncedDamages = false;
+	
 	
 	public static bool use2dRotation = true;
 	
@@ -196,6 +276,7 @@ public class Weapon : MonoBehaviour, IWeapon {
 	
 	
 	public void CreateProjectiles(Transform tr) {
+		
 		int num = (int)pellets;
 		//Debug.Log("" + num.MidA() + "-" + num.MidB());
 		
@@ -222,8 +303,15 @@ public class Weapon : MonoBehaviour, IWeapon {
 				else if (i > num.MidB()) { n = i - num.MidB(); }
 				off += (-.5f + ((float)n).Abs() * 2f / pellets) * mirrorOffset;
 			}
+			DealsDamage bullet;
+			if (projectile == null) {
+				bullet = HitscanProjectile.Factory();
+				bullet.transform.position = tr.position;
+				bullet.transform.rotation = tr.rotation;
+			} else {
+				bullet = Transform.Instantiate(projectile, tr.position, tr.rotation) as DealsDamage;
+			}
 			
-			DealsDamage bullet = Transform.Instantiate(projectile, tr.position, tr.rotation) as DealsDamage;
 			if (bullet.sticksToSource) { 
 				bullet.transform.parent = tr;
 			}
@@ -247,6 +335,8 @@ public class Weapon : MonoBehaviour, IWeapon {
 	public void Update() { Update(Time.deltaTime); }
 	//Update the gun and see if it can fire 
 	public bool Update(float time) {
+		doneReloading = false;
+		
 		if (uniformDirection) {
 			recoil = recoil % (repeatAngle * pellets);
 		} else {
@@ -278,8 +368,9 @@ public class Weapon : MonoBehaviour, IWeapon {
 		return str;
 	}
 	
-	public bool Fire() { return Fire(holder); }
+	public bool Fire() { return Fire(bulletSource); }
 	public bool Fire(Transform tr) {
+		//Debug.Log("Weapon.Fire() called");
 		if (reloading) { return false; }
 		if (!canFire) { return false; }
 		
@@ -287,9 +378,7 @@ public class Weapon : MonoBehaviour, IWeapon {
 			timeout = 0;
 			ammo -= ammoUse;
 			
-			if (projectile) {
-				CreateProjectiles(tr);
-			}
+			CreateProjectiles(tr);
 			
 			if (doesBurst  && !bursting) {
 				bursting = true;
@@ -348,7 +437,7 @@ public class Weapon : MonoBehaviour, IWeapon {
 			ammo += toRefill;
 		}
 		
-		if (ammo == maxAmmo || extraAmmo == 0) { reloading = false; }
+		if (ammo == maxAmmo || extraAmmo == 0) { reloading = false; doneReloading = true; }
 	}
 	
 	public void DrawAmmoCounter(Vector2 position, Texture2D tex, int lines) {

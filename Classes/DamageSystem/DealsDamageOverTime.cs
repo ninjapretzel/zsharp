@@ -1,28 +1,30 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DealsDamage : MonoBehaviour {
-	public Unit source;
-	public bool sticksToSource = false;
-	public Attack atk;
+public class DealsDamageOverTime : DealsDamage {
 	
-	void OnTriggerEnter(Collider c) {
+	public float damage;
+	
+	void Start() {
+		source = GetComponent<Unit>();
+		
+	}
+	
+	
+	void OnTriggerEnter(Collider c) { }
+	
+	void OnTriggerStay(Collider c) {
 		Unit unit = c.GetComponent<Unit>();
 		if (source != null && unit != null) {
 			if (source.team != unit.team) {
 				//Debug.Log("OH SHIT" + c.gameObject.name);
 				//Debug.Log(atk);
-				unit.mortality.Hit(atk);
+				unit.mortality.Hit(damage * Time.deltaTime);
 				HitATarget();
 			}
 			HitATeammate();
 			
 		}
-		
 	}
-	
-	public virtual void HitATarget() {}
-	public virtual void HitATeammate() {}
-	
 	
 }
