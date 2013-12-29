@@ -36,22 +36,11 @@ public class HitscanProjectile : DealsDamage {
 			Unit unit = rayhit.collider.GetComponentOnOrAbove<Unit>();
 			if (unit != null) {
 				unit.HitEffect(rayhit.point);
+				unit.mortality.Hit(atk);
 			}
 			
 		}
 		if (lineRenderer != null) { lineRenderer.SetPosition(1, new Vector3(0, 0, dist)); }
-		//Move to IgnoreRaycast layer
-		gameObject.layer = 2;
-		
-		BoxCollider b = gameObject.AddComponent<BoxCollider>();
-		b.center = new Vector3(0, 0, dist/2f);
-		b.size = new Vector3(.0001f, .0001f, dist * 1.01f);
-		b.isTrigger = true;
-		
-		gameObject.AddComponent<Rigidbody>();
-		rigidbody.useGravity = false;
-		rigidbody.constraints = RigidbodyConstraints.FreezeAll;
-		
 		
 	}
 	
