@@ -103,10 +103,13 @@ public class BiMap<T> {
 	
 }
 
+
 public static class BiMapExtensions {
 	public static void LoadCSV(this BiMap<string> d, string csv) { d.LoadCSV(csv, ','); }
 	public static void LoadCSV(this BiMap<string> d, string csv, char delim) {
 		d.Clear();
+		
+		csv = csv.ConvertNewlines();
 		string[] lines = csv.Split('\n');
 		
 		for (int i = 0; i < lines.Length; i++) {

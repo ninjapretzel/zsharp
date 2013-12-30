@@ -19,6 +19,11 @@ public static class StringF {
 		return str.ToString();
 	}
 	
+	public static string ConvertNewlines(this string s) {
+		string ss = s.Replace(""+(char)0x0d + (char)0x0a, ""+(char)0x0a);
+		return ss.Replace((char)0x0d, (char)0x0a);
+	}
+	
 	
 	public static string RemoveAll(this string str, string s) { return str.Replace(s, ""); }
 	public static string RemoveAll(this string str, char c) { return str.Replace(""+c, ""); }

@@ -22,6 +22,17 @@ public static class DataF {
 		}
 		return shuffled;
 	}
+	public static List<T> RemoveAll<T>(this List<T> list, T toRemove) {
+		List<T> l = new List<T>();
+		for (int i = 0; i < list.Count; i++) {
+			if (!list[i].Equals(toRemove)) {
+				l.Add(list[i]);
+			}
+		}
+		return l;
+	}
+	
+	
 	
 	public static List<T> Choose<T>(this List<T> list, int num) {
 		if (num >= list.Count) { return list.Shuffled(); }
