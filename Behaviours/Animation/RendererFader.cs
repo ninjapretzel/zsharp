@@ -10,7 +10,7 @@ public class RendererFader : MonoBehaviour {
 	public float fadeTime = 1;
 	public bool wantsToBeVisible = true;
 	
-	
+	float alpha;
 	
 	public float time = 1;
 	
@@ -25,6 +25,7 @@ public class RendererFader : MonoBehaviour {
 			baseShader = "GUI/Text Shader";
 			transparentShader = "GUI/Text Shader";
 		}
+		alpha = renderer.material.color.a;
 	}
 	
 	void Start() {
@@ -44,7 +45,7 @@ public class RendererFader : MonoBehaviour {
 		else if (time > 0 && !renderer.enabled) { renderer.enabled = true; }
 		
 		if (time == fadeTime && renderer.material.shader.name != baseShader) {
-			renderer.material.shader = Shader.Find(baseShader);
+			if (alpha * percentage >= 1) { renderer.material.shader = Shader.Find(baseShader); }
 			
 		}
 		
@@ -54,7 +55,7 @@ public class RendererFader : MonoBehaviour {
 		}
 		
 		Color c = renderer.material.color;
-		c.a = percentage;
+		c.a = percentage * alpha;
 		renderer.material.color = c;
 		
 		
