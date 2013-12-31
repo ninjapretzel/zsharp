@@ -1,9 +1,0 @@
-#virtual name,hardware name
-Horizontal-,A
-Horizontal+,D
-Vertical+,W
-Vertical-,S
-Fire1,LeftControl
-Fire2,LeftAlt
-Fire3,LeftCommand
-Jump,Space

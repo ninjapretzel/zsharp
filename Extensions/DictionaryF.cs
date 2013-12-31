@@ -33,6 +33,23 @@ public static class DictionaryF  {
 			}
 		}
 	}
+	
+	public static void LoadCSV(this Dictionary<string, Set<string>> d, string csv) { d.LoadCSV(csv, ','); }
+	public static void LoadCSV(this Dictionary<string, Set<string>> d, string csv, char delim) { 
+		d.Clear();
+		string[] lines = csv.Split('\n');
+		
+		for (int i = 0; i < lines.Length; i++) {
+			if (lines[i][0] == '#') { continue; }
+			if (lines[i].Length == 0) { continue; }
+			string[] content = lines[i].Split(delim);
+			Set<string> stringset = new Set<string>();
+			for (int j = 1; j < content.Length; j++) {
+				stringset.Add(content[j]);
+			}
+			d.Add(content[0], stringset);
+		}
+	}
 
 
 	public static void AddAll(this Dictionary<string, float> d, Dictionary<string, float> other) {

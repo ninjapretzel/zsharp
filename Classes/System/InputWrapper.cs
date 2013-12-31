@@ -2,6 +2,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 // InputWrapper class
 // Provides lower-level access to input, using Unity's built-in Input Manager
@@ -11,7 +12,7 @@ public static class InputWrapper {
 	public const float axisDownMagnitude = 0.5f;
 	public static Dictionary<string, PreviousAxis> prevAxes = new Dictionary<string, PreviousAxis>();
 	public static ControlBindings bindings = new ControlBindings();
-	public static Dictionary<string, string> defaults;
+	public static Dictionary<string, Set<string>> defaults;
 
 	public static TextAsset file {
 		get {
@@ -32,7 +33,7 @@ public static class InputWrapper {
 	}
 	
 	static InputWrapper() {
-		defaults = new Dictionary<string, string>();
+		defaults = new Dictionary<string, Set<string>>();
 		
 		string text = file.text;
 		text = text.RemoveAll((char)0x0D);
@@ -62,8 +63,8 @@ public static class InputWrapper {
 
 	public static float GetAxis(string axis) {
 		float val = 0.0f;
-		ControlBinding positiveBinding = null;
-		ControlBinding negativeBinding = null;
+		Set<ControlBinding> positiveBinding = null;
+		Set<ControlBinding> negativeBinding = null;
 		
 		if(!bindings.ContainsKey(axis+"+") && !bindings.ContainsKey(axis+"-")) {
 			positiveBinding = bindings[axis]; // A button, in this case
@@ -72,38 +73,42 @@ public static class InputWrapper {
 			negativeBinding = bindings[axis+"-"];
 		}
 		
-		if (positiveBinding.key != KeyCode.None) {
-			if (Input.GetKey(positiveBinding.key)) { val += 1.0f; }
-		} else {
-			string boundPosAxis = positiveBinding.axis;
-			if(boundPosAxis != null) {
-				float postemp = Input.GetAxisRaw(boundPosAxis);
-				bool posgtZero = positiveBinding.positive;
-				if(posgtZero && postemp > 0) {
-					val += postemp;
-				} else if(!posgtZero && postemp < 0) {
-					val -= postemp;
-				}
+		for(int i = 0;i < positiveBinding.Count; i++) {
+			if (positiveBinding[i].key != KeyCode.None) {
+				if (Input.GetKey(positiveBinding[i].key)) { val += 1.0f; }
 			} else {
-				LogWarning("Axis " + axis + "+ is unbound!");
+				string boundPosAxis = positiveBinding[i].axis;
+				if(boundPosAxis != null) {
+					float postemp = Input.GetAxisRaw(boundPosAxis);
+					bool posgtZero = positiveBinding[i].positive;
+					if(posgtZero && postemp > 0) {
+						val += postemp;
+					} else if(!posgtZero && postemp < 0) {
+						val -= postemp;
+					}
+				} else {
+					LogWarning("Axis " + axis + "+ is unbound!");
+				}
 			}
 		}
 		
 		if (negativeBinding != null) {
-			if (negativeBinding.key != KeyCode.None) {
-				if (Input.GetKey(negativeBinding.key)) { val -= 1.0f; }
-			} else {
-				string negboundAxis = bindings[axis+"-"].axis;
-				if(negboundAxis != null) {
-					float negtemp = Input.GetAxisRaw(negboundAxis);
-					bool neggtZero = bindings[axis+"-"].positive;
-					if(neggtZero && negtemp > 0) {
-						val -= negtemp;
-					} else if(!neggtZero && negtemp < 0) {
-						val += negtemp;
-					}
+			for(int i = 0;i < negativeBinding.Count; i++) {
+				if (negativeBinding[i].key != KeyCode.None) {
+					if (Input.GetKey(negativeBinding[i].key)) { val -= 1.0f; }
 				} else {
-					LogWarning("Axis "+axis+"- is unbound!");
+					string negboundAxis = negativeBinding[i].axis;
+					if(negboundAxis != null) {
+						float negtemp = Input.GetAxisRaw(negboundAxis);
+						bool neggtZero = negativeBinding[i].positive;
+						if(neggtZero && negtemp > 0) {
+							val -= negtemp;
+						} else if(!neggtZero && negtemp < 0) {
+							val += negtemp;
+						}
+					} else {
+						LogWarning("Axis "+axis+"- is unbound!");
+					}
 				}
 			}
 		}
@@ -248,13 +253,15 @@ public static class InputWrapper {
 		string axis = GetPressedAxis();
 		if(axis != null) {
 			bool positive = (axis[axis.Length-1] == '+');
-			bindings[inputFor] = new ControlBinding(axis.Substring(0, axis.Length-1), positive);
+			bindings[inputFor].Add(new ControlBinding(axis.Substring(0, axis.Length-1), positive));
+			bindings.Save(inputFor);
 			return true;
 		} else {
 			KeyCode kcode = InputWrapper.GetPressedKey();
 			if(kcode != KeyCode.None) {
 				if(kcode != KeyCode.Escape) {
-					bindings[inputFor] = new ControlBinding(kcode);
+					bindings[inputFor].Add(new ControlBinding(kcode));
+					bindings.Save(inputFor);
 				}
 				return true;
 			}
@@ -263,21 +270,67 @@ public static class InputWrapper {
 	}
 	
 	public static void ClearBind(string inputFor) {
-		bindings[inputFor].axis = null;
-		bindings[inputFor].key = KeyCode.None;
-		bindings[inputFor].Save(inputFor);
+		bindings[inputFor] = new Set<ControlBinding>();
+		bindings.Save(inputFor);
+	}
+	
+	public static void ClearBind(string inputFor, int index) {
+		bindings[inputFor].RemoveAt(index);
+	}
+	
+	public static void ClearBind(string inputFor, string name) {
+		bindings[inputFor].Remove(new ControlBinding(name));
 	}
 	
 	public static string GetHardwareName(string nameOf) {
-		ControlBinding bind = bindings[nameOf];
-		if(bind.axis == null) {
-			return bind.key.ToString();
-		} else {
-			return bind.axis+(bind.positive ? "+" : "-");
+		string res = "";
+		foreach(ControlBinding bind in bindings[nameOf]) {
+			res += bind.ToString() + ",";
+		}
+		if(res.Length == 0) { return ""; }
+		return res.Substring(0,res.Length-1); // Trim the last unnecessary comma
+	}
+	
+	public static string[] GetHardwareNames(string nameOf) {
+		string[] stringArray = new string[bindings[nameOf].Count];
+		for(int i=0;i<stringArray.Length;i++) {
+			stringArray[i] = bindings[nameOf][i].ToString();
+		}
+		return stringArray;
+	}
+	
+	// Check if any control already has a certain hardware input bound to it
+	public static bool CheckDuplicate(string hardwareName) {
+		foreach(string key in bindings.Keys) {
+			foreach(ControlBinding binding in bindings[key]) {
+				if(binding.ToString() == hardwareName) { return true; }
+			}
+		}
+		return false;
+	}
+	
+	// Check if any control has a certain hardware input bound to it, and remove it
+	public static void RemoveAllHardwareBind(string hardwareName) {
+		ControlBinding removeMe = new ControlBinding(hardwareName);
+		foreach(string key in bindings.Keys) {
+			if(bindings[key].Contains(removeMe)) {
+				bindings[key].Remove(removeMe);
+			}
 		}
 	}
 	
-	//Stores info of previous values to be able to treat sticks as buttons.
+	// Check if any control has a certain hardware input bound to it, and remove it, unless the control name is the passed exception
+	public static void RemoveAllHardwareBind(string hardwareName, string exception) {
+		ControlBinding removeMe = new ControlBinding(hardwareName);
+		foreach(string key in bindings.Keys) {
+			if(key == exception) { continue; }
+			if(bindings[key].Contains(removeMe)) {
+				bindings[key].Remove(removeMe);
+			}
+		}
+	}
+	
+	// Stores info of previous values to be able to treat sticks as buttons.
 	public class PreviousAxis {
 		public string name;
 		public float val;
@@ -297,22 +350,54 @@ public static class InputWrapper {
 // ControlBindings class
 // Static class for all custom controls.
 
-public class ControlBindings:Dictionary<string, ControlBinding> {
+public class ControlBindings:Dictionary<string, Set<ControlBinding>> {
 	
 	public void Load(string name) {
-		if(this.ContainsKey(name)) {
-			this[name].Load(name);
+		if(this.ContainsKey(name)) { // If the binding exists in the dictionary, it shall be reloaded from playerprefs
+			this[name] = LoadFromPlayerprefs(name);
 		} else {
-			this.Add(name, new ControlBinding(name));
+			if(PlayerPrefs.HasKey("controls_"+name+"_binds")) { // If it doesn't, check if playerprefs has a definition for it
+				this[name] = LoadFromPlayerprefs(name);
+			} else {
+				this.Add(name, LoadFromStringSet(InputWrapper.defaults[name]));
+			}
 		}
 		
+	}
+	
+	public Set<ControlBinding> LoadFromPlayerprefs(string name) {
+		return LoadFromStringSet(new Set<string>(PlayerPrefs.GetString("controls_"+name+"_binds").Split(',')));
+	}
+	
+	public Set<ControlBinding> LoadFromStringSet(Set<string> sts) {
+		Set<ControlBinding> loaded = new Set<ControlBinding>();
+		foreach(string keyString in sts) {
+			if(keyString == "") { continue; }
+			ControlBinding newBinding;
+			if (keyString[keyString.Length-1]=='+') {
+				newBinding = new ControlBinding(keyString.Substring(0, keyString.Length - 1), true);
+				loaded.Add(newBinding);
+			} else if (keyString[keyString.Length-1]=='-') {
+				newBinding = new ControlBinding(keyString.Substring(0, keyString.Length - 1), false);
+				loaded.Add(newBinding);
+			} else {
+				try {
+					newBinding = new ControlBinding((KeyCode)Enum.Parse(typeof(KeyCode), keyString));
+					loaded.Add(newBinding);
+				} catch(ArgumentException) {
+					Debug.LogWarning("ControlBinding: INVALID HARDWARE NAME: " + keyString);
+				}
+			}
+		}
+		return loaded;
 	}
 	
 	public bool Delete(string name) {
 		if(!this.ContainsKey(name)) {
 			return false;
 		}
-		this[name].Destroy(name);
+		this[name] = LoadFromStringSet(InputWrapper.defaults[name]);
+		Save(name);
 		return true;
 	}
 	
@@ -324,13 +409,19 @@ public class ControlBindings:Dictionary<string, ControlBinding> {
 	
 	public void Save() {
 		foreach (string name in this.Keys) {
-			this[name].Save(name);
+			Save(name);
+		}
+	}
+	
+	public void Save(string name) {
+		if(ContainsKey(name)) {
+			PlayerPrefs.SetString("controls_"+name+"_binds", InputWrapper.GetHardwareName(name));
 		}
 	}
 
 }
 
-public class ControlBinding {
+public class ControlBinding : IEquatable<ControlBinding> {
 	public KeyCode key;
 	public string axis;
 	public bool positive = false;
@@ -338,14 +429,6 @@ public class ControlBinding {
 	public ControlBinding() {
 		this.key = KeyCode.None;
 		this.axis = null;
-	}
-	
-	public ControlBinding(string name) {
-		if(PlayerPrefs.HasKey("controls_"+name+"_key")) {
-			Load(name);
-		} else {
-			LoadDefault(name);
-		}
 	}
 	
 	public ControlBinding(KeyCode key) {
@@ -359,56 +442,63 @@ public class ControlBinding {
 		this.positive = positive;
 	}
 	
-	public void LoadDefault(String name) {
-		/*if(defaults == null) {
-			defaults = new Dictionary<string, string>();
-			if(SystemInfo.deviceModel == "OUYA OUYA Console") {
-				TextAsset file = Resources.Load("OuyaDefaultControls", typeof(TextAsset)) as TextAsset;
-			} else {
-				TextAsset file = Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset;
-			}
-			if(file == null) {
-				Debug.Log("Default controls file not found!");
-			} else {
-				defaults.LoadCSV(file.text);
-			}
-		}*/
-		string keyString = InputWrapper.defaults[name];
-		key = KeyCode.None;
-		axis = null;
-		if (keyString[keyString.Length-1]=='+') {
-			axis = keyString.Substring(0, keyString.Length - 1);
-			positive = true;
-		} else if (keyString[keyString.Length-1]=='-') {
-			axis = keyString.Substring(0, keyString.Length - 1);
-			positive = false;
+	public ControlBinding(string HWName) {
+		if (HWName[HWName.Length-1]=='+') {
+			this.axis = HWName.Substring(0, HWName.Length - 1);
+			this.positive = true;
+			this.key = KeyCode.None;
+		} else if (HWName[HWName.Length-1]=='-') {
+			this.axis = HWName.Substring(0, HWName.Length - 1);
+			this.positive = false;
+			this.key = KeyCode.None;
 		} else {
 			try {
-				key = (KeyCode)Enum.Parse(typeof(KeyCode), keyString);
+				this.key = (KeyCode)Enum.Parse(typeof(KeyCode), HWName);
+				this.axis = null;
 			} catch(ArgumentException) {
-				Debug.LogWarning("ControlBinding: INVALID HARDWARE NAME DEFINED IN DEFAULT CONTROLS FILE: " + keyString);
+				Debug.LogWarning("ControlBinding: INVALID HARDWARE NAME: " + HWName);
 			}
 		}
-			
+	}
+	
+	public static bool operator ==(ControlBinding b1, ControlBinding b2) {
+		if(System.Object.ReferenceEquals(b1, null) ^ System.Object.ReferenceEquals(b2, null)) { return false; }
+		if(System.Object.ReferenceEquals(b1, null) && System.Object.ReferenceEquals(b2, null)) { return true; }
+		return b1.Equals(b2);
+	}
+	
+	public static bool operator !=(ControlBinding b1, ControlBinding b2) {
+		if(System.Object.ReferenceEquals(b1, null) ^ System.Object.ReferenceEquals(b2, null)) { return true; }
+		if(System.Object.ReferenceEquals(b1, null) && System.Object.ReferenceEquals(b2, null)) { return false; }
+		return !b1.Equals(b2);
+	}
+	
+	public override bool Equals(System.Object obj) {
+		if(obj==null) { return false; }
+		ControlBinding b = obj as ControlBinding;
+		if((System.Object)b==null) { return false; }
+		return Equals(b);
+	}
+	
+	public bool Equals(ControlBinding b) {
+		return (key == b.key) && (axis == b.axis) && (positive == b.positive);
+	}
+	
+	public override int GetHashCode() {
+		return ToString().GetHashCode();
+	}
+	
+	public override string ToString() {
+		if(axis == null) {
+			return key.ToString();
+		} else {
+			return axis+(positive ? "+" : "-");
+		}
 	}
 	
 	public void Save(string name) {
 		PlayerPrefs.SetInt("controls_"+name+"_key", (int)key);
 		PlayerPrefs.SetString("controls_"+name+"_axis", axis);
 		PlayerPrefs.SetInt("controls_"+name+"_pos", positive ? 1 : 0);
-	}
-	
-	public void Load(string name) {
-		key = (KeyCode)PlayerPrefs.GetInt("controls_"+name+"_key");
-		axis = PlayerPrefs.GetString("controls_"+name+"_axis");
-		if(axis=="") {
-			axis = null;
-		}
-		positive = (PlayerPrefs.GetInt("controls_"+name+"_pos")==1);
-	}
-	
-	public void Destroy(string name) {
-		LoadDefault(name);
-		Save(name);
 	}
 }
