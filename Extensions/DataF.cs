@@ -32,6 +32,17 @@ public static class DataF {
 		return l;
 	}
 	
+	public static List<string> ToStringArray<T>(this List<T> list) {
+		List<string> strings = new List<string>();
+		for (int i = 0; i < list.Count; i++) { strings.Add(list[i].ToString()); }
+		return strings;
+	}
+	
+	public static string[] ToStringArray<T>(this T[] list) {
+		string[] strings = new string[list.Length];
+		for (int i = 0; i < list.Length; i++) { strings[i] = list[i].ToString(); }
+		return strings;
+	}
 	
 	
 	public static List<T> Choose<T>(this List<T> list, int num) {
