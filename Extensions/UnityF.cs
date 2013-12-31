@@ -22,7 +22,9 @@ public static class UnityF {
 	public static void FadeIn(this Component c, float time) {
 		foreach (Renderer r in c.GetComponentsInChildren<Renderer>() as Renderer[]) { r.Require<RendererFader>().FadeIn(time); }
 	}
-	
+	public static void FadeIn(this Component c, float time, float position) {
+		foreach (Renderer r in c.GetComponentsInChildren<Renderer>() as Renderer[]) { r.Require<RendererFader>().FadeIn(time, position); }
+	}
 		
 	public static void FadeOut(this Component c) {
 		foreach (Renderer r in c.GetComponentsInChildren<Renderer>() as Renderer[]) { r.Require<RendererFader>().FadeOut(); }
@@ -30,7 +32,9 @@ public static class UnityF {
 	public static void FadeOut(this Component c, float time) {
 		foreach (Renderer r in c.GetComponentsInChildren<Renderer>() as Renderer[]) { r.Require<RendererFader>().FadeOut(time); }
 	}
-	
+	public static void FadeOut(this Component c, float time, float position) {
+		foreach (Renderer r in c.GetComponentsInChildren<Renderer>() as Renderer[]) { r.Require<RendererFader>().FadeOut(time, position); }
+	}
 	
 	
 	public static T GetComponentOnOrAbove<T>(this Component c) where T : Component {

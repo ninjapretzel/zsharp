@@ -19,8 +19,6 @@ public class RendererFader : MonoBehaviour {
 	}
 	
 	void Awake() {
-		if (wantsToBeVisible) { time = fadeTime; }
-		else { time = 0; }
 		if (renderer.material.shader.name == "GUI/Text Shader") {
 			baseShader = "GUI/Text Shader";
 			transparentShader = "GUI/Text Shader";
@@ -29,7 +27,8 @@ public class RendererFader : MonoBehaviour {
 	}
 	
 	void Start() {
-		
+		if (wantsToBeVisible) { time = fadeTime; }
+		else { time = 0; }
 	}
 	
 	void Update() {
@@ -76,12 +75,24 @@ public class RendererFader : MonoBehaviour {
 		wantsToBeVisible = false;
 	}
 	
+	public void FadeOut(float timeToFade, float position) {
+		SetTime(timeToFade);
+		time = position;
+		wantsToBeVisible = false;
+	}
+	
 	public void FadeIn() {
 		wantsToBeVisible = true;
 	}
 	
 	public void FadeIn(float timeToFade) {
 		SetTime(timeToFade);
+		wantsToBeVisible = true;
+	}
+	
+	public void FadeIn(float timeToFade, float position) {
+		SetTime(timeToFade);
+		time = position;
 		wantsToBeVisible = true;
 	}
 	
