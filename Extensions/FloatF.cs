@@ -15,6 +15,13 @@ public static class FloatF {
 	public static float RoundUp(this float f) { return f.Ceil(); }
 	public static float Fract(this float f) { return f - f.Floor(); }
 	
+	public static float Nearest(this float f, float v) { return f.Nearest(v, 0); }
+	public static float Nearest(this float f, float v, float offset) {
+		float d = (f + offset) / v;
+		return Mathf.Round(d) * v;
+	}
+	
+	public static float Sign(this float f) { return Mathf.Sign(f); }
 	public static float Abs(this float f) { return Mathf.Abs(f); }
 	
 	public static float Outside(this float val, float a, float b) {
