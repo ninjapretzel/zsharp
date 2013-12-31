@@ -57,6 +57,12 @@ public class Slider {
 	public static Slider Left(Rect area, float power) { Slider s = Normalized(area); s.SlideLeft(power); return s; }
 	public static Slider Right(Rect area, float power) { Slider s = Normalized(area); s.SlideRight(power); return s; }
 	
+	public static Slider Up(Rect area, float power, float dampening) { Slider s = Normalized(area); s.SlideUp(power); s.dampening = dampening; return s; }
+	public static Slider Down(Rect area, float power, float dampening) { Slider s = Normalized(area); s.SlideDown(power); s.dampening = dampening; return s; }
+	public static Slider Left(Rect area, float power, float dampening) { Slider s = Normalized(area); s.SlideLeft(power); s.dampening = dampening; return s; }
+	public static Slider Right(Rect area, float power, float dampening) { Slider s = Normalized(area); s.SlideRight(power); s.dampening = dampening; return s; }
+	
+	
 	public void Update() { Update(Time.deltaTime); }
 	public void FixedUpdate() { Update(.02f); }
 	public void Update(float t) {
