@@ -10,11 +10,9 @@ public class RendererFader : MonoBehaviour {
 	public float fadeTime = 1;
 	public bool wantsToBeVisible = true;
 	
-	public float fullAlpha = 1;
-	public float fadedAlpha = .2f;
 	
 	
-	float time = 1;
+	public float time = 1;
 	
 	public float percentage {
 		get { return time / fadeTime; }  
@@ -23,7 +21,10 @@ public class RendererFader : MonoBehaviour {
 	void Awake() {
 		if (wantsToBeVisible) { time = fadeTime; }
 		else { time = 0; }
-		
+		if (renderer.material.shader.name == "GUI/Text Shader") {
+			baseShader = "GUI/Text Shader";
+			transparentShader = "GUI/Text Shader";
+		}
 	}
 	
 	void Start() {
@@ -42,12 +43,12 @@ public class RendererFader : MonoBehaviour {
 		if (time == 0 && renderer.enabled) { renderer.enabled = false; }
 		else if (time > 0 && !renderer.enabled) { renderer.enabled = true; }
 		
-		if (time == 1 && renderer.material.shader.name != baseShader) {
+		if (time == fadeTime && renderer.material.shader.name != baseShader) {
 			renderer.material.shader = Shader.Find(baseShader);
 			
 		}
 		
-		else if (time < 1 && renderer.material.shader.name != transparentShader) {
+		else if (time < fadeTime && renderer.material.shader.name != transparentShader) {
 			renderer.material.shader = Shader.Find(transparentShader);
 			
 		}
@@ -59,28 +60,28 @@ public class RendererFader : MonoBehaviour {
 		
 	}
 	
-	void SetTime(float timeToFade) {
+	public void SetTime(float timeToFade) {
 		float p = percentage;
 		fadeTime = timeToFade;
 		time = p * timeToFade;
 	}
 	
-	void FadeOut() {
+	public void FadeOut() {
 		wantsToBeVisible = false;
 	}
 	
-	void FadeOut(float timeToFade) {
+	public void FadeOut(float timeToFade) {
 		SetTime(timeToFade);
 		wantsToBeVisible = false;
 	}
 	
-	void FadeIn() {
+	public void FadeIn() {
 		wantsToBeVisible = true;
 	}
 	
-	void FadeIn(float timeToFade) {
+	public void FadeIn(float timeToFade) {
 		SetTime(timeToFade);
-		wantsToBeVisible = false;
+		wantsToBeVisible = true;
 	}
 	
 	
