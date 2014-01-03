@@ -228,6 +228,10 @@ public class Table : Dictionary<string, float> {
 		return tb;
 	}
 	
+	public void Set(Table t) {
+		foreach (string s in t.Keys) { this[s] = t[s]; }
+	}
+	
 	public void LoadCSV(string csv) { LoadCSV(csv, ','); }
 	public void LoadCSV(string csv, char separator) {
 		Clear();

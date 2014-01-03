@@ -14,14 +14,26 @@ public static class ColorF {
 		return Color.Lerp(colors[segment], colors[segment+1], f);
 	}
 	
-	public static Color white(float f, float a = 1) { return new Color(f, f, f, a); }
-	public static Color gray(float f, float a = 1) { return new Color(f, f, f, a); }
-	public static Color red(float f, float a = 1) { return new Color(f, 0, 0, a); }
-	public static Color green(float f, float a = 1) { return new Color(0, f, 0, a); }
-	public static Color blue(float f, float a = 1) { return new Color(0, 0, f, a); }
-	public static Color yellow(float f, float a = 1) { return new Color(f, f, 0, a); }
-	public static Color purple(float f, float a = 1) { return new Color(f, 0, f, a); }
-	public static Color cyan(float f, float a = 1) { return new Color(0, f, f, a); }
+	public static Color purple() { return new Color(1, 0, 1, 1); }
+	public static Color cyan() { return new Color(0, 1, 1, 1);  }
+	
+	public static Color white(float f) { return white(f, 1); }
+	public static Color gray(float f) { return gray(f, 1); }
+	public static Color red(float f) { return red(f, 1); }
+	public static Color green(float f) { return green(f, 1); }
+	public static Color blue(float f) { return blue(f, 1); }
+	public static Color yellow(float f) { return yellow(f, 1); }
+	public static Color purple(float f) { return purple(f, 1); }
+	public static Color cyan(float f) { return cyan(f, 1); }
+	
+	public static Color white(float f, float a) { return new Color(f, f, f, a); }
+	public static Color gray(float f, float a) { return new Color(f, f, f, a); }
+	public static Color red(float f, float a) { return new Color(f, 0, 0, a); }
+	public static Color green(float f, float a) { return new Color(0, f, 0, a); }
+	public static Color blue(float f, float a) { return new Color(0, 0, f, a); }
+	public static Color yellow(float f, float a) { return new Color(f, f, 0, a); }
+	public static Color purple(float f, float a) { return new Color(f, 0, f, a); }
+	public static Color cyan(float f, float a) { return new Color(0, f, f, a); }
 
 	
 	public static Color Blend(this Color a, Color b) { return Color.Lerp(a, b, .5f); }

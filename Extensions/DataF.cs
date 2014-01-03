@@ -4,6 +4,9 @@ using System.Collections.Generic;
 
 public static class DataF {
 	
+	public static T LastElement<T>(this List<T> list) { if (list.Count == 0) { return default(T); } return list[list.Count-1]; }
+	public static T FromEnd<T>(this List<T> list, int offset) { return list[list.Count-1-offset]; }
+	public static T FirstElement<T>(this List<T> list) { return list[0]; }
 	
 	public static void Append<T>(this List<T> list, List<T> add) { foreach (T o in add) { list.Add(o); } }
 	public static int RandomIndex<T>(this List<T> list) { return (int)(RandomF.value * list.Count); }
@@ -63,6 +66,9 @@ public static class DataF {
 		return clone;
 	}
 	
+	public static T LastElement<T>(this T[] list) { return list[list.Length-1]; }
+	public static T FromEnd<T>(this T[] list, int offset) { return list[list.Length-1-offset]; }
+	public static T FirstElement<T>(this T[] list) { return list[0]; }
 	
 	public static int RandomIndex<T>(this T[] array) { return (int)(RandomF.value * array.Length); }
 	public static T Choose<T>(this T[] array) { return array[array.RandomIndex()]; }

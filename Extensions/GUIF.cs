@@ -183,6 +183,53 @@ public static class GUIF {
 		return area;
 	}
 	
+	public static Vector4 EditorSelectionArea(Rect area, Vector4 scrollPosition, Rect entrySize, string[] names) {
+		return EditorSelectionArea(area, scrollPosition, entrySize, names, new Color(.7f, .7f, 1), false); }
+	public static Vector4 EditorSelectionArea(Rect area, Vector4 scrollPosition, Rect entrySize, string[] names, bool showNumbers) {
+		return EditorSelectionArea(area, scrollPosition, entrySize, names, new Color(.7f, .7f, 1), showNumbers); }
+	public static Vector4 EditorSelectionArea(Rect area, Vector4 scrollPosition, Rect entrySize, string[] names, Color selectionColor, bool showNumbers) {
+		Rect scrollableArea = entrySize;
+		float rem = 0;
+		scrollableArea.height *= names.Length;
+		int selected = (int)scrollPosition.z;
+		int doSelection = -1;
+		Vector2 pos = new Vector2(scrollPosition.x, scrollPosition.y);
+		GUISkin lastSkin = GUI.skin;
+		Color lastColor = GUI.color;
+		
+		Rect brush = entrySize;
+		pos = GUI.BeginScrollView(area, pos, scrollableArea);
+			for (int i = 0; i < names.Length; i++) {
+				GUI.skin = lastSkin;
+				GUI.color = lastColor;
+				if (i == selected) { GUI.color = selectionColor; }
+				if (showNumbers) {
+					Rect b = brush.Left(.5f);
+					GUI.Box(b.Left(.4f), ""+i);
+					b = b.Right(.3f);
+					if (GUI.Button(b.MoveLeft(), "-")) { rem = -1; doSelection = i; }
+					if (GUI.Button(b, "D")) { rem = 1; doSelection = i; }
+					
+					GUI.Box(brush.Right(.5f), names[i]);
+				} else {
+					GUI.Box(brush, names[i]);
+				}
+				
+				GUI.skin = blankSkin;
+				if (GUI.Button(brush, "")) { doSelection = i; }
+				
+				
+				brush.y += brush.height;
+			}
+		GUI.EndScrollView();
+		
+		GUI.skin = lastSkin;
+		GUI.color = lastColor;
+		
+		if (doSelection >= 0) { selected = doSelection; }
+		return new Vector4(pos.x, pos.y, selected, rem);
+	}
+	
 	
 	public static SelectableControl GetSelection() { 
 		if (controls.Count == 0) { return null; }

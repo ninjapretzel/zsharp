@@ -5,10 +5,11 @@ using System.Collections.Generic;
 
 public static class StringF {
 	public static bool IsNumber(this char c) { return c >= 48 && c < 57; }
+	public static bool Contains(this string str, string s) { return str.IndexOf(s) != -1; }
 	
-	public static bool Contains(this string str, string s) {
-		return str.IndexOf(s) != -1;
-	}
+	public static string WINDOWS_NEWLINE { get { return "" + (char)0x0d + (char)0x0a; } }
+	public static string UNIX_NEWLINE { get { return "" + (char)0x0a; } }
+	public static string MAC_NEWLINE { get { return "" + (char)0x0d; } }
 	
 	public static string Spacify(this string s) {
 		StringBuilder str = new StringBuilder();
@@ -20,11 +21,15 @@ public static class StringF {
 	}
 	
 	public static string ConvertNewlines(this string s) {
-		string ss = s.Replace(""+(char)0x0d + (char)0x0a, ""+(char)0x0a);
-		return ss.Replace((char)0x0d, (char)0x0a);
+		string ss = s.Replace(WINDOWS_NEWLINE, UNIX_NEWLINE);
+		return ss.Replace(MAC_NEWLINE, UNIX_NEWLINE);
 	}
 	
-	
+	public static string RemoveAllChars(this string str, string s) {
+		string ss = str;
+		foreach (char c in s) { ss = ss.RemoveAll(c); }
+		return ss;
+	}
 	public static string RemoveAll(this string str, string s) { return str.Replace(s, ""); }
 	public static string RemoveAll(this string str, char c) { return str.Replace(""+c, ""); }
 	

@@ -11,6 +11,7 @@ public class GUIScrollableArea : MonoBehaviour {
 	
 	public bool enableTouchScrolling = false;
 	
+	
 	#if UNITY_ANDROID || UNITY_IOS
 	Vector2 scrollVelocity;
 	static float velocityDampening = 8;
@@ -18,7 +19,7 @@ public class GUIScrollableArea : MonoBehaviour {
 	
 	
 	void Start() {
-		
+		if (!anchor) { anchor = transform.Find("Anchor"); }
 	} 
 	
 	void Update() {
