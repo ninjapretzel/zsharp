@@ -224,24 +224,30 @@ public static class InputWrapper {
 		}
 		// For some reason, Unity detects touches on smartphone screens as mouse movement events. Ensure this doesn't become a problem.
 		if(Input.touches.Length == 0) {
-			if(Input.GetAxisRaw("MouseAxisX") > axisDownMagnitude) {
-				return "MouseAxisX+";
-			}
-			if(Input.GetAxisRaw("MouseAxisX") < -axisDownMagnitude) {
-				return "MouseAxisX-";
-			}
-			if(Input.GetAxisRaw("MouseAxisY") > axisDownMagnitude) {
-				return "MouseAxisY+";
-			}
-			if(Input.GetAxisRaw("MouseAxisY") < -axisDownMagnitude) {
-				return "MouseAxisY-";
-			}
-			if(Input.GetAxisRaw("MouseWheel") > axisDownMagnitude) {
-				return "MouseWheel+";
-			}
-			if(Input.GetAxisRaw("MouseWheel") < -axisDownMagnitude) {
-				return "MouseWheel-";
-			}
+			try {
+				if(Input.GetAxisRaw("MouseAxisX") > axisDownMagnitude) {
+					return "MouseAxisX+";
+				}
+				if(Input.GetAxisRaw("MouseAxisX") < -axisDownMagnitude) {
+					return "MouseAxisX-";
+				}
+			} catch(UnityException) { ; }
+			try {
+				if(Input.GetAxisRaw("MouseAxisY") > axisDownMagnitude) {
+					return "MouseAxisY+";
+				}
+				if(Input.GetAxisRaw("MouseAxisY") < -axisDownMagnitude) {
+					return "MouseAxisY-";
+				}
+			} catch(UnityException) { ; }
+			try {
+				if(Input.GetAxisRaw("MouseWheel") > axisDownMagnitude) {
+					return "MouseWheel+";
+				}
+				if(Input.GetAxisRaw("MouseWheel") < -axisDownMagnitude) {
+					return "MouseWheel-";
+				}
+			} catch(UnityException) { ; }
 		}
 		return null;
 	}
@@ -262,6 +268,42 @@ public static class InputWrapper {
 				if(kcode != KeyCode.Escape) {
 					bindings[inputFor].Add(new ControlBinding(kcode));
 					bindings.Save(inputFor);
+				}
+				return true;
+			}
+		}
+		return false;
+	}
+
+	// Attempts to detect input on any axis or button.
+	// Returns true if input was captured. False otherwise.
+	// Only creates the binding if captured input wasn't escape key/back button.
+	// Binds it to the specified binding slot for the specified control
+	public static bool CaptureInput(string inputFor, int slot) {
+		string axis = GetPressedAxis();
+		if(axis != null) {
+			bool positive = (axis[axis.Length-1] == '+');
+			if(bindings[inputFor].Count - 1 < slot) {
+				bindings[inputFor].Add(new ControlBinding(axis.Substring(0, axis.Length-1), positive));
+			} else {
+				bindings[inputFor][slot] = new ControlBinding(axis.Substring(0, axis.Length-1), positive);
+			}
+			bindings.Save(inputFor);
+			return true;
+		} else {
+			KeyCode kcode = InputWrapper.GetPressedKey();
+			if(kcode != KeyCode.None) {
+				if(kcode != KeyCode.Escape) {
+					if(bindings[inputFor].Count - 1 < slot) {
+						bindings[inputFor].Add(new ControlBinding(kcode));
+					} else {
+						bindings[inputFor][slot] = new ControlBinding(kcode);
+					}
+					bindings.Save(inputFor);
+				} else {
+					if(bindings[inputFor].Count > slot) {
+						bindings[inputFor].RemoveAt(slot);
+					}
 				}
 				return true;
 			}
