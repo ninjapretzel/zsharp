@@ -19,14 +19,11 @@ public static class InputWrapper {
 			TextAsset f;
 			if(SystemInfo.deviceModel == "OUYA OUYA Console") {
 				f = Resources.Load("OuyaControls", typeof(TextAsset)) as TextAsset;
-				if (f == null) {
-					f = Resources.Load("OuyaDefaultControls", typeof(TextAsset)) as TextAsset;
-				}
 			} else {
 				f = Resources.Load("Controls", typeof(TextAsset)) as TextAsset;
-				if (f == null) {
-					f = Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset;
-				}
+			}
+			if (f == null) {
+				f = Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset;
 			}
 			return f;
 		}
