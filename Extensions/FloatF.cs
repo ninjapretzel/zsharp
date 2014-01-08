@@ -8,12 +8,17 @@ public static class FloatF {
 	
 	public static float Lerp(this float f, float target, float v) { return Mathf.Lerp(f, target, v); }
 	public static float Clamp(this float f, float min, float max) { return Mathf.Clamp(f, min, max); }
+	public static float Clamp01(this float f) { return Mathf.Clamp01(f); }
 	public static float Floor(this float f) { return Mathf.Floor(f); }
 	public static float Ceil(this float f) { return Mathf.Ceil(f); }
 	public static float Round(this float f) { return Mathf.Round(f); }
 	public static float RoundDown(this float f) { return f.Floor(); }
 	public static float RoundUp(this float f) { return f.Ceil(); }
 	public static float Fract(this float f) { return f - f.Floor(); }
+	
+	public static bool IsNAN(this float f) { return float.IsNaN(f); }
+	public static bool IsNaN(this float f) { return float.IsNaN(f); }
+	
 	
 	public static float Nearest(this float f, float v) { return f.Nearest(v, 0); }
 	public static float Nearest(this float f, float v, float offset) {

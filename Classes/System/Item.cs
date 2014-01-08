@@ -2,27 +2,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System;
 
 public class Inventory : List<Item> {
 
-	public static Inventory database;
 	
-	static Inventory() {
-		database = new Inventory();
-		TextAsset file = Resources.Load("Items", typeof(TextAsset)) as TextAsset;
-		if (file != null) {
-			string[] lines = file.text.Split('\n');
-			database = LoadLines(lines);
-			
-		}
-		
-		
-	}
 	
 	public Item GetNamed(string name) {
 		foreach (Item i in this) { if (i.name == name) { return i; } }
 		return null;
+	}
+	
+	
+	
+	public List<Item> SelectStackable(bool stackables) {
+		return this.Where(item => item.stacks == stackables).ToList();
+		// List<Item> list = new List<Item>();
+		// foreach (Item i in this) {
+			// if (i.stacks == stackables) { list.Add(i); }
+		// }
+		// return list;
+		
 	}
 	
 	
@@ -51,15 +52,6 @@ public class Inventory : List<Item> {
 	}
 	
 	
-	public static Inventory LoadLines(string[] lines) {
-		Inventory items = new Inventory();
-		for (int i = 0; i < lines.Length; i++) {
-			if (lines[i].Length <= 3) { continue; }
-			if (lines[i][0] == '#') { continue; }
-			items.Add(Item.FromString(lines[i]));
-		}
-		return items;
-	}
 	
 	
 }
@@ -75,6 +67,20 @@ public class Item : IComparable<Item> {
 	public Texture2D iconLoaded;
 	public Table stats;
 	public Table properties;
+	
+	public static Inventory database;
+	
+	static Item() {
+		database = new Inventory();
+		TextAsset file = Resources.Load("Items", typeof(TextAsset)) as TextAsset;
+		if (file != null) {
+			string[] lines = file.text.Split('\n');
+			database = LoadLines(lines);
+			
+		}
+		
+		
+	}
 	
 	public void ReloadIcon() { iconLoaded = Resources.Load(iconName, typeof(Texture2D)) as Texture2D; }
 	public Texture2D icon {
@@ -171,9 +177,18 @@ public class Item : IComparable<Item> {
 		return str.ToString();
 	}
 	
-	public static List<Item> LoadLinesAsList(string[] lines) {
-		return (List<Item>)Inventory.LoadLines(lines);
+	
+	public static List<Item> LoadLinesAsList(string[] lines) { return (List<Item>)LoadLines(lines); }
+	public static Inventory LoadLines(string[] lines) {
+		Inventory items = new Inventory();
+		for (int i = 0; i < lines.Length; i++) {
+			if (lines[i].Length <= 3) { continue; }
+			if (lines[i][0] == '#') { continue; }
+			items.Add(Item.FromString(lines[i]));
+		}
+		return items;
 	}
+	
 	
 	public static Item FromString(string s) { return FromString(s, '|'); }
 	public static Item FromString(string s, char delim) {

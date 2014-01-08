@@ -184,6 +184,8 @@ public static class StringF {
 		return input.Replace("\\n", "\n");
 	}
 	
+	
+	
 }
 
 

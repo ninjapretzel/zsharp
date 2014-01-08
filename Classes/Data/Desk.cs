@@ -10,6 +10,7 @@ Desks and tables are best buddies.
 */
 public class Desk : Dictionary<string, Table> {
 	
+	
 	public Desk Clone() {
 		Desk d = new Desk();
 		foreach (string key in Keys) { d[key] = this[key]; }
@@ -38,6 +39,7 @@ public class Desk : Dictionary<string, Table> {
 		return c;
 	}
 	
+	
 	public override string ToString() {
 		StringBuilder str = new StringBuilder("#Formatted Desk as .csv:");
 		foreach (string key in Keys) {
@@ -56,6 +58,18 @@ public class Desk : Dictionary<string, Table> {
 		
 	}
 	
+	
+	public static Desk FromCSV(TextAsset t) { return FromCSV(t.text, ','); }
+	public static Desk FromCSV(TextAsset t, char delim) { return FromCSV(t.text, delim); }
+	public static Desk FromCSV(string csv) { return FromCSV(csv, ','); }
+	public static Desk FromCSV(string csv, char delim) { 
+		Desk d = new Desk();
+		d.LoadCSV(csv, delim);
+		return d;
+	}
+	
+	public void LoadCSV(TextAsset t) { LoadCSV(t.text, ','); }
+	public void LoadCSV(TextAsset t, char delim) { LoadCSV(t.text, delim); }
 	public void LoadCSV(string csv) { LoadCSV(csv, ','); }
 	public void LoadCSV(string csv, char delim) {
 		Clear();

@@ -7,16 +7,38 @@ using System.Collections.Generic;
 //Dictionary float 
 public static class DictionaryF  {
 	
-	public static List<string> GetKeyList(this Dictionary<string, float> d) {
-		List<string> l = new List<string>();
-		foreach (string s in d.Keys) { l.Add(s); }
+	public static List<T> GetKeyList<T, K>(this Dictionary<T, K> d) {
+		List<T> l = new List<T>();
+		foreach (T t in d.Keys) { l.Add(t); }
 		return l;
 	}
 	
-	public static List<string> GetKeyList(this Dictionary<string, string> d) {
-		List<string> l = new List<string>();
-		foreach (string s in d.Keys) { l.Add(s); }
-		return l;
+	public static Set<T> GetKeySet<T, K>(this Dictionary<T, K> d) {
+		Set<T> s = new Set<T>();
+		foreach (T t in d.Keys) { s.Add(t); }
+		return s;
+	}
+	
+	
+	public static Set<T> Choose<T, K>(this Dictionary<T, K> d, int num) {
+		Set<T> s = new Set<T>();
+		Set<T> keys = d.GetKeySet<T, K>();
+		while (s.Count < num && keys.Count > 0) {
+			T t = keys.Choose();
+			s.Add(t);
+			keys.Remove(t);
+		}
+		return s;
+	}
+	
+	public static T RandomKey<T, K>(this Dictionary<T, K> d) {
+		int i = 0;
+		int chosen = (int)RandomF.Range(0, d.Count);
+		foreach (T t in d.Keys) {
+			if (i == chosen) { return t; }
+			i++;
+		}
+		return default(T);
 	}
 	
 	public static void LoadCSV(this Dictionary<string, string> d, string csv) { d.LoadCSV(csv, ','); }

@@ -3,12 +3,26 @@ using System.Collections.Generic;
 using System.Collections;
 
 public static class UnityF {
-
-	public static T AddComponent<T>(this Component c) where T : Component { return c.gameObject.AddComponent<T>(); }
+	
+	public static GameObject Duplicate(this Component c) { 
+		return (GameObject)GameObject.Instantiate(c.gameObject, c.transform.position, c.transform.rotation);
+	}
+	public static T DuplicateAs<T>(this Component c) where T : Component { 
+		return c.Duplicate().GetComponent<T>() as T;
+	}
 	
 	public static void RemoveFromWorld(this Component c) {
 		GameObject.Destroy(c.gameObject);
 	}
+	
+	public static T GrabFromChild<T>(this Component c, string childName) where T : Component {
+		Transform t = c.transform.Find(childName);
+		if (t != null) { return t.GetComponent<T>(); }
+		return null;
+	}
+	
+	
+	public static T AddComponent<T>(this Component c) where T : Component { return c.gameObject.AddComponent<T>(); }
 	
 	public static T Require<T>(this Component c) where T : Component {
 		Component check = c.GetComponent<T>();

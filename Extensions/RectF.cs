@@ -4,6 +4,14 @@ using System.Collections;
 public static class RectF {
 	public static Rect unit { get { return new Rect(0, 0, 1, 1); } }
 	
+	public static Rect ToScreenArea(this Transform t, float w, float h) {
+		Vector3 pos = Camera.main.WorldToScreenPoint(t.position);
+		pos.y = Screen.height - pos.y;
+		float width = w * Screen.width;
+		float height = h * Screen.height;
+		return new Rect(pos.x - .5f * width, pos.y - .5f * height, width, height);
+	}
+	
 	public static Rect Scaled(this Rect r, Vector2 s) { return r.Scaled(s.x, s.y); }
 	public static Rect Scaled(this Rect r, float x, float y) { return new Rect(r.x * x, r.y * y, r.width * x, r.height * y); }
 	public static Rect Denormalized(this Rect r) { return r.Scaled(Screen.width, Screen.height); }

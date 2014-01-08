@@ -6,19 +6,31 @@ public class DisplaysItem : MonoBehaviour {
 	Item item;
 	public string itemName;
 	public bool canDisplayTooltip = true;
+	public Renderer icon;
+	public TextMesh textMesh;
 	bool displayTooltip = false;
 	
 	Rect tooltipArea { get { return new Rect(0, 0, 240, 240); } }
 	
 	
 	void Start() {
-		item = Inventory.database.GetNamed(itemName);
+		item = Item.database.GetNamed(itemName);
+		
+		if (!icon) { icon = transform.GrabFromChild<Renderer>("Icon"); }
+		if (!textMesh) { textMesh = transform.GrabFromChild<TextMesh>("Name"); }
+		
+		
 	}
 	
 	void Update() {
 		if (item != null) {
-			renderer.material.mainTexture = item.icon;
+			icon.material.mainTexture = item.icon;
+			textMesh.text = item.name;
+			
 		}
+		
+		
+		
 	}
 	
 	void OnGUI() {

@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -76,31 +77,29 @@ public static class DataF {
 		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, array.Length-1);
 		return array[index];
 	}
-
 	
 	
 	//Returns the lines as a string array from a csv formatted TextAsset (.txt)
-	//Removes all tabs and splits the file by newlines. 
 	public static string Load(string filename) {
 		TextAsset file = Resources.Load(filename, typeof(TextAsset)) as TextAsset;
 		if (file == null) { 
-			Debug.Log("Tried to load " + filename + ".txt. File does not exist");
-			Debug.Log("If the file is " + filename + ".csv - Fix file extension to .txt");
+			Debug.Log("Tried to load " + filename + ".txt/" + filename + ".csv - File does not exist");
 			return "";
 		}
 		return file.text.Replace("\t", "");
 	}
 	
+	//Removes all tabs and splits the file by newlines. 
 	public static string[] LoadLines(string filename) {
-		TextAsset file = Resources.Load(filename, typeof(TextAsset)) as TextAsset;
-		if (file == null) { 
-			Debug.Log("Tried to load " + filename + ".txt. File does not exist");
-			Debug.Log("If the file is " + filename + ".csv - Fix file extension to .txt");
-			return null;
-		}
-		return file.text.Replace("\t", "").Split('\n');
+		return Load(filename).Replace("\t", "").Split('\n');
 	}
 	
+	//Further converts it into a list by newlines and ','
+	public static List<string> LoadList(string filename) {
+		string text = Load(filename).ConvertNewlines().Replace(",\n","\n").Replace("\n", ",");
+		return text.Split(',').ToList();
+		
+	}
 	
 	
 }

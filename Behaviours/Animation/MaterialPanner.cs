@@ -9,13 +9,9 @@ public class MaterialPanner : MonoBehaviour {
 	public bool doMainTexture = true;
 	public string[] targets;
 	
-	private Material mat;
 	public Material material {
-		get { return mat; }
-		set {
-			mat = value;
-			renderer.material = mat;
-		}
+		get { return renderer.material; }
+		set { renderer.material = value; }
 	}
 	
 	void Awake() {
@@ -37,12 +33,12 @@ public class MaterialPanner : MonoBehaviour {
 	}
 	
 	void Pan(string target) {
-		if (mat.HasProperty(target)) {
-			Vector2 offset = mat.GetTextureOffset(target);
+		if (material.HasProperty(target)) {
+			Vector2 offset = material.GetTextureOffset(target);
 			offset += speed * scale * Time.deltaTime;
 			offset.x %= 1;
 			offset.y %= 1;
-			mat.SetTextureOffset(target, offset);
+			material.SetTextureOffset(target, offset);
 		}
 	}
 }

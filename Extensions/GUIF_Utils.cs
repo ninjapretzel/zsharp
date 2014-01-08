@@ -24,6 +24,13 @@ public static class GUIStyleF {
 	
 	public static GUIStyle Clone(this GUIStyle c) { return new GUIStyle(c); }
 	
+	public static GUIStyle FontSize(this GUIStyle style, string s) { return style.FontSize(GUIFontSize.Get(s)); }
+	public static GUIStyle FontSize(this GUIStyle style, float p) { 
+		GUIStyle copy = new GUIStyle(style);
+		copy.fontSize = (int) (p/720f * Screen.height);
+		return copy;
+	}
+	
 	public static void SetFontSize(this GUIStyle style, string s) { style.SetFontSize(GUIFontSize.Get(s)); }
 	public static void SetFontSize(this GUIStyle style, float p) {
 		style.fontSize = (int)(p * (float)Screen.height);

@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
@@ -6,40 +7,55 @@ using System;
 using System.IO;
 
 
-public class ItemDatabase : EditorWindow {
+
+public class ItemDatabase : ZEditorWindow {
 	
 	public static string path { get { return Application.dataPath + "/Data/Resources/"; } } 
 	public static string target { get { return path + "Items.csv"; } }
 	
-	List<Item> items = new List<Item>();
+	List<Item> items;
 	
-	List<OptionEntry> stats = new List<OptionEntry>();
-	int numOptions = 0;
-	int removeAt = -1;
+	List<OptionEntry> stats;
+	int numOptions;
+	int removeAt;
 	
 	Vector4 selectScroll;
 	Vector2 editScroll;
 	
 	int selection;
-	Item editing = new Item();
+	Item editing;
 	
-	float fieldWidth { get { return .6f * position.width; } }
+	bool listChanged = false;
+	public override float fieldWidth { get { return .6f * position.width; } }
 	
 	[MenuItem ("Window/Item Database")]
 	static void ShowWindow() {
 		ItemDatabase main = (ItemDatabase)EditorWindow.GetWindow(typeof(ItemDatabase));
+		
+		main.Init();
 		//main.items.Add(new Item());
 		main.LoadDatabase();
 		
 		if ( main.items.Count == 0) { main.items.Add(new Item()); }
 		main.LoadSelection();
+		
+	}
+	
+	void Init() {
+		items = new List<Item>();
+		stats = new List<OptionEntry>();
+		numOptions = 0;
+		removeAt = -1;
+		editing = new Item();
+		listChanged = false;
 	}
 	
 	
 	void OnGUI() {
-		GUISkin blankSkin = Resources.Load("blank", typeof(GUISkin)) as GUISkin;
-		Color lastColor = GUI.color;
-		GUISkin lastSkin = GUI.skin;
+		//GUISkin blankSkin = Resources.Load("blank", typeof(GUISkin)) as GUISkin;
+		//Color lastColor = GUI.color;
+		//GUISkin lastSkin = GUI.skin;
+		checkChanges = false;
 		string[] ss = new string[items.Count];
 		for (int i = 0; i < ss.Length; i++) { ss[i] = items[i].name; }
 		
@@ -70,11 +86,13 @@ public class ItemDatabase : EditorWindow {
 		}
 		
 		line = line.MoveDown();
+		GUI.color = listChanged ? Color.red : Color.white;
 		if (GUI.Button(line, "Apply To Database")) {
 			WriteDatabase();
 		}
 		
 		line = line.MoveDown();
+		GUI.color = Color.white;
 		if (GUI.Button(line.Left(.5f), "Add Item")) {
 			if (items.Count > 0) { items.Add(items.LastElement().Clone()); }
 			else { items.Add(new Item()); }
@@ -87,6 +105,7 @@ public class ItemDatabase : EditorWindow {
 		
 		//Rect editArea = new Rect(210, 0, position.width - 210, position.height);
 		//Rect editView = new Rect(0, 0, editArea.width-10, position.height * 2);
+		checkChanges = true;
 		GUILayout.BeginHorizontal();
 			GUILayout.Space(210);
 			
@@ -109,9 +128,13 @@ public class ItemDatabase : EditorWindow {
 				GUILayout.EndScrollView();
 				
 				GUILayout.Space(10);
+				GUI.color = changed ? Color.red : Color.white;
 				if (GUILayout.Button("Apply Item")) {
+					listChanged = changed || listChanged;
 					ApplySelection();
 				}
+				
+				GUI.color = Color.white;
 				
 			GUILayout.EndVertical();
 		GUILayout.EndHorizontal();
@@ -247,8 +270,7 @@ public class ItemDatabase : EditorWindow {
 		sr.WriteLine(str);
 		sr.Close();
 		
-		List<Item> loaded;
-		
+		listChanged = false;
 		
 	}
 	
@@ -261,6 +283,7 @@ public class ItemDatabase : EditorWindow {
 		} else {
 			WriteDatabase();
 		}
+		listChanged = false;
 	}
 	
 	void ApplySelection() {
@@ -269,12 +292,14 @@ public class ItemDatabase : EditorWindow {
 		//Debug.Log(editing.stats);
 		items[selection] = editing;
 		editing = items[selection].Clone();
+		changed = false;
 	}
 	
 	void LoadSelection() {
 		editing = items[selection].Clone();
 		stats = editing.stats.ToListOfOptions();
 		numOptions = stats.Count;
+		changed = false;
 	}
 	
 	
@@ -294,60 +319,6 @@ public class ItemDatabase : EditorWindow {
 		GUILayout.EndHorizontal();
 	}
 	
-	string TextField(string label, string text) { return TextField(label, text, 1); }
-	string TextField(string label, string text, float scale) {
-		string txt;
-		GUILayout.BeginHorizontal("box");
-			GUILayout.Label(label);
-			txt = GUILayout.TextField(text, GUILayout.Width(fieldWidth * scale));
-		GUILayout.EndHorizontal();
-		return txt;
-	}
-	
-	string TextArea(string label, string text) {
-		string txt;
-		GUILayout.BeginHorizontal("box");
-			GUILayout.Label(label);
-			txt = GUILayout.TextArea(text, GUILayout.Width(fieldWidth));
-		GUILayout.EndHorizontal();
-		return txt;
-	}
-	
-	float FloatField(string label, float val) { return FloatField(label, val, 1); }
-	float FloatField(string label, float val, float scale) {
-		float v;
-		GUILayout.BeginHorizontal("box");
-			GUILayout.Label(label);
-			v = EditorGUILayout.FloatField(val, GUILayout.Width(fieldWidth * scale));
-			
-		GUILayout.EndHorizontal();
-		
-		return v;
-	}
-	
-	Color ColorField(string label, Color color) { return ColorField(label, color, .2f); }
-	Color ColorField(string label, Color color, float scale) {
-		Color c;
-		GUILayout.BeginHorizontal("box");
-			GUILayout.Label(label);
-			c = EditorGUILayout.ColorField(color, GUILayout.Width(fieldWidth * scale));
-			
-		GUILayout.EndHorizontal();
-		
-		return c;
-	}
-	
-	int IntField(string label, int val) { return IntField(label, val, 1); }
-	int IntField(string label, int val, float scale) {
-		int v;
-		GUILayout.BeginHorizontal("box");
-			GUILayout.Label(label);
-			v = EditorGUILayout.IntField(val, GUILayout.Width(fieldWidth));
-			
-		GUILayout.EndHorizontal();
-		
-		return v;
-	}
 	
 }
 
@@ -377,7 +348,7 @@ public static class ItemDatabaseUtils {
 
 
 
-
+#endif
 
 
 

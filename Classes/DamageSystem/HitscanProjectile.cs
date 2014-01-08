@@ -50,7 +50,7 @@ public class HitscanProjectile : DealsDamage {
 		
 	}
 	
-	void HitATarget() {
+	public override void HitATarget() {
 		Destroy(gameObject);
 	}
 	
