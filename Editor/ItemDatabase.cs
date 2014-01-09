@@ -63,11 +63,12 @@ public class ItemDatabase : ZEditorWindow {
 		Rect single = new Rect(0, 0, 180, 20);
 		int lastSelection = selection;
 		selectScroll = GUIF.EditorSelectionArea(selectArea, selectScroll, single, ss, true);
-		selection = (int)selectScroll.z;
 		int selectAction = (int)selectScroll.w;
 		
-		if (selectAction == 1) { items.Insert(selection, items[selection].Clone()); }
-		if (selectAction == -1) { items.RemoveAt(selection); selection = (int)selection.Clamp(0, items.Count); }
+		if (selectAction == 1) { listChanged = true; items.Insert(selection, items[selection].Clone()); }
+		if (selectAction == -1) { listChanged = true; items.RemoveAt(selection); selection = (int)selection.Clamp(0, items.Count); }
+		selection = (int)selectScroll.z.Clamp(0, items.Count-1);
+		
 		
 		if (selection != lastSelection) {
 			LoadSelection();

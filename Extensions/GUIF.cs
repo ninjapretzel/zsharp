@@ -12,6 +12,8 @@ public static class GUIF {
 	public static int currentSelectedControl = -1;
 	public static bool controlHit = false;
 	
+	public static Texture2D pixel { get { return Resources.Load("pixel", typeof(Texture2D)) as Texture2D; } }
+	
 	public static Rect screen { 
 		get { return new Rect(0, 0, Screen.width, Screen.height); }
 	}

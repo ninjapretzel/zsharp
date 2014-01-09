@@ -44,7 +44,7 @@ public class StateMachine<T> where T : Component {
 	public void Update() { 
 		if (doneSwitching) { doneSwitching = false; switchedLastFrame = false; }
 		if (switchedLastFrame) { currentState.EnterFrame(); doneSwitching = true; }
-		currentState.Update(); 
+		currentState.Update();
 		if (previousState != null) { previousState.OffUpdate(); }
 	}
 	
@@ -90,6 +90,8 @@ public class State<T> where T : Component {
 	public T target;
 	
 	public State() { target = null; }
+	
+	public virtual void Action(string a) { Debug.LogWarning("Missing override to Action(string a) in " + GetType()); }
 	
 	public virtual void Enter() {}
 	public virtual void Exit() {}

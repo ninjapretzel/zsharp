@@ -5,10 +5,40 @@ using System.Collections;
 public static class VectorF {
 	
 	
+	public static Vector2 BiggestDifferenceTo(this Vector2 v, Vector2 other) {
+		Vector2 diff = other - v;
+		if (diff.x.Abs() > diff.y.Abs()) { diff.y = 0; }
+		else { diff.x = 0; }
+		return diff;
+	}
+	
+	public static Vector2 ApplyFriction(this Vector2 v, float f) {
+		float m = v.magnitude;
+		m = Mathf.Max(m-f, 0);
+		return v.normalized * m;
+	}
+	
 	public static Vector2 TLerp(this Vector2 v, float t) { return v.TLerp(Vector2.zero, t); }
 	public static Vector2 TLerp(this Vector2 v, Vector2 target) { return v.TLerp(target, 1); }
 	public static Vector2 TLerp(this Vector2 v, Vector2 target, float t) { return v.Lerp(target, Time.deltaTime * t); }
 	public static Vector2 Lerp(this Vector2 v, Vector2 target, float t) { return Vector2.Lerp(v, target, t); }
+	
+	
+	public static Vector3 ApplyFriction(this Vector3 v, Vector3 f) {
+		Vector3 m = v.Abs();
+		m.x = v.x.Sign() * Mathf.Max(m.x-f.x, 0);
+		m.y = v.y.Sign() * Mathf.Max(m.y-f.y, 0);
+		m.z = v.z.Sign() * Mathf.Max(m.z-f.z, 0);
+		return m;
+	}
+	
+	public static Vector3 ApplyFriction(this Vector3 v, float f) {
+		float m = v.magnitude;
+		m = Mathf.Max(m-f, 0);
+		return v.normalized * m;
+	}
+	
+	public static Vector3 Abs(this Vector3 v) { return new Vector3(v.x.Abs(), v.y.Abs(), v.z.Abs()); }
 	
 	public static Vector3 TLerp(this Vector3 v, float t) { return v.TLerp(Vector3.zero, t); }
 	public static Vector3 TLerp(this Vector3 v, Vector3 target) { return v.TLerp(target, 1); }

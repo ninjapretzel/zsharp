@@ -106,6 +106,7 @@ public static class RectF {
 	public static Vector2 Size(this Rect r, float x, float y) { return new Vector2(r.width * x, r.height * y); }
 	
 	public static Rect Craft(Vector2 pos, Vector2 size) { return new Rect(pos.x, pos.y, size.x, size.y); }
+	public static Rect Make(Vector2 pos, Vector2 size) { return new Rect(pos.x, pos.y, size.x, size.y); }
 	
 	public static Rect Top(this Rect r, float p) { return r.UpperLeft(1, p); }
 	public static Rect Upper(this Rect r, float p) { return r.UpperLeft(1, p); }

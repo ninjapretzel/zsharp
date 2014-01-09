@@ -18,15 +18,15 @@ public static class InputWrapper {
 		defaults = new Dictionary<string, Set<string>>();
 		
 		TextAsset file = Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset;
-		LoadFromTextasset(file);
-		LoadCustomPlayerprefs();
+		LoadFromTextAsset(file);
+		LoadCustomPlayerPrefs();
 	}
 	
-	public static void LoadFromTextasset(string name) {
-		LoadFromTextasset(Resources.Load(name, typeof(TextAsset)) as TextAsset);
+	public static void LoadFromTextAsset(string name) {
+		LoadFromTextAsset(Resources.Load(name, typeof(TextAsset)) as TextAsset);
 	}
 	
-	public static void LoadFromTextasset(TextAsset ta) {
+	public static void LoadFromTextAsset(TextAsset ta) {
 		if (ta != null) { LoadFromString(ta.text); }
 		else { LogWarning("CONTROLS FILE NOT FOUND!"); return; }
 		
@@ -47,7 +47,7 @@ public static class InputWrapper {
 		
 	}
 	
-	public static void LoadCustomPlayerprefs() {
+	public static void LoadCustomPlayerPrefs() {
 		foreach(string key in defaults.Keys) {
 			bindings.Load(key);
 		}
