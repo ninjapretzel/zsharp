@@ -21,6 +21,13 @@ public static class UnityF {
 		return null;
 	}
 	
+	public static void Broadcast(this Component c, string message) {
+		c.SendMessage(message, SendMessageOptions.DontRequireReceiver);
+	}
+	
+	public static void BroadcastAll(this Component c, string message) {
+		c.BroadcastMessage(message, SendMessageOptions.DontRequireReceiver);
+	}
 	
 	public static T AddComponent<T>(this Component c) where T : Component { return c.gameObject.AddComponent<T>(); }
 	

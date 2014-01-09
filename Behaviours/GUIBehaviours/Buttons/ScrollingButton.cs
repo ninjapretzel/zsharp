@@ -5,8 +5,16 @@ public class ScrollingButton : GUIButtonAction {
 	public GUIScrollableArea target;
 	public Vector2 scroll;
 	
+	void Start() {
+		if (target == null) { 
+			target = transform.parent.GetComponent<GUIScrollableArea>();
+		}
+	}
+	
 	void Action() {
-		target.scrollPosition += scroll;
+		if (target != null) {
+			target.scrollPosition += scroll;
+		}
 	}
 	
 }
