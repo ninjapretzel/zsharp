@@ -396,14 +396,10 @@ public static class InputWrapper {
 public class ControlBindings:Dictionary<string, Set<ControlBinding>> {
 	
 	public void Load(string name) {
-		if(this.ContainsKey(name)) { // If the binding exists in the dictionary, it shall be reloaded from playerprefs
+		if(PlayerPrefs.HasKey("controls_"+name+"_binds")) { // If it doesn't, check if playerprefs has a definition for it
 			this[name] = LoadFromPlayerprefs(name);
 		} else {
-			if(PlayerPrefs.HasKey("controls_"+name+"_binds")) { // If it doesn't, check if playerprefs has a definition for it
-				this[name] = LoadFromPlayerprefs(name);
-			} else {
-				this.Add(name, LoadFromStringSet(InputWrapper.defaults[name]));
-			}
+			this[name] = LoadFromStringSet(InputWrapper.defaults[name]);
 		}
 		
 	}
