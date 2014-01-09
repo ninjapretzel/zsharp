@@ -30,10 +30,10 @@ public static class InputWrapper {
 	
 	public static void LoadFromString(string st) {
 		defaults.LoadCSV(st.ConvertNewlines());
+		prevAxes = new Dictionary<string, PreviousAxis>();
 		
 		foreach (string key in defaults.Keys) {
 			bindings.Load(key);
-			prevAxes = new Dictionary<string, PreviousAxis>();
 			if(key[key.Length-1] == '+' || key[key.Length-1] == '-') {
 				prevAxes[key.Substring(0, key.Length-1)] = new PreviousAxis(key.Substring(0, key.Length-1));
 			} else {
