@@ -26,6 +26,11 @@ public static class DataF {
 		}
 		return shuffled;
 	}
+	public static void Swap<T>(this List<T> list, int a, int b) {
+		T temp = list[b];
+		list[b] = list[a];
+		list[a] = temp;
+	}
 	public static List<T> RemoveAll<T>(this List<T> list, T toRemove) {
 		List<T> l = new List<T>();
 		for (int i = 0; i < list.Count; i++) {

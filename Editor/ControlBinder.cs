@@ -7,67 +7,96 @@ using System;
 using System.IO;
 using System.Linq;
 
-
 public class ControlBinder : EditorWindow {
 	
-	public static string path { get { return Application.dataPath + "/Data/Resources/"; } } 
+	public static string path { get { return Application.dataPath + "/Data/Controls/Resources/"; } }
 	public static string target { get { return "Controls.csv"; } }
 	public static string ouyaTarget { get { return "OuyaControls.csv"; } }
+	
+	public static List<string> targets;// = new List<string>();
 	
 	private static Vector2 scrollPos = Vector2.zero;
 	private static string clipboard = null;
 	
 	private int currentTab = 0;
 	
-	private static List<string> controls = new List<string>();
-	private static List<string> keys = new List<string>();
+	private static List<string> controls;// = new List<string>();
+	private static List<string> keys;// = new List<string>();
 	
 	[MenuItem ("Window/Control Bindings")]
 	public static void ShowWindow() {
+		targets = new List<string>();
 		ControlBinder main = (ControlBinder)EditorWindow.GetWindow(typeof(ControlBinder));
-		main.LoadDatabase(target);
-		main.minSize = new Vector2(325,0);
+		main.minSize = new Vector2(345,0);
+		main.autoRepaintOnSceneChange = true;
+		UnityEngine.Object.DontDestroyOnLoad(main);
+		main.Start();
+	}
+	
+	public void Start() {
+		if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
+		string[] targets = Directory.GetFiles(path, "*.csv");
+		if(targets.Length == 0) {
+			ControlBinder.targets = new List<string>(1);
+			ControlBinder.targets[0] = path+"Controls.csv";
+		} else {
+			ControlBinder.targets = Enumerable.ToList(targets);
+		}
+		LoadDatabase(targets[0]);
+	}
+	
+	public void OnProjectChange() {
+		if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
+		string[] currentTargets = Directory.GetFiles(path, "*.csv");
+		targets = Enumerable.ToList(currentTargets);
+	}
+	
+	public void ReloadTargets() {
+		if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
+		string[] currentTargets = Directory.GetFiles(path, "*.csv");
+		targets = Enumerable.ToList(currentTargets);
+	}
+	
+	public void OnInspectorUpdate() {
+		if(targets == null) {
+			ReloadTargets();
+		}
 	}
 	
 	public void OnGUI() {
-		GUILayout.BeginVertical(); {
-			GUILayout.BeginHorizontal(); {
+		if(targets == null) {
+			ReloadTargets();
+		}
+		EditorGUILayout.BeginVertical(); {
+			EditorGUILayout.BeginHorizontal(); {
 				Color backup = GUI.color;
-				if(currentTab == 0) {
-					GUI.color = backup;
-				} else {
-					GUI.color = Color.gray;
-				}
-				if(GUILayout.Button("Normal", GUILayout.Width(100))) {
-					SaveDatabase(ouyaTarget);
-					currentTab = 0;
-					LoadDatabase(target);
-				}
-				if(currentTab == 1) {
-					GUI.color = backup;
-				} else {
-					GUI.color = Color.gray;
-				}
-				if(GUILayout.Button("OUYA", GUILayout.Width(100))) {
-					SaveDatabase(target);
-					currentTab = 1;
-					LoadDatabase(ouyaTarget);
+				for(int i=0;i<targets.Count;i++) {
+					string filename = targets[i];
+					try {
+						filename = filename.Substring(filename.LastIndexOf("\\")+1);
+					} catch { ; }
+					try {
+						filename = filename.Substring(filename.LastIndexOf("/")+1);
+					} catch { ; }
+					if(currentTab == i) {
+						GUI.color = backup;
+					} else {
+						GUI.color = Color.gray;
+					}
+					if(GUILayout.Button(filename.Substring(0,filename.Length-4), GUILayout.Width(100))) {
+						SaveCurrent();
+						currentTab = i;
+						LoadCurrent();
+					}
 				}
 				GUI.color = backup;
-			} GUILayout.EndHorizontal();
-			GUILayout.BeginVertical("box"); {
+			} EditorGUILayout.EndHorizontal();
+			EditorGUILayout.BeginVertical("box"); {
 				BindTableGUI();
-			} GUILayout.EndVertical();
-			GUILayout.BeginHorizontal(); {
+			} EditorGUILayout.EndVertical();
+			EditorGUILayout.BeginHorizontal(); {
 				if(GUILayout.Button("Apply & Save", GUILayout.Width(100))) {
-					switch(currentTab) {
-						case 0:
-							SaveDatabase(target);
-							break;
-						case 1:
-							SaveDatabase(ouyaTarget);
-							break;
-					}
+					SaveCurrent();
 				}
 				if(GUILayout.Button("Load defaults", GUILayout.Width(100))) {
 					LoadDefault();
@@ -78,83 +107,107 @@ public class ControlBinder : EditorWindow {
 				if(GUILayout.Button("Paste sheet", GUILayout.Width(100))) {
 					PasteAll();
 				}
-			} GUILayout.EndHorizontal();
-		} GUILayout.EndVertical();
+			} EditorGUILayout.EndHorizontal();
+		} EditorGUILayout.EndVertical();
 	}
 	
 	public void BindTableGUI() {
-		GUILayout.BeginHorizontal(); {
-			scrollPos = GUILayout.BeginScrollView(scrollPos); {
-				GUILayout.BeginHorizontal("box"); {
-					GUILayout.Box("#", GUILayout.Width(45));
-					GUILayout.Box("Control", GUILayout.Width(200));
-					GUILayout.Box("Keys/Axes", GUILayout.Width(position.width - 282));
-				} GUILayout.EndHorizontal();
-				for(int i=0;i<controls.Count;i++) {
-					BindTableItem(i);
-				}
-				if(GUILayout.Button("+", GUILayout.Width(20))) {
-					controls.Add("New");
-					keys.Add("None");
-				}
-			} GUILayout.EndScrollView();
-		} GUILayout.EndHorizontal();
+		EditorGUILayout.BeginHorizontal(); {
+			scrollPos = EditorGUILayout.BeginScrollView(scrollPos); {
+				EditorGUILayout.BeginVertical(); {
+					EditorGUILayout.BeginHorizontal("box"); {
+						GUILayout.Label("", GUILayout.Width(66));
+						GUILayout.Box("#", GUILayout.Width(20));
+						GUILayout.Box("Control", GUILayout.Width(200));
+						GUILayout.Box("Keys/Axes", GUILayout.Width(position.width - 328));
+					} EditorGUILayout.EndHorizontal();
+					if(controls == null) {
+						LoadCurrent();
+					} else {
+						for(int i=0;i<controls.Count;i++) {
+							BindTableItem(i);
+						}
+					}
+					if(GUILayout.Button("+", GUILayout.Width(20))) {
+						controls.Add("New");
+						keys.Add("None");
+					}
+				} EditorGUILayout.EndVertical();
+			} EditorGUILayout.EndScrollView();
+		} EditorGUILayout.EndHorizontal();
 	}
 	
 	public void BindTableItem(int index) {
-		GUILayout.BeginHorizontal("box"); {
-			GUILayout.Label(index.ToString(), GUILayout.Width(20));
+		EditorGUILayout.BeginHorizontal(); {
 			if(GUILayout.Button("-", GUILayout.Width(20))) {
 				controls.RemoveAt(index);
 				keys.RemoveAt(index);
 			} else {
-				controls[index] = GUILayout.TextField(controls[index], GUILayout.Width(200));
-				if(keys[index].Length > 0) {
-					string[] key = keys[index].Split(',');
-					if(key.Length > 0) {
-						if(GUILayout.Button("-", GUILayout.Width(20))) {
-							string[] newList = new string[key.Length-1];
-							for(int j=0;j<newList.Length;j++) {
-								newList[j] = key[j+1];
-							}
-							key = newList;
-						}
+				if(index > 0 && GUILayout.Button("/\\", GUILayout.Width(20))) {
+					controls.Swap<string>(index, index-1);
+					keys.Swap<string>(index, index-1);
+				} else {
+					if(index == 0) {
+						GUILayout.Label("", GUILayout.Width(20));
 					}
-					if(key.Length > 0) {
-						keys[index] = GUILayout.TextField(key[0], GUILayout.Width(120));
+					if(index < controls.Count-1 && GUILayout.Button("\\/", GUILayout.Width(20))) {
+						controls.Swap<string>(index, index+1);
+						keys.Swap<string>(index, index+1);
 					} else {
-						keys[index] = "";
-					}
-					for(int i=1;i<key.Length;i++) {
-						if(GUILayout.Button("-", GUILayout.Width(20))) {
-							string[] newList = new string[key.Length-1];
-							for(int j=0;j<newList.Length;j++) {
-								if(j<i) {
-									newList[j] = key[j];
+						if(index == controls.Count-1) {
+							GUILayout.Label("", GUILayout.Width(20));
+						}
+						EditorGUILayout.BeginHorizontal("box"); {
+							GUILayout.Label(index.ToString(), GUILayout.Width(20));
+							controls[index] = EditorGUILayout.TextField(controls[index], GUILayout.Width(200));
+							if(keys[index].Length > 0) {
+								string[] key = keys[index].Split(',');
+								if(key.Length > 0) {
+									if(GUILayout.Button("-", GUILayout.Width(20))) {
+										string[] newList = new string[key.Length-1];
+										for(int j=0;j<newList.Length;j++) {
+											newList[j] = key[j+1];
+										}
+										key = newList;
+									}
+								}
+								if(key.Length > 0) {
+									keys[index] = EditorGUILayout.TextField(key[0], GUILayout.Width(120));
 								} else {
-									newList[j] = key[j+1];
+									keys[index] = "";
+								}
+								for(int i=1;i<key.Length;i++) {
+									if(GUILayout.Button("-", GUILayout.Width(20))) {
+										string[] newList = new string[key.Length-1];
+										for(int j=0;j<newList.Length;j++) {
+											if(j<i) {
+												newList[j] = key[j];
+											} else {
+												newList[j] = key[j+1];
+											}
+										}
+										key = newList;
+									}
+									if(key.Length > i) {
+										keys[index] += ","+EditorGUILayout.TextField(key[i], GUILayout.Width(120));
+									}
 								}
 							}
-							key = newList;
-						}
-						if(key.Length > i) {
-							keys[index] += ","+GUILayout.TextField(key[i], GUILayout.Width(120));
-						}
-					}
-				}
-				if(GUILayout.Button("+", GUILayout.Width(20))) {
-					if(keys[index].Length > 0) {
-						keys[index] += ",None";
-					} else {
-						keys[index] = "None";
+							if(GUILayout.Button("+", GUILayout.Width(20))) {
+								if(keys[index].Length > 0) {
+									keys[index] += ",None";
+								} else {
+									keys[index] = "None";
+								}
+							}
+						} EditorGUILayout.EndHorizontal();
 					}
 				}
 			}
-		} GUILayout.EndHorizontal();
+		} EditorGUILayout.EndHorizontal();
 	}
 	
-	void LoadDefault() {
-		if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
+	public void LoadDefault() {
 		string[] bindings;
 		bindings = (Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset).text.ConvertNewlines().Split('\n');
 		controls = new List<string>(bindings.Length);
@@ -168,11 +221,17 @@ public class ControlBinder : EditorWindow {
 		}
 	}
 	
-	void LoadDatabase(string file) {
-		if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
+	public void LoadCurrent() {
+		if(currentTab > targets.Count-1) {
+			return;
+		}
+		LoadDatabase(targets[currentTab]);
+	}
+	
+	public void LoadDatabase(string file) {
 		string[] bindings;
-		if (File.Exists(path+file)) {
-			bindings = File.ReadAllLines(path+file);
+		if (File.Exists(file)) {
+			bindings = File.ReadAllLines(file);
 		} else {
 			bindings = (Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset).text.ConvertNewlines().Split('\n');
 		}
@@ -187,22 +246,31 @@ public class ControlBinder : EditorWindow {
 		}
 	}
 	
-	void SaveDatabase(string file) {
-		if (File.Exists(path+file)) {
-			File.Delete(path+file);
+	public void SaveCurrent() {
+		if(currentTab > targets.Count-1) {
+			return;
 		}
-		string data = "#ControlName,HardwareName\n";
-		for(int i=0;i<controls.Count;i++) {
-			data += controls[i];
-			data += ",";
-			data += keys[i];
-			if(i < controls.Count-1) {
-				data += (char)0x0A;
+		SaveDatabase(targets[currentTab]);
+	}
+	
+	public void SaveDatabase(string file) {
+		if(controls != null) {
+			if (File.Exists(file)) {
+				File.Delete(file);
 			}
+			string data = "#ControlName,HardwareName\n";
+			for(int i=0;i<controls.Count;i++) {
+				data += controls[i];
+				data += ",";
+				data += keys[i];
+				if(i < controls.Count-1) {
+					data += (char)0x0A;
+				}
+			}
+			StreamWriter sw = File.CreateText(file);
+			sw.Write(data);
+			sw.Close();
 		}
-		StreamWriter sw = File.CreateText(path+file);
-		sw.Write(data);
-		sw.Close();
 	}
 	
 	public void CopyAll() {
@@ -229,8 +297,4 @@ public class ControlBinder : EditorWindow {
 		}
 	}
 }
-
-
-
-
 #endif

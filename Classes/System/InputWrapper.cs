@@ -13,45 +13,45 @@ public static class InputWrapper {
 	public static Dictionary<string, PreviousAxis> prevAxes = new Dictionary<string, PreviousAxis>();
 	public static ControlBindings bindings = new ControlBindings();
 	public static Dictionary<string, Set<string>> defaults;
-
-	public static TextAsset file {
-		get {
-			TextAsset f;
-			if(SystemInfo.deviceModel == "OUYA OUYA Console") {
-				f = Resources.Load("OuyaControls", typeof(TextAsset)) as TextAsset;
-			} else {
-				f = Resources.Load("Controls", typeof(TextAsset)) as TextAsset;
-			}
-			if (f == null) {
-				f = Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset;
-			}
-			return f;
-		}
-	}
 	
 	static InputWrapper() {
 		defaults = new Dictionary<string, Set<string>>();
 		
-		string text = file.text;
-		text = text.RemoveAll((char)0x0D);
+		TextAsset file = Resources.Load("DefaultControls", typeof(TextAsset)) as TextAsset;
+		LoadFromTextasset(file);
+		LoadCustomPlayerprefs();
+	}
+	
+	public static void LoadFromTextasset(TextAsset ta) {
+		if (ta != null) { LoadFromString(ta.text); }
+		else { LogWarning("CONTROLS FILE NOT FOUND!"); return; }
 		
-		if (file != null) { defaults.LoadCSV(text); } 
-		else { LogWarning("DEFAULT CONTROLS FILE NOT FOUND!"); }
+	}
+	
+	public static void LoadFromString(string st) {
+		defaults.LoadCSV(st.ConvertNewlines());
 		
 		foreach (string key in defaults.Keys) {
 			bindings.Load(key);
+			prevAxes = new Dictionary<string, PreviousAxis>();
 			if(key[key.Length-1] == '+' || key[key.Length-1] == '-') {
 				prevAxes[key.Substring(0, key.Length-1)] = new PreviousAxis(key.Substring(0, key.Length-1));
 			} else {
 				prevAxes[key] = new PreviousAxis(key);
 			}
 		}
+		
+	}
+	
+	public static void LoadCustomPlayerprefs() {
+		foreach(string key in defaults.Keys) {
+			bindings.Load(key);
+		}
 	}
 	
 	static void Log(string s) { Debug.Log("InputWrapper: " + s); }
 	static void LogWarning(string s) { Debug.LogWarning("InputWrapper: " + s); }
 
-	
 	public static void LateUpdate() {
 		foreach (string key in prevAxes.Keys) {
 			prevAxes[key].val = GetAxis(key);
