@@ -31,6 +31,7 @@ public static class UnityF {
 	
 	public static T AddComponent<T>(this Component c) where T : Component { return c.gameObject.AddComponent<T>(); }
 	
+	public static T Require<T>(this GameObject o) where T : Component { return o.transform.Require<T>(); }
 	public static T Require<T>(this Component c) where T : Component {
 		Component check = c.GetComponent<T>();
 		return (check != null ? check : c.gameObject.AddComponent<T>()) as T;
