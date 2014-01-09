@@ -22,6 +22,10 @@ public static class InputWrapper {
 		LoadCustomPlayerprefs();
 	}
 	
+	public static void LoadFromTextasset(string name) {
+		LoadFromTextasset(Resources.Load(name, typeof(TextAsset)) as TextAsset);
+	}
+	
 	public static void LoadFromTextasset(TextAsset ta) {
 		if (ta != null) { LoadFromString(ta.text); }
 		else { LogWarning("CONTROLS FILE NOT FOUND!"); return; }
