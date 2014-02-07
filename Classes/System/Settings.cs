@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public static class Settings {
+public static partial class Settings {
 	public static float overscanRatio = 0;
 	public static float musicVolume  = 1;
 	public static float soundVolume = 1;
