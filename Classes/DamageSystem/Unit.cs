@@ -59,7 +59,7 @@ public class Unit : MonoBehaviour {
 		}
 	}
 	
-	void Die() {
+	public virtual void Die() {
 		if (deadEffect != null) {
 			Instantiate(deadEffect, transform.position, transform.rotation);
 		}

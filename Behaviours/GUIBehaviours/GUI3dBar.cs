@@ -59,8 +59,10 @@ public class GUI3dBar : MonoBehaviour {
 	}
 	
 	void SetColors() {
-		barBack.renderer.material.color = backColor;
-		barFront.renderer.material.color = frontColor;
+		Renderer frontRend = barFront.GetComponentInChildren<MeshRenderer>();
+		Renderer backRend = barFront.GetComponentInChildren<MeshRenderer>();
+		backRend.material.color = backColor;
+		frontRend.material.color = frontColor;
 	}
 	
 	public void SetColors(Color f, Color b) {

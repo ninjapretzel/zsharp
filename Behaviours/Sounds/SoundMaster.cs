@@ -72,6 +72,7 @@ public class SoundMaster : MonoBehaviour {
 		return Play(sc, pos);
 	}
 	
+	public static AudioSource Play(AudioClip sc, Transform t) { return Play(sc, t.position); } 
 	public static AudioSource Play(AudioClip sc, Vector3 pos) {
 		if (audioSettings == null) { return null; }
 		AudioSource source = Instantiate(audioSettings, pos, Quaternion.identity) as AudioSource;
@@ -81,6 +82,7 @@ public class SoundMaster : MonoBehaviour {
 	}
 	
 	public static AudioSource Play(string sc) { return Play(GetSound(sc)); }
+	public static AudioSource Play(string sc, Transform t) { return Play(GetSound(sc), t.position); }
 	public static AudioSource Play(string sc, Vector3 pos) { return Play(GetSound(sc), pos); }
 	
 	public static AudioClip Get(string sc) { return GetSound(sc); }
