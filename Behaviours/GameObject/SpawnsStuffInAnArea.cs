@@ -14,7 +14,20 @@ public class SpawnsStuffInAnArea : MonoBehaviour {
 	public static int seed = 132541;
 	public const int SEEDSCALE = 1230123414;
 	
+	public bool onStart = true;
+	
+	void Awake() {
+		if (!onStart) {
+			Spawn();
+		}
+	}
+	
 	void Start() {
+		Spawn();
+	}
+	
+	
+	void Spawn() {
 		if (randomness == RandomType.Seeded) {
 			RandomF.Push(seed++);
 		} else if (randomness == RandomType.Perlin) {

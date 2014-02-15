@@ -10,8 +10,10 @@ public class GUI3dBar : MonoBehaviour {
 	
 	public Transform barFront;
 	public Transform barBack;
+	public bool drainToLeft = true;
 	
 	Vector3 barSize;
+	
 	
 	float width;
 	
@@ -42,10 +44,14 @@ public class GUI3dBar : MonoBehaviour {
 		value = value.Clamp01();
 		Vector3 pos = -Vector3.forward;
 		Vector3 size = barSize;
-		
-		pos.x = -barSize.x * .5f;
-		
-		pos.x += value * barSize.x * .5f;
+		if (drainToLeft) {
+			pos.x = -barSize.x * .5f;
+			
+			pos.x += value * barSize.x * .5f;
+		} else {
+			pos.x = barSize.x * .5f;
+			pos.x -= value * barSize.x * .5f;
+		}
 		
 		size.x = value * barSize.x;
 		barFront.localPosition = pos;

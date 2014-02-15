@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class Mortal : MonoBehaviour {
 	public bool dead = false;
 	public List<Health> healths;
+	bool broadcastDeath = false;
 	
 	public float total {
 		get {
@@ -31,6 +32,13 @@ public class Mortal : MonoBehaviour {
 		healths.Add(new Health());
 	}
 	
+	public Health Get(string n) {
+		foreach(Health h in healths) {
+			if (h.name == n) { return h; }
+		}
+		return null;
+	}
+	
 	public void Fill() {
 		foreach (Health h in healths) { h.value = h.max; }
 		dead = false;
@@ -42,18 +50,24 @@ public class Mortal : MonoBehaviour {
 		foreach (Health h in healths) { h.Update(time); }
 		if (total < .01) { dead = true; }
 		
-		if (dead) { 
+		if (dead && !broadcastDeath) { 
 			SayDie();
+		} else if (!dead) { 
+			//broadcastDeath = false; 
+		
 		}
 		
 	}
 	
 	public float Hit(Attack a) { 
 		float remain = 0;
+		
 		foreach (string s in a.Keys) {
 			remain = Hit(s, a[s]);
 			if (dead) { 
-				SayDie();
+				if (!broadcastDeath) { 
+					SayDie(); 
+				}
 				return remain; 
 			}
 		}
@@ -61,7 +75,9 @@ public class Mortal : MonoBehaviour {
 	}
 	
 	public void SayDie() {
+		//Debug.Log(name + " is dead");
 		transform.SendMessage("Die", SendMessageOptions.DontRequireReceiver);
+		broadcastDeath = true;
 	}
 	
 	public float Hit(float d) { return Hit("", d); }

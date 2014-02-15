@@ -1,6 +1,14 @@
 using UnityEngine;
 using System.Collections;
 
+public enum QualitySetting { Low, Medium, High }
+
+
+public static class SettingsUtils {
+	
+}
+
+
 public static partial class Settings {
 	public static float overscanRatio = 0;
 	public static float musicVolume  = 1;

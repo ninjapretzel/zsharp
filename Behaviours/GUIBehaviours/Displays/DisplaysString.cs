@@ -10,8 +10,10 @@ public class DisplaysString : MonoBehaviour {
 	}
 	
 	void Update() {
-		display.text = GetString();
-		
+		string s = GetString();
+		if (s != display.text) {
+			display.text = s;
+		}
 	}
 	
 	public virtual string GetString() {

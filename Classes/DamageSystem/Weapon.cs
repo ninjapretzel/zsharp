@@ -320,6 +320,7 @@ public class Weapon : MonoBehaviour, IWeapon {
 			bullet.transform.Translate(off);
 			
 			if (use2dRotation) {
+				
 				Vector3 forward = bullet.transform.forward;
 				forward.y = 0;
 				bullet.transform.forward = forward;

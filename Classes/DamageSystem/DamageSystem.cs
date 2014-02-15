@@ -48,7 +48,7 @@ public class Health {
 	public float max;
 	public float value;
 	
-	public float percentage { get { return max / value; } }
+	public float percentage { get { return value / max; } }
 	
 	public float regen;
 	public float armor;
@@ -102,12 +102,14 @@ public class Health {
 	}
 	
 	public float Hit(string s, float a) {
+		timeSinceHit = 0;
 		float mod = 1;
 		if (mods != null && mods.ContainsKey(s)) { mod = mods[s]; }
 		return Hit(a * mod);
 	}
 	
 	public float Hit(float damage) {
+		timeSinceHit = 0;
 		float p = damage * armor;
 		float f = damage - p;
 		

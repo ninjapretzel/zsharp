@@ -5,6 +5,7 @@ using System.Collections;
 public class MaterialPanner : MonoBehaviour {
 	public Vector2 speed = new Vector2(1, 0);
 	public float scale = 1.0f;
+	public bool clamp01 = true;
 	
 	public bool doMainTexture = true;
 	public string[] targets;
@@ -36,8 +37,10 @@ public class MaterialPanner : MonoBehaviour {
 		if (material.HasProperty(target)) {
 			Vector2 offset = material.GetTextureOffset(target);
 			offset += speed * scale * Time.deltaTime;
-			offset.x %= 1;
-			offset.y %= 1;
+			if (clamp01) {
+				offset.x %= 1;
+				offset.y %= 1;
+			}
 			material.SetTextureOffset(target, offset);
 		}
 	}
