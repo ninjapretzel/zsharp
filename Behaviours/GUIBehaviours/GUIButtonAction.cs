@@ -4,7 +4,7 @@ using System.Collections;
 public class GUIButtonAction : MonoBehaviour {
 	
 	
-	void OnMouseDown() {
+	void OnMouseUpAsButton() {
 		SendMessage("Action", SendMessageOptions.DontRequireReceiver);
 		
 	}

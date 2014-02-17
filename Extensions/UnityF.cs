@@ -38,6 +38,14 @@ public static class UnityF {
 		
 	}
 	
+	public static void SetColor(this Component c, string property, Color color) {
+		foreach (Renderer r in c.GetComponentsInChildren<Renderer>() as Renderer[]) {
+			if (r.material.HasProperty(property)) {
+				r.material.SetColor(property, color);
+			}
+		}
+	}
+	
 	public static void FadeIn(this Component c) {
 		foreach (Renderer r in c.GetComponentsInChildren<Renderer>() as Renderer[]) { r.Require<RendererFader>().FadeIn(); }
 	}
