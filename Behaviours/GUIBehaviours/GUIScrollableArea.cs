@@ -10,6 +10,8 @@ public class GUIScrollableArea : MonoBehaviour {
 	public float scrollSpeed = 5;
 	
 	public bool enableTouchScrolling = false;
+	public bool enableScrollWheel = true;
+	public float scrollSensitivity = 2;
 	
 	
 	#if UNITY_ANDROID || UNITY_IOS
@@ -30,6 +32,10 @@ public class GUIScrollableArea : MonoBehaviour {
 			scrollPosition += scrollVelocity * Time.deltaTime;
 		}
 		#endif
+		
+		if (enableScrollWheel) {
+			scrollPosition += Vector2.up * Input.GetAxis("MouseWheel") * scrollSensitivity;
+		}
 		
 		scrollPosition = scrollPosition.Clamp(minScrollPosition, maxScrollPosition);
 		Vector3 targetPosition = (Vector3)scrollPosition;
