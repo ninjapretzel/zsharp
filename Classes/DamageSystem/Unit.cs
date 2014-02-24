@@ -4,6 +4,7 @@ using System.Collections;
 public class Unit : MonoBehaviour {
 	
 	public Mortal mortality { get { return GetComponent<Mortal>(); } }
+	public Mortal mortal { get { return GetComponent<Mortal>(); } }
 	private IWeapon wp;
 	public IWeapon weapon { 
 		get {

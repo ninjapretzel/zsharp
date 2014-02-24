@@ -5,6 +5,7 @@ public class Mortal : MonoBehaviour {
 	public bool dead = false;
 	public List<Health> healths;
 	bool broadcastDeath = false;
+	public float invincible = .4f;
 	
 	public float total {
 		get {
@@ -47,6 +48,8 @@ public class Mortal : MonoBehaviour {
 	
 	public void Update() { Update(Time.deltaTime); }
 	public void Update(float time) {
+		if (invincible > 0) { invincible -= Time.deltaTime; }
+		
 		foreach (Health h in healths) { h.Update(time); }
 		if (total < .01) { dead = true; }
 		
@@ -59,7 +62,15 @@ public class Mortal : MonoBehaviour {
 		
 	}
 	
+	public void Rez() {
+		dead = false;
+		broadcastDeath = false;
+		foreach (Health h in healths) { h.Fill(); }
+	}
+	
+	
 	public float Hit(Attack a) { 
+		if (invincible > 0) { return 0; }
 		float remain = 0;
 		
 		foreach (string s in a.Keys) {
@@ -76,12 +87,13 @@ public class Mortal : MonoBehaviour {
 	
 	public void SayDie() {
 		//Debug.Log(name + " is dead");
-		transform.SendMessage("Die", SendMessageOptions.DontRequireReceiver);
 		broadcastDeath = true;
+		transform.SendMessage("Die", SendMessageOptions.DontRequireReceiver);
 	}
 	
 	public float Hit(float d) { return Hit("", d); }
 	public float Hit(string s, float d) {
+		if (invincible > 0) { return 0; }
 		Health h = FindHighestLayer();
 		Health h2 = FindSecondHighestLayer();
 		

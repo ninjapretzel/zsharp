@@ -101,6 +101,10 @@ public class Health {
 		mods = modz;
 	}
 	
+	public void Fill() {
+		value = max;
+	}
+	
 	public float Hit(string s, float a) {
 		timeSinceHit = 0;
 		float mod = 1;

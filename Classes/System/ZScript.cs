@@ -12,6 +12,14 @@ public static class ZScript {
 		
 	}
 	
+	public static void Set(string name, float val) {
+		if (!data.ContainsKey(name) && (val == 1 || val == 0)) {
+			flags[name] = val;
+		} else { 
+			data[name] = val;
+		}
+	}
+	
 	public static float Get(string name) {
 		if (data.ContainsKey(name)) { return data[name]; }
 		return flags[name];
