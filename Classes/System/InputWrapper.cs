@@ -125,6 +125,7 @@ public static class InputWrapper {
 		}
 	}
 
+	public static bool GUIGetButtonDown(string key) { return Event.current.type == EventType.Layout && GetButtonDown(key); }
 	public static bool GetButtonDown(string key) {
 		try {
 			return (Mathf.Abs(prevAxes[key].val) < axisDownMagnitude && Mathf.Abs(GetAxis(key)) >= axisDownMagnitude);
@@ -134,6 +135,7 @@ public static class InputWrapper {
 		}
 	}
 
+	public static bool GUIGetButtonUp(string key) { return Event.current.type == EventType.Layout && GetButtonUp(key); }
 	public static bool GetButtonUp(string key) {
 		try {
 			return (Mathf.Abs(prevAxes[key].val) >= axisDownMagnitude && Mathf.Abs(GetAxis(key)) < axisDownMagnitude);
@@ -205,7 +207,7 @@ public static class InputWrapper {
 		return KeyCode.None;
 	}
 	
-	public static string GetPressedAxis() {
+	public static string GetPressedAxis(bool mouseMovement = true) {
 		for(int i = 0; i < Input.GetJoystickNames().Length; i++) {
 			for(int j = 0; j < 10; j++) {
 				// Exclude broken, stuck, or useless axes here, by controller name
@@ -225,22 +227,24 @@ public static class InputWrapper {
 		}
 		// For some reason, Unity detects touches on smartphone screens as mouse movement events. Ensure this doesn't become a problem.
 		if(Input.touches.Length == 0) {
-			try {
-				if(Input.GetAxisRaw("MouseAxisX") > axisDownMagnitude) {
-					return "MouseAxisX+";
-				}
-				if(Input.GetAxisRaw("MouseAxisX") < -axisDownMagnitude) {
-					return "MouseAxisX-";
-				}
-			} catch(UnityException) { ; }
-			try {
-				if(Input.GetAxisRaw("MouseAxisY") > axisDownMagnitude) {
-					return "MouseAxisY+";
-				}
-				if(Input.GetAxisRaw("MouseAxisY") < -axisDownMagnitude) {
-					return "MouseAxisY-";
-				}
-			} catch(UnityException) { ; }
+			if(mouseMovement) {
+				try {
+					if(Input.GetAxisRaw("MouseAxisX") > axisDownMagnitude) {
+						return "MouseAxisX+";
+					}
+					if(Input.GetAxisRaw("MouseAxisX") < -axisDownMagnitude) {
+						return "MouseAxisX-";
+					}
+				} catch(UnityException) { ; }
+				try {
+					if(Input.GetAxisRaw("MouseAxisY") > axisDownMagnitude) {
+						return "MouseAxisY+";
+					}
+					if(Input.GetAxisRaw("MouseAxisY") < -axisDownMagnitude) {
+						return "MouseAxisY-";
+					}
+				} catch(UnityException) { ; }
+			}
 			try {
 				if(Input.GetAxisRaw("MouseWheel") > axisDownMagnitude) {
 					return "MouseWheel+";
@@ -256,8 +260,8 @@ public static class InputWrapper {
 	// Attempts to detect input on any axis or button.
 	// Returns true if input was captured. False otherwise.
 	// Only creates the binding if captured input wasn't escape key/back button.
-	public static bool CaptureInput(string inputFor) {
-		string axis = GetPressedAxis();
+	public static bool CaptureInput(string inputFor, bool mouseMovement = true) {
+		string axis = GetPressedAxis(mouseMovement);
 		if(axis != null) {
 			bool positive = (axis[axis.Length-1] == '+');
 			bindings[inputFor].Add(new ControlBinding(axis.Substring(0, axis.Length-1), positive));
@@ -280,8 +284,8 @@ public static class InputWrapper {
 	// Returns true if input was captured. False otherwise.
 	// Only creates the binding if captured input wasn't escape key/back button.
 	// Binds it to the specified binding slot for the specified control
-	public static bool CaptureInput(string inputFor, int slot) {
-		string axis = GetPressedAxis();
+	public static bool CaptureInput(string inputFor, int slot, bool mouseMovement = true) {
+		string axis = GetPressedAxis(mouseMovement);
 		if(axis != null) {
 			bool positive = (axis[axis.Length-1] == '+');
 			if(bindings[inputFor].Count - 1 < slot) {

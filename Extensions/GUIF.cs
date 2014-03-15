@@ -4,7 +4,7 @@ using System.Collections;
 
 public static class GUIF {
 	public static GUISkin blankSkin { get { return Resources.Load("blank", typeof(GUISkin)) as GUISkin; } }
-	public static float defaultPadding = 1.0f;
+	public const float defaultPadding = 1.0f;
 	
 	public static List<SelectableControl> controls = new List<SelectableControl>();
 	//public static SelectableControl[] selectableControls = new SelectableControl[0];
@@ -260,12 +260,11 @@ public static class GUIF {
 		return name;
 	}
 	
-	public static bool SButton(Rect area, string str) { return SButton(area, new GUIContent(str), defaultPadding); }
-	public static bool SButton(Rect area, string str, float padding) { return SButton(area, new GUIContent(str), padding); }
-	public static bool SButton(Rect area, GUIContent c) { return SButton(area, c, defaultPadding); }
-	public static bool SButton(Rect area, GUIContent c, float padding) {
+	public static bool SButton(Rect area, string str, float padding = defaultPadding, string selectControl = "Jump") { return SButton(area, new GUIContent(str), padding, selectControl); }
+	public static bool SButton(Rect area, GUIContent c, float padding = defaultPadding, string selectControl = "Jump") {
 		string name = CreateNextControl(area);
-		bool ret = Button(area, c, padding) || InputWrapper.GetButtonDown("Select") && GUI.GetNameOfFocusedControl() == name;
+		// NOTE: If Unity ever fixes the issue with Space bar pressing currently selected button, REMOVE THE INVERTED INPUT.GETKEY HERE! This is a crappy hacky workaround that only works 95% of the time, and disables clicking while space is held!
+		bool ret = (Button(area, c, padding) && !Input.GetKey(KeyCode.Space)) || (InputWrapper.GUIGetButtonDown(selectControl) && GUI.GetNameOfFocusedControl() == name);
 		//if (ret) { FocusLastControl(); }
 		return ret;
 	}
