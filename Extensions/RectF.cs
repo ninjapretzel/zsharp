@@ -4,6 +4,13 @@ using System.Collections;
 public static class RectF {
 	public static Rect unit { get { return new Rect(0, 0, 1, 1); } }
 	
+	public static Vector2 Coord(this Rect r, Vector2 v) {
+		Vector2 d = v - r.TopLeft();
+		d.x /= r.width;
+		d.y /= r.height;
+		return d;
+	}
+	
 	public static Rect ToScreenArea(this Transform t, float w, float h) {
 		Vector3 pos = Camera.main.WorldToScreenPoint(t.position);
 		pos.y = Screen.height - pos.y;

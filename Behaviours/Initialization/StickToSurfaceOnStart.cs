@@ -6,12 +6,21 @@ public class StickToSurfaceOnStart : MonoBehaviour {
 	public Vector3 offset = Vector3.zero;
 	public float maxDistance = 20;
 	public bool changeRotation = false;
+	public bool useZUp = false;
+	public LayerMask layers = Physics.DefaultRaycastLayers;
 	
 	void Start() {
 		RaycastHit hit;
-		if (Physics.Raycast(transform.position, direction, out hit, maxDistance)) {
+		if (Physics.Raycast(transform.position, direction, out hit, maxDistance, layers)) {
 			transform.position = hit.point + offset;
-			if (changeRotation) { transform.up = hit.normal; }
+			if (changeRotation) {
+				if (useZUp) {
+					transform.forward = hit.normal;
+				
+				} else {
+					transform.up = hit.normal;
+				}
+			}
 		}	
 		Destroy(this);
 	}
