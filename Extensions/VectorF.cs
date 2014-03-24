@@ -55,6 +55,10 @@ public static class VectorF {
 	public static Vector3 ClampY(this Vector3 v, float min, float max) { return new Vector3(v.x, Mathf.Clamp(v.y, min, max), v.z); }
 	public static Vector3 ClampZ(this Vector3 v, float min, float max) { return new Vector3(v.x, v.y, Mathf.Clamp(v.z, min, max)); }
 	
+	public static Vector3 Clamp(this Vector3 v, Vector3 a, Vector3 b) {
+		return new Vector3(v.x.Clamp(a.x, b.x), v.y.Clamp(a.y, b.y), v.z.Clamp(a.z, b.z));
+	}
+	
 	public static Vector3 Clamp(this Vector3 v, Bounds bounds) {
 		Vector3 c = v;
 		if (c.x < bounds.min.x) { c.x = bounds.min.x; }

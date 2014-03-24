@@ -7,7 +7,7 @@ public static class FloatF {
 	public static float TLerp(this float f, float target, float v) { return f.Lerp(target, Time.deltaTime * v); }
 	
 	public static float Lerp(this float f, float target, float v) { return Mathf.Lerp(f, target, v); }
-	public static float Clamp(this float f, float min, float max) { return Mathf.Clamp(f, min, max); }
+	public static float Clamp(this float f, float a, float b) { return Mathf.Clamp(f, Min(a, b), Max(a, b)); }
 	public static float Clamp01(this float f) { return Mathf.Clamp01(f); }
 	public static float Floor(this float f) { return Mathf.Floor(f); }
 	public static float Ceil(this float f) { return Mathf.Ceil(f); }
@@ -15,6 +15,9 @@ public static class FloatF {
 	public static float RoundDown(this float f) { return f.Floor(); }
 	public static float RoundUp(this float f) { return f.Ceil(); }
 	public static float Fract(this float f) { return f - f.Floor(); }
+	
+	public static float Min(float a, float b) { return a < b ? a : b; }
+	public static float Max(float a, float b) { return a > b ? a : b; }
 	
 	public static bool IsNAN(this float f) { return float.IsNaN(f); }
 	public static bool IsNaN(this float f) { return float.IsNaN(f); }
