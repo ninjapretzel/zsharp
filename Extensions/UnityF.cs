@@ -5,7 +5,9 @@ using System.Collections;
 public static class UnityF {
 	
 	public static GameObject Duplicate(this Component c) { 
-		return (GameObject)GameObject.Instantiate(c.gameObject, c.transform.position, c.transform.rotation);
+		GameObject g = (GameObject)GameObject.Instantiate(c.gameObject, c.transform.position, c.transform.rotation);
+		g.transform.parent = c.transform.parent;
+		return g;
 	}
 	public static T DuplicateAs<T>(this Component c) where T : Component { 
 		return c.Duplicate().GetComponent<T>() as T;
