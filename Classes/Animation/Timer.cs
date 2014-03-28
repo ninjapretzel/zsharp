@@ -24,5 +24,9 @@ public class Timer {
 		return (t < time && timeout >= time);
 	}
 	
+	public void Reset() {
+		timeout = 0;
+	}
+	
 	
 }
