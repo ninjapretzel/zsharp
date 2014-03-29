@@ -11,7 +11,7 @@ public class GUIMessageSettings {
 	public float time = 2.0f;
 	public float fadeTime = 1.0f;
 	
-	public Color color;
+	public Color color = Color.white;
 	
 	public GUIMessageSettings Clone() {
 		GUIMessageSettings sets = new GUIMessageSettings();
@@ -29,7 +29,14 @@ public class GUIMessageSettings {
 }
 
 public class GUIMessage : MonoBehaviour {
-	public string message = "message";
+	public string message { 
+		get { return msg.str; }
+		set { msg.str = value; }
+	}
+	
+	
+	
+	public Message msg;
 	
 	public Vector2 position = new Vector2(.5f, .5f);
 	public Vector2 speed = new Vector2(0, -.2f);
@@ -41,7 +48,6 @@ public class GUIMessage : MonoBehaviour {
 	
 	public static GUIMessageSettings defaults;
 	public static GUISkin skin;
-	public static Texture2D pixel;
 	
 	public int num = 0;
 	public int depth = 800000;
@@ -49,13 +55,19 @@ public class GUIMessage : MonoBehaviour {
 	public static int count = 0;
 	public static int order = 800000;
 	
+	static GUIMessage() {
+		skin = Resources.Load("message", typeof(GUISkin)) as GUISkin;
+		
+	}
+	
 	
 	void Awake() {
 		if (defaults == null) { defaults = new GUIMessageSettings(); }
 		if (sets == null) { sets = defaults.Clone(); }
-		if (!pixel) { pixel = Resources.Load("pixel", typeof(Texture2D)) as Texture2D; }
 		depth = order - count;
 		count++;
+		msg = new Message();
+		
 	}
 	
 	void Start() {
@@ -84,11 +96,24 @@ public class GUIMessage : MonoBehaviour {
 		GUI.color = c;
 		
 		
-		Vector2 size = skin.label.CalcSize(new GUIContent(message));
-		Rect area = new Rect(position.x * Screen.width, position.y * Screen.height, size.x, size.y);
-		area = area.Pad(4.0f);
-		area = area.Move(-.5f, -.5f);
-		GUIF.Label(area, message);
+		Vector2 size = GUI.skin.label.CalcSize(new GUIContent(message));
+		//Vector2 size = new Vector2(1, 1);
+		size.x += GUI.skin.box.padding.left + GUI.skin.box.padding.right + 2;
+		size.y += GUI.skin.box.padding.top + GUI.skin.box.padding.bottom + 2;
+		size.x /= Screen.width;
+		size.y /= Screen.height;
+		//position -= size * .5f;
+		
+		//Debug.Log(size);
+		
+		Rect area = new Rect(position.x, position.y, size.x, size.y);
+		area.x -= size.x *.5f;
+		area.y -= size.y *.5f;
+		//Rect area = new Rect(position.x * Screen.width, position.y * Screen.height, size.x, size.y);
+		//area = area.Pad(4.0f);
+		//area = area.Move(-.5f, -.5f);
+		msg.Draw(area);
+		//GUIF.Label(area, message);
 	}
 	
 	public static GUIMessage Create(Vector2 pos, string msg, GUIMessageSettings sets) {

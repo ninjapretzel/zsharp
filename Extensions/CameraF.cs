@@ -7,11 +7,25 @@ public static class CameraF {
 	public static Vector3 mouseWorldPosition {
 		get {
 			RaycastHit rayhit;
-			if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out rayhit)) {
+			if (Physics.Raycast(mouseRay, out rayhit)) {
 				return rayhit.point;
 			}
 			
 			return Vector3.zero;
+		}
+	}
+	
+	public static Ray mouseRay {
+		get { return Camera.main.ScreenPointToRay(Input.mousePosition); }
+	}
+	
+	public static Collider mouseCollider {
+		get {
+			RaycastHit rayhit;
+			if (Physics.Raycast(mouseRay, out rayhit)) {
+				return rayhit.collider;
+			}
+			return null;
 		}
 	}
 	

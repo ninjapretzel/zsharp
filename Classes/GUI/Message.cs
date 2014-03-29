@@ -3,20 +3,24 @@ using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
+[System.Serializable]
 public class Message {
 	
 	const int SPACING = 4;
 	
 	public string str;
+	public string style = "box";
+	
 	public static Dictionary<char, Color> colorMap;
 	
 	float width = 0;
 	float usedThisLine = 0;
-	Vector2 size;
 	
 	static Color C(double r, double g, double b) { return new Color((float)r, (float)g, (float)b); }
 	static Color C(double d) { float f = (float)d; return new Color(f, f, f); }
-	
+	Color pColor;
+	Color pcColor;
+		
 	static Message() {
 		colorMap = new Dictionary<char, Color>();
 		colorMap.Add('r', Color.red );
@@ -29,6 +33,7 @@ public class Message {
 		
 		colorMap.Add('c', Color.cyan );
 		
+		colorMap.Add('h', C(.5, .5, .5) );
 		colorMap.Add('q', C(.8, .8, .8) );
 		colorMap.Add('e', C(1, .6, 0) );
 		colorMap.Add('t', C(.8, 1, .8) );
@@ -47,89 +52,89 @@ public class Message {
 	
 	public void Draw(Rect area) {
 		
-		width = area.Denormalized().width;
+		width = area.Denormalized().width - GUI.skin.box.padding.left - GUI.skin.box.padding.right;
+		GUILayout.BeginArea(area.Denormalized(), GUI.skin.GetStyle(style)); 
+		GUILayout.BeginVertical("", GUILayout.ExpandHeight(false)); 
+		GUILayout.BeginHorizontal("label", GUILayout.ExpandHeight(false));
+		pColor = GUI.color;
+		pcColor = GUI.contentColor;
 		
-		GUILayout.BeginArea(area.Denormalized()); {
+		int i = 0;
+		int safety = 0;
+		usedThisLine = 0;
 		
+		while (i < str.Length && safety++ < 100) {
 			
-			GUILayout.BeginVertical("box", GUILayout.ExpandHeight(false)); {
-				GUILayout.BeginHorizontal("label", GUILayout.ExpandHeight(false)); {
+			int nextEscape = str.IndexOf('\\', i);
+			int nextLine = str.IndexOf('\n', i);
+			if (nextLine == -1) { nextLine = str.Length + 10; }
+			if (nextEscape == -1) { nextEscape = str.Length + 10; }
+			
+			int pos = str.IndexOf(' ', i);
+			
+			int len = pos - i;
+			string s;
+			if (pos == -1) {
+				len = str.Length - i;
+			}
+			
+			if (nextEscape < nextLine) {
 				
-					int i = 0;
-					int safety = 0;
-					usedThisLine = 0;
+				if (nextEscape < pos) {
 					
-					while (i < str.Length && safety++ < 100) {
+					if (nextEscape+1 < str.Length) {
+						char c = str[nextEscape+1];
+						s = str.Substring(i, nextEscape - i);
 						
-						int nextEscape = str.IndexOf('\\', i);
-						int nextLine = str.IndexOf('\n', i);
-						if (nextLine == -1) { nextLine = str.Length + 10; }
-						if (nextEscape == -1) { nextEscape = str.Length + 10; }
-						
-						int pos = str.IndexOf(' ', i);
-						
-						int len = pos - i;
-						string s;
-						if (pos == -1) {
-							len = str.Length - i;
-						}
-						
-						if (nextEscape < nextLine) {
-							
-							if (nextEscape < pos) {
-								
-								if (nextEscape+1 < str.Length) {
-									char c = str[nextEscape+1];
-									s = str.Substring(i, nextEscape - i);
-									
-									Label(s);
-									
-									
-									ChangeColor(c);
-									
-								} else {
-									s = str.Substring(i, nextEscape - i);
-									Label(s);
-									
-								}
-								i = nextEscape + 2;
-								continue;
-							}
-							
-						} else if (nextLine < nextEscape) {
-						
-							if (nextLine < pos) {
-								s = str.Substring(i, nextLine - i);
-								Label(s);
-								Newline();
-								i = nextLine+1;
-								
-								
-								continue;
-							}
-							
-						}
-						
-						s = str.Substring(i, len);
 						Label(s);
 						
 						
-						if (pos != -1 && pos < str.Length) {
-							if (str[pos] == ' ') {
-								GUILayout.Space(SPACING);
-								usedThisLine += SPACING;
-							}
-						}
+						ChangeColor(c);
 						
-						i = pos+1;
-						if (pos == -1) { i = str.Length; }
+					} else {
+						s = str.Substring(i, nextEscape - i);
+						Label(s);
 						
 					}
 					
-				} GUILayout.EndHorizontal();
-			} GUILayout.EndVertical();
+					i = nextEscape + 2;
+					
+					continue;
+				}
+				
+			} else if (nextLine < nextEscape) {
 			
-		} GUILayout.EndArea();
+				if (nextLine < pos) {
+					s = str.Substring(i, nextLine - i);
+					Label(s);
+					Newline();
+					i = nextLine+1;
+					
+					
+					continue;
+				}
+				
+			}
+			
+			s = str.Substring(i, len);
+			Label(s);
+			
+			
+			if (pos != -1 && pos < str.Length) {
+				if (str[pos] == ' ') {
+					GUILayout.Space(SPACING);
+					usedThisLine += SPACING;
+				}
+			}
+			
+			i = pos+1;
+			if (pos == -1) { i = str.Length; }
+			
+		}
+					
+		GUILayout.EndHorizontal();
+		GUILayout.EndVertical();
+		GUILayout.EndArea();
 		
 		
 	}
@@ -143,14 +148,19 @@ public class Message {
 	}
 	
 	void ChangeColor(char c){
-		GUI.color = Color.white;
+		Color color = Color.white;
 		if (colorMap.ContainsKey(c)) {
-			GUI.color = colorMap[c];
-		}		
+			color = colorMap[c];
+		}
+		
+		color.a *= pColor.a;
+		color.a *= pcColor.a;
+		
+		GUI.color = color;
 	}
 	
 	void Label(string s) {
-		size = GUI.skin.label.CalcSize(new GUIContent(s));
+		Vector2 size = GUI.skin.label.CalcSize(new GUIContent(s));
 		if (usedThisLine + size.x >= width) { Newline(); }
 		
 		GUILayout.Label(s, GUILayout.ExpandWidth(false));
