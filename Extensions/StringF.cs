@@ -185,6 +185,10 @@ public static class StringF {
 	}
 	
 	
+	public static string PreviousDirectory(this string path) {
+		return path.Substring(0, path.LastIndexOf("/"));
+	}
+	
 	
 }
 

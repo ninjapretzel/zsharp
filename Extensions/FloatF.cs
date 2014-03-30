@@ -8,6 +8,7 @@ public static class FloatF {
 	
 	public static float Lerp(this float f, float target, float v) { return Mathf.Lerp(f, target, v); }
 	public static float Clamp(this float f, float a, float b) { return Mathf.Clamp(f, Min(a, b), Max(a, b)); }
+	public static float Clamp(this float f, Vector2 v) { return f.Clamp(v.x, v.y); }
 	public static float Clamp01(this float f) { return Mathf.Clamp01(f); }
 	public static float Floor(this float f) { return Mathf.Floor(f); }
 	public static float Ceil(this float f) { return Mathf.Ceil(f); }

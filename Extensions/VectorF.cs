@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using System.Linq;
+using System;
 
 public static class VectorF {
 	
@@ -38,7 +40,16 @@ public static class VectorF {
 		return v.normalized * m;
 	}
 	
+	public static byte[] GetBytes(this Vector3 v) {
+		List<byte> b = new List<byte>();
+		b.Append(BitConverter.GetBytes(v.x));
+		b.Append(BitConverter.GetBytes(v.y));
+		b.Append(BitConverter.GetBytes(v.z));
+		return b.ToArray();
+	}
+	
 	public static Vector3 Abs(this Vector3 v) { return new Vector3(v.x.Abs(), v.y.Abs(), v.z.Abs()); }
+	public static Vector3 Floor(this Vector3 v) { return new Vector3(v.x.Floor(), v.y.Floor(), v.z.Floor()); }
 	
 	public static Vector3 TLerp(this Vector3 v, float t) { return v.TLerp(Vector3.zero, t); }
 	public static Vector3 TLerp(this Vector3 v, Vector3 target) { return v.TLerp(target, 1); }

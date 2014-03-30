@@ -16,7 +16,8 @@ public class MaterialPanner : MonoBehaviour {
 	}
 	
 	void Awake() {
-		if (!renderer) { Destroy(this); return; }
+		if (targets == null) { targets = new string[0]; }
+		if (renderer == null) { Destroy(this); return; }
 		material = new Material(renderer.material);
 	}
 	

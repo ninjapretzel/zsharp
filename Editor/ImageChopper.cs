@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Collections;
@@ -20,6 +21,24 @@ public class ImageChopper : EditorWindow {
 				Texture2D lastTex = tex;
 				tex = EditorGUILayout.ObjectField(tex, typeof(Texture2D), false) as Texture2D;
 				if (tex != null && tex != lastTex) {
+					string path = AssetDatabase.GetAssetPath(tex);
+					TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+					if (importer != null) {
+						importer.textureType = TextureImporterType.Advanced;
+						importer.textureFormat = TextureImporterFormat.RGBA32;
+						importer.maxTextureSize = 4096;
+						importer.npotScale = TextureImporterNPOTScale.None;
+						importer.grayscaleToAlpha = false;
+						importer.generateCubemap = TextureImporterGenerateCubemap.None;
+						importer.isReadable = true;
+						importer.mipmapEnabled = false;
+						importer.normalmap = false;
+						importer.lightmap = false;
+						
+						AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+					}
+					
+					
 					size.x = tex.height;
 					size.y = tex.height;
 				}
@@ -79,7 +98,7 @@ public class ImageChopper : EditorWindow {
 		//if (true) { return; }
 		
 		int i = 0;
-		for (int y = 0; y < h; y++) {
+		for (int y = h-1; y >= 0; y--) {
 			for (int x = 0; x < w; x++) {
 				Color[] colors = tex.GetPixels(x * sx, y * sy, sx, sy);
 				
@@ -122,4 +141,4 @@ public class ImageChopper : EditorWindow {
 
 
 
-
+#endif
