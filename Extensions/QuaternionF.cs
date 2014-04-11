@@ -1,5 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 public static class QuaternionF {
 	
@@ -20,6 +23,18 @@ public static class QuaternionF {
 		e.z = 0;
 		return Quaternion.Euler(e);
 	}
+	
+	public static byte[] GetBytes(this Quaternion q) {
+		List<byte> b = new List<byte>();
+		
+		b.Append(q.x.GetBytes());
+		b.Append(q.y.GetBytes());
+		b.Append(q.z.GetBytes());
+		b.Append(q.w.GetBytes());
+		
+		return b.ToArray();
+	}
+	
 	
 	
 }

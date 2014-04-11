@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class RandomRotation : MonoBehaviour {
 	public bool x = false;

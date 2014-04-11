@@ -20,28 +20,11 @@ public class ImageChopper : EditorWindow {
 			GUILayout.BeginHorizontal("box"); {
 				Texture2D lastTex = tex;
 				tex = EditorGUILayout.ObjectField(tex, typeof(Texture2D), false) as Texture2D;
+				
 				if (tex != null && tex != lastTex) {
-					string path = AssetDatabase.GetAssetPath(tex);
-					TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
-					if (importer != null) {
-						importer.textureType = TextureImporterType.Advanced;
-						importer.textureFormat = TextureImporterFormat.RGBA32;
-						importer.maxTextureSize = 4096;
-						importer.npotScale = TextureImporterNPOTScale.None;
-						importer.grayscaleToAlpha = false;
-						importer.generateCubemap = TextureImporterGenerateCubemap.None;
-						importer.isReadable = true;
-						importer.mipmapEnabled = false;
-						importer.normalmap = false;
-						importer.lightmap = false;
-						
-						AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-					}
-					
-					
-					size.x = tex.height;
-					size.y = tex.height;
+					NewTextureAssigned();
 				}
+				
 			} GUILayout.EndHorizontal();
 			
 			if (tex != null) {
@@ -69,6 +52,29 @@ public class ImageChopper : EditorWindow {
 		
 	}
 	
+	void NewTextureAssigned() {
+		string path = AssetDatabase.GetAssetPath(tex);
+		TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+		
+		if (importer != null) {
+			importer.textureType = TextureImporterType.Advanced;
+			importer.textureFormat = TextureImporterFormat.RGBA32;
+			importer.maxTextureSize = 4096;
+			importer.npotScale = TextureImporterNPOTScale.None;
+			importer.grayscaleToAlpha = false;
+			importer.generateCubemap = TextureImporterGenerateCubemap.None;
+			importer.isReadable = true;
+			importer.mipmapEnabled = false;
+			importer.normalmap = false;
+			importer.lightmap = false;
+			
+			AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+		}
+		
+		size.x = tex.height;
+		size.y = tex.height;
+		
+	}
 	
 	void ChopTex() {
 		if (tex == null) { return; }

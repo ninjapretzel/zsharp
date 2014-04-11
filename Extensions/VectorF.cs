@@ -45,6 +45,9 @@ public static class VectorF {
 		b.Append(BitConverter.GetBytes(v.x));
 		b.Append(BitConverter.GetBytes(v.y));
 		b.Append(BitConverter.GetBytes(v.z));
+		
+		//Debug.Log("Vector3 to byte[]: " + v + " - " + b.Count);
+		
 		return b.ToArray();
 	}
 	

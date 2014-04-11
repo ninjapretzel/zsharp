@@ -1,9 +1,31 @@
 using UnityEngine;
+using System;
+using System.IO;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
 public static class DataF {
+	
+	public static float ToFloat(this byte[] b, int i) { return BitConverter.ToSingle(b, i); }
+	public static int ToInt(this byte[] b, int i) { return BitConverter.ToInt32(b, i); }
+	
+	public static Vector3 ToVector3(this byte[] b, int i) {
+		Vector3 v = Vector3.zero;
+		v.x = b.ToFloat(i);
+		v.y = b.ToFloat(i+4);
+		v.z = b.ToFloat(i+8);
+		return v;
+	}
+	
+	public static Quaternion ToQuaternion(this byte[] b, int i) {
+		Quaternion q = Quaternion.identity;
+		q.x = b.ToFloat(i);
+		q.y = b.ToFloat(i+4);
+		q.z = b.ToFloat(i+8);
+		q.w = b.ToFloat(i+12);
+		return q;
+	}
 	
 	//Quick stupid accessor functions
 	public static T LastElement<T>(this List<T> list) { if (list.Count == 0) { return default(T); } return list[list.Count-1]; }
@@ -27,6 +49,8 @@ public static class DataF {
 		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, list.Count-1);
 		return list[index];
 	}
+	
+	
 	
 	//Choose 'num' elements from the list
 	public static List<T> Choose<T>(this List<T> list, int num) {
@@ -141,6 +165,23 @@ public static class DataF {
 		return text.Split(',').ToList();
 		
 	}
+	
+	public static void SaveToFile(this byte[] b, string path) {
+		Directory.CreateDirectory(path.PreviousDirectory());
+		
+		File.WriteAllBytes(path, b);
+		
+		
+	}
+	
+	public static byte[] LoadBytesFromFile(string path) {
+		if (File.Exists(path)) {
+			return File.ReadAllBytes(path);
+		}
+		return null;
+		
+	}
+	
 	
 	
 }
