@@ -4,11 +4,22 @@ using System.IO;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public static class DataF {
 	
 	public static float ToFloat(this byte[] b, int i) { return BitConverter.ToSingle(b, i); }
 	public static int ToInt(this byte[] b, int i) { return BitConverter.ToInt32(b, i); }
+	
+	 public static T DeepCopy<T>(T obj) {
+		MemoryStream ms = new MemoryStream();
+		BinaryFormatter bf = new BinaryFormatter();
+		bf.Serialize(ms, obj);
+		ms.Seek(0, SeekOrigin.Begin);
+		T retval = (T)bf.Deserialize(ms);
+		ms.Close();
+		return retval;
+	}
 	
 	public static Vector3 ToVector3(this byte[] b, int i) {
 		Vector3 v = Vector3.zero;

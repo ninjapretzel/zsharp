@@ -36,6 +36,16 @@ public static class StringF {
 		return s.Substring(0, lastIndex);
 	}
 	
+	//Converts all backslashes in a path to forward slashes.
+	public static string ForwardSlashPath(this string path) {
+		return path.Replace('\\', '/');
+	}
+	
+	//Gets the last folder's name of a given string
+	public static string DirectoryName(this string path) {
+		return path.Substring(path.LastIndexOf("/"));
+	}
+	
 	//Moves a string representing a path to point one directory above.
 	public static string PreviousDirectory(this string path) {
 		return path.Substring(0, path.LastIndexOf("/"));
