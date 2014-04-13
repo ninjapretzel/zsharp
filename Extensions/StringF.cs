@@ -43,7 +43,7 @@ public static class StringF {
 	
 	//Gets the last folder's name of a given string
 	public static string DirectoryName(this string path) {
-		return path.Substring(path.LastIndexOf("/"));
+		return path.Substring(path.LastIndexOf("/") + 1);
 	}
 	
 	//Moves a string representing a path to point one directory above.
