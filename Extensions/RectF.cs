@@ -245,67 +245,76 @@ public static class RectF {
 						r.height * height);
 	}
 	
-	public static Rect UpperLeftSquare(this Rect r, float side) {
-		return new Rect(r.x,
-						r.y,
-						r.width * side,
-						r.width * side);
+	public static Rect UpperLeftSquare(this Rect r, float side, bool sideIsFractionOfWidth = false) {
+		if(sideIsFractionOfWidth) {
+			return new Rect(r.x, r.y, r.width * side, r.width * side);
+		} else {
+			return new Rect(r.x, r.y, r.height * side, r.height * side);
+		}
 	}
 	
-	public static Rect UpperCenterSquare(this Rect r, float side) {
-		return new Rect(r.x + r.width / 2.0f - r.width * side / 2.0f,
-						r.y,
-						r.width * side,
-						r.width * side);
+	public static Rect UpperCenterSquare(this Rect r, float side, bool sideIsFractionOfWidth = false) {
+		if(sideIsFractionOfWidth) {
+			return new Rect(r.x + r.width / 2.0f - r.width * side / 2.0f, r.y, r.width * side, r.width * side);
+		} else {
+			return new Rect(r.x + r.width / 2.0f - r.height * side / 2.0f, r.y, r.height * side, r.height * side);
+		}
 	}
 	
-	public static Rect UpperRightSquare(this Rect r, float side) {
-		return new Rect(r.x + r.width - r.width * side,
-						r.y,
-						r.width * side,
-						r.width * side);
+	public static Rect UpperRightSquare(this Rect r, float side, bool sideIsFractionOfWidth = false) {
+		if(sideIsFractionOfWidth) {
+			return new Rect(r.x + r.width - r.width * side, r.y, r.width * side, r.width * side);
+		} else {
+			return new Rect(r.x + r.width - r.height * side, r.y, r.height * side, r.height * side);
+		}
 	}
 	
-	public static Rect MiddleLeftSquare(this Rect r, float side) {
-		return new Rect(r.x,
-						r.y + r.height/2 - r.width*side/2,
-						r.width * side,
-						r.width * side);
+	public static Rect MiddleLeftSquare(this Rect r, float side, bool sideIsFractionOfWidth = false) {
+		if(sideIsFractionOfWidth) {
+			return new Rect(r.x, r.y + r.height/2.0f - r.width*side/2.0f, r.width * side, r.width * side);
+		} else {
+			return new Rect(r.x, r.y + r.height/2.0f - r.height*side/2.0f, r.height * side, r.height * side);
+		}
 	}
 	
-	public static Rect MiddleCenterSquare(this Rect r, float side) {
-		return new Rect(r.x + r.width / 2.0f - r.width * side / 2.0f,
-						r.y + r.height/2 - r.width*side/2,
-						r.width * side,
-						r.width * side);
+	public static Rect MiddleCenterSquare(this Rect r, float side, bool sideIsFractionOfWidth = false) {
+		if(sideIsFractionOfWidth) {
+			return new Rect(r.x + r.width / 2.0f - r.width * side / 2.0f, r.y + r.height/2.0f - r.width*side/2.0f, r.width * side, r.width * side);
+		} else {
+			return new Rect(r.x + r.width / 2.0f - r.height * side / 2.0f, r.y + r.height/2.0f - r.height*side/2.0f, r.height * side, r.height * side);
+		}
 	}
 	
-	public static Rect MiddleRightSquare(this Rect r, float side) {
-		return new Rect(r.x + r.width - r.width * side,
-						r.y + r.height/2 - r.width*side/2,
-						r.width * side,
-						r.width * side);
+	public static Rect MiddleRightSquare(this Rect r, float side, bool sideIsFractionOfWidth = false) {
+		if(sideIsFractionOfWidth) {
+			return new Rect(r.x + r.width - r.width * side, r.y + r.height/2.0f - r.width*side/2.0f, r.width * side, r.width * side);
+		} else {
+			return new Rect(r.x + r.width - r.height * side, r.y + r.height/2.0f - r.height*side/2.0f, r.height * side, r.height * side);
+		}
 	}
 	
-	public static Rect BottomLeftSquare(this Rect r, float side) {
-		return new Rect(r.x,
-						r.y + r.height - r.width*side,
-						r.width * side,
-						r.width * side);
+	public static Rect BottomLeftSquare(this Rect r, float side, bool sideIsFractionOfWidth = false) {
+		if(sideIsFractionOfWidth) {
+			return new Rect(r.x, r.y + r.height - r.width*side, r.width * side, r.width * side);
+		} else {
+			return new Rect(r.x, r.y + r.height - r.height*side, r.height * side, r.height * side);
+		}
 	}
 	
-	public static Rect BottomCenterSquare(this Rect r, float side) {
-		return new Rect(r.x + r.width / 2.0f - r.width * side / 2.0f,
-						r.y + r.height - r.width*side,
-						r.width * side,
-						r.width * side);
+	public static Rect BottomCenterSquare(this Rect r, float side, bool sideIsFractionOfWidth = false) {
+		if(sideIsFractionOfWidth) {
+			return new Rect(r.x + r.width / 2.0f - r.width * side / 2.0f, r.y + r.height - r.width*side, r.width * side, r.width * side);
+		} else {
+			return new Rect(r.x + r.width / 2.0f - r.height * side / 2.0f, r.y + r.height - r.height*side, r.height * side, r.height * side);
+		}
 	}
 	
-	public static Rect BottomRightSquare(this Rect r, float side) {
-		return new Rect(r.x + r.width - r.width * side,
-						r.y + r.height - r.width*side,
-						r.width * side,
-						r.width * side);
+	public static Rect BottomRightSquare(this Rect r, float side, bool sideIsFractionOfWidth = false) {
+		if(sideIsFractionOfWidth) {
+			return new Rect(r.x + r.width - r.width * side, r.y + r.height - r.width*side, r.width * side, r.width * side);
+		} else {
+			return new Rect(r.x + r.width - r.height * side, r.y + r.height - r.height*side, r.height * side, r.height * side);
+		}
 	}
 	
 }
