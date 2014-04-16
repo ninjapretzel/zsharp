@@ -338,6 +338,13 @@ public static class InputWrapper {
 		return res.Substring(0,res.Length-1); // Trim the last unnecessary comma
 	}
 	
+	public static string GetHardwareName(string nameOf, int slot) {
+		if(bindings[nameOf].Count > slot) {
+			return bindings[nameOf][slot].ToString();
+		}
+		return "None";
+	}
+	
 	public static string[] GetHardwareNames(string nameOf) {
 		string[] stringArray = new string[bindings[nameOf].Count];
 		for(int i=0;i<stringArray.Length;i++) {
