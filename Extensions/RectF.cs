@@ -22,6 +22,7 @@ public static class RectF {
 	public static Rect Scaled(this Rect r, Vector2 s) { return r.Scaled(s.x, s.y); }
 	public static Rect Scaled(this Rect r, float x, float y) { return new Rect(r.x * x, r.y * y, r.width * x, r.height * y); }
 	public static Rect Denormalized(this Rect r) { return r.Scaled(Screen.width, Screen.height); }
+	public static Rect Normalized(this Rect r) { return r.Scaled(1f/Screen.width, 1f/Screen.height); }
 	
 	public static Rect Rot90Scaled(this Rect r) { return r.Scaled(ScreenF.rot90size); }
 	public static Rect Rot90(this Rect r) { return new Rect(r.y, r.x, r.height, r.width); }

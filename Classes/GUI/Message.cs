@@ -9,6 +9,7 @@ public class Message {
 	const int SPACING = 4;
 	
 	public string str;
+	
 	public string style = "box";
 	
 	public static Dictionary<char, Color> colorMap;
@@ -63,28 +64,40 @@ public class Message {
 		int safety = 0;
 		usedThisLine = 0;
 		
-		while (i < str.Length && safety++ < 100) {
+		string msg = str + " \\w \n";
+		
+		
+		while (i < msg.Length && safety++ < 100) {
 			
-			int nextEscape = str.IndexOf('\\', i);
-			int nextLine = str.IndexOf('\n', i);
-			if (nextLine == -1) { nextLine = str.Length + 10; }
-			if (nextEscape == -1) { nextEscape = str.Length + 10; }
 			
-			int pos = str.IndexOf(' ', i);
+			int nextLine;
+			int nextEscape; 
+			nextLine = msg.IndexOf('\n', i);
+			nextEscape = msg.IndexOf('\\', i);
+			
+			
+			if (nextLine == -1) { nextLine = msg.Length + 100; }
+			if (nextEscape == -1) { nextEscape = msg.Length + 100; }
+			
+			int pos = msg.IndexOf(' ', i);
 			
 			int len = pos - i;
 			string s;
 			if (pos == -1) {
-				len = str.Length - i;
+				len = msg.Length - i;
+			}
+			
+			if (pos == msg.Length - 1) {
+				return;
 			}
 			
 			if (nextEscape < nextLine) {
 				
 				if (nextEscape < pos) {
 					
-					if (nextEscape+1 < str.Length) {
-						char c = str[nextEscape+1];
-						s = str.Substring(i, nextEscape - i);
+					if (nextEscape+1 < msg.Length) {
+						char c = msg[nextEscape+1];
+						s = msg.Substring(i, nextEscape - i);
 						
 						Label(s);
 						
@@ -92,7 +105,7 @@ public class Message {
 						ChangeColor(c);
 						
 					} else {
-						s = str.Substring(i, nextEscape - i);
+						s = msg.Substring(i, nextEscape - i);
 						Label(s);
 						
 					}
@@ -105,20 +118,34 @@ public class Message {
 			} else if (nextLine < nextEscape) {
 			
 				if (nextLine < pos) {
-					s = str.Substring(i, nextLine - i);
+					s = msg.Substring(i, nextLine - i);
+					
 					Label(s);
 					Newline();
 					i = nextLine+1;
-					
 					
 					continue;
 				}
 				
 			}
 			
-			s = str.Substring(i, len);
-			Label(s);
+			if (len == 0) {
+				i = pos + 1; 
+				continue;
+			}
 			
+			s = msg.Substring(i, len);
+			
+			if (s[0] == '\\') {
+				char c = s[1];
+				ChangeColor(c);
+				//i = pos + 1;
+				//continue;
+				//s = s.Substring(2);
+				
+			}
+			
+			Label(s);
 			
 			if (pos != -1 && pos < str.Length) {
 				if (str[pos] == ' ') {
@@ -135,7 +162,6 @@ public class Message {
 		GUILayout.EndHorizontal();
 		GUILayout.EndVertical();
 		GUILayout.EndArea();
-		
 		
 	}
 	

@@ -9,7 +9,8 @@ public class ImageTransparency : ZEditorWindow {
 	
 	public Texture2D tex;
 	public string path; 
-	public Vector2 position;
+	public Vector2 pixelPosition;
+	
 	
 	public UnityEngine.Object o;
 	public static ImageTransparency window;
@@ -31,7 +32,7 @@ public class ImageTransparency : ZEditorWindow {
 	
 	void OnGUI() {
 		GUILayout.BeginVertical("box"); {
-			o = EditorGUILayout.ObjectField("Drag a folder here: ", o, typeof(UnityEngine.Object));
+			o = EditorGUILayout.ObjectField("Drag a folder here: ", o, typeof(UnityEngine.Object), false);
 			if (o != null) {
 				string s = AssetDatabase.GetAssetPath(o);
 				
@@ -47,7 +48,7 @@ public class ImageTransparency : ZEditorWindow {
 				path = EditorGUILayout.TextField(path);
 			} GUILayout.EndHorizontal();
 			
-			position = EditorGUILayout.Vector2Field("Position: ", position);
+			pixelPosition = EditorGUILayout.Vector2Field("Position: ", pixelPosition);
 			
 			if (GUILayout.Button("GO")) {
 				ConvertFiles();
@@ -62,7 +63,6 @@ public class ImageTransparency : ZEditorWindow {
 		string[] pngList = Directory.GetFiles(path, "*.png");
 		//Debug.Log(pngList.Length);
 		
-		int i = 0;
 		foreach (string f in pngList) {
 			string file = f.Replace("\\", "/");
 			//Debug.Log(file);
@@ -72,7 +72,7 @@ public class ImageTransparency : ZEditorWindow {
 			
 			tex.LoadImage(File.ReadAllBytes(file));
 			
-			Color transparency = tex.GetPixel((int)position.x, (int)position.y);
+			Color transparency = tex.GetPixel((int)pixelPosition.x, (int)pixelPosition.y);
 			
 			for (int x = 0; x < tex.width; x++) {
 				for (int y = 0; y < tex.height; y++) {

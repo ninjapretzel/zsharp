@@ -21,7 +21,7 @@ public static class GUIFontSize {
 
 public static class GUIStyleF {
 	
-	
+	public static float LineSize(this GUIStyle c) { return c.CalcHeight(new GUIContent("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 9999999f); }
 	public static GUIStyle Clone(this GUIStyle c) { return new GUIStyle(c); }
 	
 	public static GUIStyle FontSize(this GUIStyle style, string s) { return style.FontSize(GUIFontSize.Get(s)); }
