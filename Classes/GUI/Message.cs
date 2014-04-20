@@ -64,7 +64,11 @@ public class Message {
 		int safety = 0;
 		usedThisLine = 0;
 		
+		//Super bad hack to make the shit not break on handling the last line.
+		//Re-do this function to fix this process.
+		//Shouldn't have to rely on a hack like this.
 		string msg = str + " \\w \n";
+		
 		
 		
 		while (i < msg.Length && safety++ < 100) {
@@ -87,6 +91,7 @@ public class Message {
 				len = msg.Length - i;
 			}
 			
+			//Handle this stupid hack//
 			if (pos == msg.Length - 1) {
 				return;
 			}
