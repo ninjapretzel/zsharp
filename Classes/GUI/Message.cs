@@ -39,6 +39,7 @@ public class Message {
 		colorMap.Add('e', C(1, .6, 0) );
 		colorMap.Add('t', C(.8, 1, .8) );
 		colorMap.Add('p', C(.8, 1, .8) );
+		colorMap.Add('n', C(.52549, 0.7098, .85098) );
 		
 		//colorMap.Add('e', new Color(1, .6f, .0f) );
 	}
