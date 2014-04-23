@@ -4,7 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 
-public class SavesStateOnCheckpoint : MonoBehaviour {
+public class SavesState : MonoBehaviour {
 	
 	public static bool restore = false;
 	public static bool save = false;
@@ -14,7 +14,7 @@ public class SavesStateOnCheckpoint : MonoBehaviour {
 	[NonSerialized] private Quaternion rotation;
 	[NonSerialized] private Vector3 scale;
 	[NonSerialized] private Transform savedParent;
-	// Attached MonoBehaviours
+	// Attached Behaviours
 	[NonSerialized] private bool[] enabledBehaviours; // Behaviour.enabled is not a field, it's a property. Store it separately.
 	[NonSerialized] private Dictionary<Type, Dictionary<FieldInfo, System.Object>> savedBehaviours = null;
 	
@@ -39,7 +39,7 @@ public class SavesStateOnCheckpoint : MonoBehaviour {
 	}
 	
 	public void SaveState() {
-		MonoBehaviour[] behaviours = gameObject.GetComponents<MonoBehaviour>();
+		Behaviour[] behaviours = gameObject.GetComponents<Behaviour>();
 		enabledBehaviours = new bool[behaviours.Length - 1];
 		savedBehaviours = new Dictionary<Type, Dictionary<FieldInfo, System.Object>>();
 		// Save transform properties
@@ -48,11 +48,11 @@ public class SavesStateOnCheckpoint : MonoBehaviour {
 		scale = transform.localScale;
 		savedParent = transform.parent;
 		int i = 0;
-		foreach(MonoBehaviour c in behaviours) {
+		foreach(Behaviour c in behaviours) {
 			// Use reflection to get the Type of this
 			string name = c.GetType().Name;
 			if(name != "SavesStateOnCheckpoint") {
-				// Get all fields in this MonoBehaviour
+				// Get all fields in this Behaviour
 				FieldInfo[] fields = c.GetType().GetFields();
 				Dictionary<FieldInfo, System.Object> savedFields = new Dictionary<FieldInfo, System.Object>();
 				// Save them in a dictionary
@@ -74,21 +74,21 @@ public class SavesStateOnCheckpoint : MonoBehaviour {
 		transform.localRotation = rotation;
 		transform.localScale = scale;
 		transform.parent = savedParent;
-		// Get all MonoBehaviours currently attached to this object
-		MonoBehaviour[] behaviours = gameObject.GetComponents<MonoBehaviour>();
-		foreach(MonoBehaviour c in behaviours) {
+		// Get all Behaviours currently attached to this object
+		Behaviour[] behaviours = gameObject.GetComponents<Behaviour>();
+		foreach(Behaviour c in behaviours) {
 			string name = c.GetType().Name;
 			if(name != "SavesStateOnCheckpoint") {
 				// Delete them all, some may have been added since the last checkpoint
-				MonoBehaviour.Destroy(c);
+				Behaviour.Destroy(c);
 			}
 		}
 		int i = 0;
 		foreach(Type type in savedBehaviours.Keys) {
 			// Add back the saved components
-			MonoBehaviour current = gameObject.AddComponent(type.Name) as MonoBehaviour;
+			Behaviour current = gameObject.AddComponent(type.Name) as Behaviour;
 			foreach(FieldInfo field in savedBehaviours[type].Keys) {
-				// Even though "current" is a MonoBehaviour above, setting fields of derivative classes works through reflection, fortunately
+				// Even though "current" is a Behaviour above, setting fields of derivative classes works through reflection, fortunately
 				field.SetValue(current, savedBehaviours[type][field]);
 			}
 			// Restore enabled state
