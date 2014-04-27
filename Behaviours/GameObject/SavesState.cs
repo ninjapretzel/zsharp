@@ -51,7 +51,7 @@ public class SavesState : MonoBehaviour {
 		foreach(Behaviour c in behaviours) {
 			// Use reflection to get the Type of this
 			string name = c.GetType().Name;
-			if(name != "SavesStateOnCheckpoint") {
+			if(name != this.GetType().Name) {
 				// Get all fields in this Behaviour
 				FieldInfo[] fields = c.GetType().GetFields();
 				Dictionary<FieldInfo, System.Object> savedFields = new Dictionary<FieldInfo, System.Object>();
