@@ -126,14 +126,14 @@ public class Table : Dictionary<string, float> {
 	
 	
 	//Quick check functions
-	public bool ContainsColorQ(string s) { return Contains(s+".r"); }
-	public bool ContainsVector2Q(string s) { return Contains(s+".y"); }
-	public bool ContainsVector3Q(string s) { return Contains(s+".z"); }
+	public bool ContainsColorQ(string s) { return ContainsKey(s+".r"); }
+	public bool ContainsVector2Q(string s) { return ContainsKey(s+".y"); }
+	public bool ContainsVector3Q(string s) { return ContainsKey(s+".z"); }
 	
 	//Full check functions
-	public bool ContainsColor(string s) { return Contains(s+".r") && Contains(s+".g") && Contains(s+".b") && Contains(s+".a"); }
-	public bool ContainsVector2(string s) { return Contains(s+".x") && Contains(s+".y"); }
-	public bool ContainsVector3(string s) { return Contains(s+".x") && Contains(s+".y") && Contains(s+".z"); }
+	public bool ContainsColor(string s) { return ContainsKey(s+".r") && ContainsKey(s+".g") && ContainsKey(s+".b") && ContainsKey(s+".a"); }
+	public bool ContainsVector2(string s) { return ContainsKey(s+".x") && ContainsKey(s+".y"); }
+	public bool ContainsVector3(string s) { return ContainsKey(s+".x") && ContainsKey(s+".y") && ContainsKey(s+".z"); }
 		
 	public Color GetColor(string s) { return new Color(this[s+".r"], this[s+".g"], this[s+".b"], this[s+".a"]); }
 	public Vector2 GetVector2(string s) { return new Vector2(this[s+".x"], this[s+".y"]); }
