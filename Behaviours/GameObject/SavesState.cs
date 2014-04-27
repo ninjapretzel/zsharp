@@ -78,7 +78,7 @@ public class SavesState : MonoBehaviour {
 		Behaviour[] behaviours = gameObject.GetComponents<Behaviour>();
 		foreach(Behaviour c in behaviours) {
 			string name = c.GetType().Name;
-			if(name != "SavesStateOnCheckpoint") {
+			if(name != this.GetType().Name) {
 				// Delete them all, some may have been added since the last checkpoint
 				Behaviour.Destroy(c);
 			}
