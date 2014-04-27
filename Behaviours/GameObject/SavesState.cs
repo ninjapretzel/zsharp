@@ -9,6 +9,8 @@ public class SavesState : MonoBehaviour {
 	public static bool restore = false;
 	public static bool save = false;
 	
+	public string[] blacklist = new string[0];
+	
 	// Transform properties
 	[NonSerialized] private Vector3 position;
 	[NonSerialized] private Quaternion rotation;
@@ -51,6 +53,11 @@ public class SavesState : MonoBehaviour {
 		foreach(Behaviour c in behaviours) {
 			// Use reflection to get the Type of this
 			string name = c.GetType().Name;
+			bool blacklisted = false;
+			foreach(string blacklistedClass in blacklist) {
+				if(name == blacklistedClass) { blacklisted = true; break; }
+			}
+			if(blacklisted) { continue; }
 			if(name != this.GetType().Name) {
 				// Get all fields in this Behaviour
 				FieldInfo[] fields = c.GetType().GetFields();
@@ -78,6 +85,11 @@ public class SavesState : MonoBehaviour {
 		Behaviour[] behaviours = gameObject.GetComponents<Behaviour>();
 		foreach(Behaviour c in behaviours) {
 			string name = c.GetType().Name;
+			bool blacklisted = false;
+			foreach(string blacklistedClass in blacklist) {
+				if(name == blacklistedClass) { blacklisted = true; break; }
+			}
+			if(blacklisted) { continue; }
 			if(name != this.GetType().Name) {
 				// Delete them all, some may have been added since the last checkpoint
 				Behaviour.Destroy(c);
