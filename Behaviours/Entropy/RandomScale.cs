@@ -8,9 +8,17 @@ public class RandomScale : MonoBehaviour {
 	public bool uniformXZ;
 	
 	public bool onAwake = false;
-	public bool useSeed = false;
+	public RandomType randomness = RandomType.Normal;
 	public static int seed = 1234211;
-
+	public static Vector3 fieldScale = new Vector3(.12112f, .32131f, .51241f);
+	
+	public bool useSeed {
+		get { return randomness == RandomType.Seeded; }
+	}
+	public bool usePerlin {
+		get { return randomness == RandomType.Perlin; }
+	}
+	
 	void Awake() {
 		if (onAwake) { SetScales(); }
 	}
@@ -20,23 +28,48 @@ public class RandomScale : MonoBehaviour {
 	}
 	
 	void SetScales() {
-		int prevSeed = Random.seed;
-		if (useSeed) { Random.seed = seed++; }
+	
+		if (usePerlin) {
+			Vector3 pos = Vector3.Scale(transform.position, fieldScale);
+			
+			
+			Vector3 scale = Vector3.zero;
+			
+			scale.x = Lerp(min.x, max.x, Noise(pos.y, pos.z));
+			scale.y = Lerp(min.y, max.y, Noise(pos.x, pos.z));
+			scale.z = Lerp(min.z, max.z, Noise(pos.x, pos.y));
+			
+			if (uniformXY) { scale.y = scale.x; }
+			if (uniformXZ) { scale.z = scale.x; }
+			
+			
+			transform.localScale = Vector3.Scale(transform.localScale, scale);
+			
+		} else {		
+			int prevSeed = Random.seed;
+			if (useSeed) { Random.seed = seed++; }
 
-		Vector3 scales = Vector3.zero;
-		
-		scales.x = Random.Range(min.x, max.x);
-		
-		if (uniformXY) { scales.y = scales.x; }
-		else { scales.y = Random.Range(min.y, max.y); }
-		
-		if (uniformXZ) { scales.z = scales.x; }
-		else { scales.z = Random.Range(min.z, max.z); }
-		
-		transform.localScale = Vector3.Scale(transform.localScale, scales);
-		
-		if (useSeed) { Random.seed = prevSeed; }
+			Vector3 scales = Vector3.zero;
+			
+			scales.x = Random.Range(min.x, max.x);
+			
+			if (uniformXY) { scales.y = scales.x; }
+			else { scales.y = Random.Range(min.y, max.y); }
+			
+			if (uniformXZ) { scales.z = scales.x; }
+			else { scales.z = Random.Range(min.z, max.z); }
+			
+			transform.localScale = Vector3.Scale(transform.localScale, scales);
+			
+			if (useSeed) { Random.seed = prevSeed; }
+		}
 		Destroy(this);
+	}
+	
+	float Lerp(float min, float max, float f) { return min + (max-min) * f; }
+	
+	float Noise(float x, float y) {
+		return PerlinNoise.GetValue(x, y);
 	}
 	
 }
