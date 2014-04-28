@@ -26,7 +26,7 @@ public class ItemDatabase : ZEditorWindow {
 	Item editing;
 	
 	bool listChanged = false;
-	public override float fieldWidth { get { return .6f * position.width; } }
+	public new float fieldWidth { get { return .6f * position.width; } }
 	
 	[MenuItem ("Window/Item Database")]
 	static void ShowWindow() {
@@ -155,10 +155,6 @@ public class ItemDatabase : ZEditorWindow {
 			editing.type = TextField("Type", editing.type);
 			editing.desc = TextArea("Description", editing.desc);
 			
-			
-			
-			
-			
 			GUILayout.BeginHorizontal("box");
 				GUILayout.Label("Icon", GUILayout.Width(50));
 				GUILayout.BeginVertical(GUILayout.Width(400));
@@ -167,9 +163,11 @@ public class ItemDatabase : ZEditorWindow {
 					if (lastIconName != editing.iconName) { editing.ReloadIcon(); }
 					
 					if (GUILayout.Button("Use Name")) {
+						if (editing.name != editing.iconName) { changed = true; }
 						editing.iconName = editing.name;
 						editing.ReloadIcon();
 					}
+					
 					editing.color = ColorField("Color", editing.color);
 					
 				GUILayout.EndVertical();
@@ -201,20 +199,33 @@ public class ItemDatabase : ZEditorWindow {
 		GUILayout.BeginVertical("box");
 			GUILayout.Label("Properties");
 			
-			
+			bool temp;
+			int tempNum;
 			
 			GUILayout.BeginHorizontal("box");
 				GUILayout.BeginHorizontal("box");
+					temp = editing.stacks;
 					editing.stacks = GUILayout.Toggle(editing.stacks, "Stacks");
+					if (editing.stacks != temp) { changed = true; }
+					
 				GUILayout.EndHorizontal();
+				tempNum = editing.maxStack;
 				editing.maxStack = IntField("Max Stack", editing.maxStack);
+				if (editing.maxStack != tempNum) { changed = true; }
+				
 			GUILayout.EndHorizontal();
 			
 			GUILayout.BeginHorizontal("box");
 				GUILayout.BeginHorizontal("box");
+					temp = editing.equip;
 					editing.equip = GUILayout.Toggle(editing.equip, "Equippable");
+					if (editing.equip != temp) { changed = true; }
+					
 				GUILayout.EndHorizontal();
+				tempNum = editing.equipSlot;
 				editing.equipSlot = IntField("Equip Slot", editing.equipSlot);
+				if (editing.equipSlot != tempNum) { changed = true; }
+				
 			GUILayout.EndHorizontal();
 			
 			//GUILayout.Space(fieldWidth*.3f);
@@ -272,6 +283,7 @@ public class ItemDatabase : ZEditorWindow {
 		sr.Close();
 		
 		listChanged = false;
+		AssetDatabase.Refresh();
 		
 	}
 	
