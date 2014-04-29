@@ -5,6 +5,7 @@ public class MaterialPulse : MonoBehaviour {
 	private Color baseColor;
 	public string targetChannel = "_Emission";
 	public Oscillator osc;
+	public bool pulseAlpha = false;
 	
 	void Start() {
 		if (!renderer) { Destroy(this);	return; }
@@ -14,7 +15,9 @@ public class MaterialPulse : MonoBehaviour {
 	void Update() {
 		float val = osc.Update();
 		Color c = baseColor * val;
-		c.a = baseColor.a;
+		if (!pulseAlpha) {
+			c.a = baseColor.a;
+		}
 		renderer.material.SetColor(targetChannel, c);
 	}
 	

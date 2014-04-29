@@ -23,6 +23,11 @@ public class BMM {
 			return RandomF.Normal(min, max);
 		}
 	}
+	
+	public float Perlin(float x, float y) {
+		float f = PerlinNoise.GetValue(x, y);
+		return min + (max-min) * f; 
+	}
 	 
 	
 	public BMM() {

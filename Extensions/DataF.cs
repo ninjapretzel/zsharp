@@ -1,5 +1,6 @@
 using UnityEngine;
 using System;
+using System.Text;
 using System.IO;
 using System.Linq;
 using System.Collections;
@@ -59,6 +60,17 @@ public static class DataF {
 	public static T Choose<T>(this List<T> list, float[] weights) {
 		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, list.Count-1);
 		return list[index];
+	}
+	
+	public static string ListString<T>(this List<T> list) { return list.ListString<T>(','); }
+	public static string ListString<T>(this List<T> list, char delim) {
+		StringBuilder str = new StringBuilder();
+		for (int i = 0; i < list.Count; i++) {
+			T t = list[i];
+			str.Append(t);
+			if (i != list.Count-1) { str.Append(""+delim); }
+		}
+		return str.ToString();
 	}
 	
 	

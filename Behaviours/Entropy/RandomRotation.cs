@@ -13,6 +13,7 @@ public class RandomRotation : MonoBehaviour {
 	public bool onAwake = false;
 	public RandomType randomness = RandomType.Normal;	
 	public static int seed = 12236921;
+	public static Vector3 fieldScale = new Vector3(.12112f, .32131f, .51241f);
 	
 	public bool useSeed {
 		get { return randomness == RandomType.Seeded; }
@@ -32,10 +33,7 @@ public class RandomRotation : MonoBehaviour {
 	void SetRotation() {
 		Vector3 rotation = transform.rotation.eulerAngles;
 		if (usePerlin) {
-			Vector3 pos = transform.position;
-			pos.x *= .0012112f;
-			pos.y *= .0032131f;
-			pos.z *= .0051241f;
+			Vector3 pos = Vector3.Scale(transform.position, fieldScale);
 			if (x) { rotation.x = Lerp(min.x, max.x, Noise(pos.y, pos.z)); }
 			if (y) { rotation.y = Lerp(min.y, max.y, Noise(pos.x, pos.z)); }
 			if (z) { rotation.z = Lerp(min.z, max.z, Noise(pos.x, pos.y)); }

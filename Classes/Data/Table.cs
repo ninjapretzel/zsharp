@@ -103,7 +103,7 @@ public class Table : Dictionary<string, float> {
 	
 	public static Table operator -(Table a, Table b) {
 		Table c = new Table();
-		foreach (string key in a.Keys) { c[key] -= a[key]; }
+		foreach (string key in a.Keys) { c[key] += a[key]; }
 		foreach (string key in b.Keys) { c[key] -= b[key]; }
 		return c;
 	}
@@ -124,6 +124,17 @@ public class Table : Dictionary<string, float> {
 		return c;
 	}
 	
+	
+	//Quick check functions
+	public bool ContainsColorQ(string s) { return ContainsKey(s+".r"); }
+	public bool ContainsVector2Q(string s) { return ContainsKey(s+".y"); }
+	public bool ContainsVector3Q(string s) { return ContainsKey(s+".z"); }
+	
+	//Full check functions
+	public bool ContainsColor(string s) { return ContainsKey(s+".r") && ContainsKey(s+".g") && ContainsKey(s+".b") && ContainsKey(s+".a"); }
+	public bool ContainsVector2(string s) { return ContainsKey(s+".x") && ContainsKey(s+".y"); }
+	public bool ContainsVector3(string s) { return ContainsKey(s+".x") && ContainsKey(s+".y") && ContainsKey(s+".z"); }
+		
 	public Color GetColor(string s) { return new Color(this[s+".r"], this[s+".g"], this[s+".b"], this[s+".a"]); }
 	public Vector2 GetVector2(string s) { return new Vector2(this[s+".x"], this[s+".y"]); }
 	public Vector3 GetVector3(string s) { return new Vector3(this[s+".x"], this[s+".y"], this[s+".z"]); }
