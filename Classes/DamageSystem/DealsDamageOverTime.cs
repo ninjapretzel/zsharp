@@ -19,7 +19,7 @@ public class DealsDamageOverTime : DealsDamage {
 			if (source.team != unit.team) {
 				//Debug.Log("OH SHIT" + c.gameObject.name);
 				//Debug.Log(atk);
-				unit.mortality.Hit(damage * Time.deltaTime);
+				unit.mortality.Hit(damage * Time.deltaTime, playWhenTargetKilled);
 				HitATarget();
 			}
 			HitATeammate();

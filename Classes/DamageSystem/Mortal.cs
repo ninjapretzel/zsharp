@@ -69,40 +69,41 @@ public class Mortal : MonoBehaviour {
 	}
 	
 	
-	public float Hit(Attack a) { 
+	public float Hit(Attack a, AudioClip playIfKilled = null) { 
 		if (invincible > 0) { return 0; }
 		float remain = 0;
 		
 		foreach (string s in a.Keys) {
-			remain = Hit(s, a[s]);
-			if (dead) { 
-				if (!broadcastDeath) { 
-					SayDie(); 
-				}
+			if (dead) { return a[s]; }
+			remain = Hit(s, a[s], playIfKilled);
+			if (dead) {
 				return remain; 
 			}
 		}
 		return remain;
 	}
 	
-	public void SayDie() {
+	public void SayDie(AudioClip playIfKilled = null) {
 		//Debug.Log(name + " is dead");
 		broadcastDeath = true;
 		transform.SendMessage("Die", SendMessageOptions.DontRequireReceiver);
+		if(playIfKilled != null) {
+			SoundMaster.Play(playIfKilled, transform.position);
+		}
+		
 	}
 	
-	public float Hit(float d) { return Hit("", d); }
-	public float Hit(string s, float d) {
+	public float Hit(float d, AudioClip playIfKilled = null) { return Hit("", d, playIfKilled); }
+	public float Hit(string s, float d, AudioClip playIfKilled = null) {
 		if (invincible > 0) { return 0; }
+		if (dead) { return d; }
 		Health h = FindHighestLayer();
 		Health h2 = FindSecondHighestLayer();
 		
 		float remain = d;
 		if (total < .01) { return d; }
 		
-		int i = 0; //Safety wall for 5 layers
-		while (remain > 0 && !dead && i < 5) {
-			i++;
+		for(int i = 0; remain > 0 && !dead && i < 5; i++) {//Safety wall for 5 layers
 			remain = h.Hit(s, d);
 			if (h.armor > 0 && !h.protective) {
 				remain = h2.Hit(s, remain);
@@ -110,6 +111,13 @@ public class Mortal : MonoBehaviour {
 			
 			h = FindHighestLayer();
 			h2 = FindSecondHighestLayer();
+			
+			if (dead) { 
+				if (!broadcastDeath) {
+					SayDie(playIfKilled); 
+				}
+				return remain; 
+			}
 			
 		}
 		

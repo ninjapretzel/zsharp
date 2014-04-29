@@ -5,6 +5,7 @@ public class DealsDamage : MonoBehaviour {
 	public Unit source;
 	public bool sticksToSource = false;
 	public Attack atk;
+	public AudioClip playWhenTargetKilled;
 	
 	void OnTriggerEnter(Collider c) {
 		Unit unit = c.GetComponent<Unit>();
@@ -12,7 +13,7 @@ public class DealsDamage : MonoBehaviour {
 			if (source.team != unit.team) {
 				//Debug.Log("OH SHIT" + c.gameObject.name);
 				//Debug.Log(atk);
-				unit.mortality.Hit(atk);
+				unit.mortality.Hit(atk, playWhenTargetKilled);
 				HitATarget();
 			}
 			HitATeammate();
