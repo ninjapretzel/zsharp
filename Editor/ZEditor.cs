@@ -10,6 +10,11 @@ public class ZEditorWindow : EditorWindow {
 	public bool changed = false;
 	public bool checkChanges = false;
 	
+	public void SetChangedColor() { SetChangedColor(changed); }
+	public void SetChangedColor(bool b) {
+		GUI.color = Color.white;
+		if (b) { GUI.color = Color.red; }
+	}
 	
 	//Generic wrapper functions
 	public static void Label(string content, params GUILayoutOption[] options) { GUILayout.Label(content, options); }
@@ -40,12 +45,12 @@ public class ZEditorWindow : EditorWindow {
 	public static bool RepeatButton(Texture content, string style, params GUILayoutOption[] options) { return GUILayout.RepeatButton(content, style, options); }
 	public static bool RepeatButton(GUIContent content, string style, params GUILayoutOption[] options) { return GUILayout.RepeatButton(content, style, options); }
 	
-	public static bool Toggle(bool v, string label, params GUILayoutOption[] options) { return Toggle(v, label, options); } 
-	public static bool Toggle(bool v, Texture label, params GUILayoutOption[] options) { return Toggle(v, label, options); } 
-	public static bool Toggle(bool v, GUIContent label, params GUILayoutOption[] options) { return Toggle(v, label, options); } 
-	public static bool Toggle(bool v, string label, string style, params GUILayoutOption[] options) { return Toggle(v, label, style, options); } 
-	public static bool Toggle(bool v, Texture label, string style, params GUILayoutOption[] options) { return Toggle(v, label, style, options); } 
-	public static bool Toggle(bool v, GUIContent label, string style, params GUILayoutOption[] options) { return Toggle(v, label, style, options); } 
+	public static bool Toggle(bool v, string label, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, options); } 
+	public static bool Toggle(bool v, Texture label, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, options); } 
+	public static bool Toggle(bool v, GUIContent label, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, options); } 
+	public static bool Toggle(bool v, string label, string style, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, style, options); } 
+	public static bool Toggle(bool v, Texture label, string style, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, style, options); } 
+	public static bool Toggle(bool v, GUIContent label, string style, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, style, options); } 
 	
 	public static float HorizontalSlider(float value, float left, float right, params GUILayoutOption[] options)
 	{ return GUILayout.HorizontalSlider(value, left, right, options); }
@@ -90,35 +95,96 @@ public class ZEditorWindow : EditorWindow {
 	public static GUILayoutOption MaxWidth(float val) { return GUILayout.MaxWidth(val); }
 	public static GUILayoutOption ExpandWidth(bool expand) { return GUILayout.ExpandWidth(expand); }
 	
+	public string TextField(string text) { return EditorGUILayout.TextField(text); }
+	public string TextField(string text, params GUILayoutOption[] options) { return EditorGUILayout.TextField(text, options); }
+	
+	public float FloatField(float val) { return EditorGUILayout.FloatField(val); }
+	public float FloatField(float val, params GUILayoutOption[] options) { return EditorGUILayout.FloatField(val, options); }
+	
+	public int IntField(int val) { return EditorGUILayout.IntField(val); }
+	public int IntField(int val, params GUILayoutOption[] options) { return EditorGUILayout.IntField(val, options); }
+	
+	public Color ColorField(Color color) { return EditorGUILayout.ColorField(color); }
+	public Color ColorField(Color color, params GUILayoutOption[] options) { return EditorGUILayout.ColorField(color, options); }
+	
 	public string TextField(string label, string text) { return TextField(label, text, 1); }
 	public string TextField(string label, string text, float scale) {
 		string txt;
 		BeginHorizontal("box");
 			Label(label);
-			txt = EditorGUILayout.TextField(text, GUILayout.Width(fieldWidth * scale));
+			txt = EditorGUILayout.TextField(text, Width(fieldWidth * scale));
 			changed = changed || (checkChanges && (txt != text));
-		GUILayout.EndHorizontal();
+		EndHorizontal();
 		return txt;
 	}
 	
 	public string TextArea(string label, string text) {
 		string txt;
-		GUILayout.BeginHorizontal("box");
-			GUILayout.Label(label);
-			txt = EditorGUILayout.TextArea(text, GUILayout.Width(fieldWidth));
+		BeginHorizontal("box");
+			Label(label);
+			txt = EditorGUILayout.TextArea(text, Width(fieldWidth));
 			changed = changed || (checkChanges && (txt != text));
-		GUILayout.EndHorizontal();
+		EndHorizontal();
 		return txt;
+	}
+	
+	public List<string> StringListField(string label, List<string> list) { return StringListField(label, list, 1); }
+	public List<string> StringListField(string label, List<string> list, float scale) {
+		string str = list.ListString();
+		string rec = TextField(label, str);
+		
+		if (str == rec) { return list; }
+		return rec.ParseStringList();
+	}
+	
+	public List<Color> ColorListField(string label, List<Color> list, int perLine) {
+		List<Color> l = new List<Color>();
+		BeginVertical("box"); {
+			Label(label);
+			
+			BeginHorizontal(); {
+				for (int i = 0; i < list.Count; i++) {
+					Color c = EditorGUILayout.ColorField(list[i], Width(40), ExpandWidth(false));
+					if (!Button("-", ExpandWidth(false))) { l.Add(c); }
+					
+					if ((i+1)%perLine == 0) {
+						EndHorizontal();
+						BeginHorizontal();
+					}
+				}
+				if (Button("+", ExpandWidth(false))) { l.Add(Color.white); }
+				
+			} EndHorizontal();
+			
+		} EndVertical();
+		
+		return l;
+	}
+	
+	public MM RangeField(string label, MM range) { return RangeField(label, range, 1); }
+	public MM RangeField(string label, MM range, float scale) {
+		MM v = new MM(range.ToString());
+		
+		BeginHorizontal("box");
+			Label(label, MaxWidth(100));
+			v.min = EditorGUILayout.FloatField(range.min, Width(fieldWidth * scale/2f));
+			Label("-", ExpandWidth(false));
+			v.max = EditorGUILayout.FloatField(range.max, Width(fieldWidth * scale/2f));
+		EndHorizontal();
+		
+		changed = changed || (checkChanges && (!v.Equals(range)));
+		
+		return v;
 	}
 	
 	public float FloatField(string label, float val) { return FloatField(label, val, 1); }
 	public float FloatField(string label, float val, float scale) {
 		float v;
-		GUILayout.BeginHorizontal("box");
-			GUILayout.Label(label);
-			v = EditorGUILayout.FloatField(val, GUILayout.Width(fieldWidth * scale));
+		BeginHorizontal("box");
+			Label(label);
+			v = EditorGUILayout.FloatField(val, Width(fieldWidth * scale));
 			changed = changed || (checkChanges && (v != val));
-		GUILayout.EndHorizontal();
+		EndHorizontal();
 		
 		return v;
 	}
@@ -126,11 +192,11 @@ public class ZEditorWindow : EditorWindow {
 	public int IntField(string label, int val) { return IntField(label, val, 1); }
 	public int IntField(string label, int val, float scale) {
 		int v;
-		GUILayout.BeginHorizontal("box");
-			GUILayout.Label(label);
-			v = EditorGUILayout.IntField(val, GUILayout.Width(fieldWidth));
+		BeginHorizontal("box");
+			Label(label);
+			v = EditorGUILayout.IntField(val, Width(fieldWidth));
 			changed = changed || (checkChanges && (v != val));
-		GUILayout.EndHorizontal();
+		EndHorizontal();
 		
 		return v;
 	}
@@ -138,11 +204,11 @@ public class ZEditorWindow : EditorWindow {
 	public Color ColorField(string label, Color color) { return ColorField(label, color, .2f); }
 	public Color ColorField(string label, Color color, float scale) {
 		Color c;
-		GUILayout.BeginHorizontal("box");
-			GUILayout.Label(label);
-			c = EditorGUILayout.ColorField(color, GUILayout.Width(fieldWidth * scale));
+		BeginHorizontal("box");
+			Label(label);
+			c = EditorGUILayout.ColorField(color, Width(fieldWidth * scale));
 			changed = changed || (checkChanges && (c != color));
-		GUILayout.EndHorizontal();
+		EndHorizontal();
 		
 		return c;
 	}

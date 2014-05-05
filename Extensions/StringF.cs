@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Text;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -119,6 +120,9 @@ public static class StringF {
 	public static Color ParseColor(this string s, char delim) { return ColorF.FromString(s, delim); }
 	public static Table ParseTable(this string s) { return Table.CreateFromLine(s); }
 	public static Table ParseTable(this string s, char delim) { return Table.CreateFromLine(s, delim); }
+	public static List<string> ParseStringList(this string s) { return s.ParseStringList(','); }
+	public static List<string> ParseStringList(this string s, char delim) { return s.Split(delim).ToList(); }
+	
 	
 	//Parse a date from a string
 	public static System.DateTime ParseDate(this string s) {

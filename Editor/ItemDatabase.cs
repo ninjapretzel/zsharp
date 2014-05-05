@@ -332,29 +332,31 @@ public class ItemDatabase : ZEditorWindow {
 		GUILayout.EndHorizontal();
 	}
 	
+	public class OptionEntry {
+		public string name;
+		public float value;
+		
+		public OptionEntry(string s, float f) { name = s; value = f; }
+	}
+	
 	
 }
 
 
 
-public class OptionEntry {
-	public string name;
-	public float value;
-	
-	public OptionEntry(string s, float f) { name = s; value = f; }
-}
+
 
 
 public static class ItemDatabaseUtils {
-	public static Table ToTable(this List<OptionEntry> list) {
+	public static Table ToTable(this List<ItemDatabase.OptionEntry> list) {
 		Table t = new Table();
-		foreach (OptionEntry o in list) { t[o.name] = o.value; }
+		foreach (ItemDatabase.OptionEntry o in list) { t[o.name] = o.value; }
 		return t;
 	}
 	
-	public static List<OptionEntry> ToListOfOptions(this Table t) {
-		List<OptionEntry> list = new List<OptionEntry>();
-		foreach (string s in t.Keys) { list.Add(new OptionEntry(s, t[s])); }
+	public static List<ItemDatabase.OptionEntry> ToListOfOptions(this Table t) {
+		List<ItemDatabase.OptionEntry> list = new List<ItemDatabase.OptionEntry>();
+		foreach (string s in t.Keys) { list.Add(new ItemDatabase.OptionEntry(s, t[s])); }
 		return list;
 	}
 }

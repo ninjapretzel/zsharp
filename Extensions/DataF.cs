@@ -89,13 +89,14 @@ public static class DataF {
 		return chosen;
 	}
 	
+	//Shallow Shuffle
 	//Generate a shuffled version of the list
 	public static List<T> Shuffled<T>(this List<T> list) {
 		List<T> stuff = list.Clone();
-		List<T> shuffled = new List<T>();
+		List<T> shuffled = new List<T>(list.Count);
 		for (int i = 0; i < list.Count; i++) {
 			int index = stuff.RandomIndex();
-			shuffled.Add(stuff[index]);
+			shuffled[i] = stuff[index];
 			stuff.RemoveAt(index);
 		}
 		return shuffled;
@@ -109,8 +110,9 @@ public static class DataF {
 	}
 	
 	//Generate a new list which has all instances of 'toRemove' removed from it.
+	//Does not mutate original list.
 	public static List<T> RemoveAll<T>(this List<T> list, T toRemove) {
-		List<T> l = new List<T>();
+		List<T> l = new List<T>(list.Count);
 		for (int i = 0; i < list.Count; i++) {
 			if (!list[i].Equals(toRemove)) {
 				l.Add(list[i]);
@@ -121,14 +123,14 @@ public static class DataF {
 	
 	//Generate an array of strings from a list of objects
 	public static string[] ToStringArray<T>(this List<T> list) {
-		List<string> strings = new List<string>();
-		for (int i = 0; i < list.Count; i++) { strings.Add(list[i].ToString()); }
-		return strings.ToArray();
+		string[] strings = new string[list.Count];
+		for (int i = 0; i < list.Count; i++) { strings[i] = list[i].ToString(); }
+		return strings;
 	}
 	
 	//Generate a list of strings from a list of objects
 	public static List<string> ToStringList<T>(this List<T> list) {
-		List<string> strings = new List<string>();
+		List<string> strings = new List<string>(list.Count);
 		for (int i = 0; i < list.Count; i++) { strings.Add(list[i].ToString()); }
 		return strings;
 	}
@@ -140,9 +142,10 @@ public static class DataF {
 		return strings;
 	}
 	
-	//Create another list containing all of the elements in the same order as another list
+	//Creates a shallow clone of a list.
+	//Another list containing all of the elements in the same order as another list
 	public static List<T> Clone<T>(this List<T> list) {
-		List<T> clone = new List<T>();
+		List<T> clone = new List<T>(list.Count);
 		for (int i = 0; i < list.Count; i++) { clone.Add(list[i]); }
 		return clone;
 	}
@@ -205,6 +208,69 @@ public static class DataF {
 		
 	}
 	
+	///////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////
+}	
+	
+public static class DataFTable {
+	
+	
+	
+	public static Color[] ToColorArray(this Table table) { return table.ToColorList().ToArray(); }
+	public static List<Color> ToColorList(this Table table) {
+		List<Color> list = new List<Color>();
+		int i = 0;
+		string key = ""+i;
+		while (table.ContainsColor(key)) {
+			list.Add(table.GetColor(key));
+			
+			i++;
+			key = "" + i;
+		}
+		
+		return list;
+	}
+	
+	
+	public static Table ToTable(this List<Color> list) {
+		Table t = new Table();
+		
+		for (int i = 0; i < list.Count; i++) {
+			t.SetColor("" + i, list[i]); 
+		}
+		
+		return t;
+	}	
+	
+	public static Table ToTable(this Color[] array) {
+		Table t = new Table();
+		
+		for (int i = 0; i < array.Length; i++) {
+			t.SetColor("" + i, array[i]);
+		}
+		
+		return t;
+	}
+	
+	
 	
 	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
