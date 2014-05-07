@@ -45,7 +45,9 @@ public class Console : MonoBehaviour {
 		
 	private static void ConsoleWindow(int id) {
 		GUI.color = Color.white;
+#if UNITY_EDITOR || UNITY_STANDALONE_WIN || UNITY_STANDALONE_MAC
 		GUI.DragWindow(new Rect(4, 4, consoleWindowRect.width - 36, 16));
+#endif
 		if(GUI.Button(new Rect(consoleWindowRect.width - 32, 2, 32, 16), "X")) {
 			_consoleUp = false;
 			consoleInput = "";
