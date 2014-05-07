@@ -12,6 +12,15 @@ public static class BoundsF {
 	public static float	Xout(this Bounds b, Vector3 v) { return v.x.Outside(b.min.x, b.max.x); }
 	public static float	Yout(this Bounds b, Vector3 v) { return v.y.Outside(b.min.y, b.max.y); }
 	public static float	Zout(this Bounds b, Vector3 v) { return v.z.Outside(b.min.z, b.max.z); }
+
+	
+	
+	public static Vector3 TopCenter(this Bounds b) { return new Vector3(b.center.x, b.max.y, b.center.z); }
+	public static Vector3 BottomCenter(this Bounds b) { return new Vector3(b.center.x, b.min.y, b.center.z); }
+	public static Vector3 LeftCenter(this Bounds b) { return new Vector3(b.min.x, b.center.y, b.center.z); }
+	public static Vector3 RightCenter(this Bounds b) { return new Vector3(b.min.x, b.center.y, b.center.z); }
+	public static Vector3 FrontCenter(this Bounds b) { return new Vector3(b.center.x, b.center.y, b.max.z); }
+	public static Vector3 BackCenter(this Bounds b) { return new Vector3(b.center.x, b.center.y, b.min.z); }
 	
 	
 	//Get a random (evenly distributed) position inside the bounds
