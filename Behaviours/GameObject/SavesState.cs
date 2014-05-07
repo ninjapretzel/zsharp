@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class SavesState : MonoBehaviour {
 	
 	public static bool restore = false;
+	public static bool reset = false;
 	public static bool save = false;
 	
 	public string[] blacklist = new string[0];
@@ -16,28 +17,41 @@ public class SavesState : MonoBehaviour {
 	[NonSerialized] private Quaternion rotation;
 	[NonSerialized] private Vector3 scale;
 	[NonSerialized] private Transform savedParent;
+	[NonSerialized] private Vector3 initialPosition;
+	[NonSerialized] private Quaternion initialRotation;
+	[NonSerialized] private Vector3 initialScale;
+	[NonSerialized] private Transform initialSavedParent;
 	// Attached Behaviours
 	[NonSerialized] private bool[] enabledBehaviours; // Behaviour.enabled is not a field, it's a property. Store it separately.
+	[NonSerialized] private bool[] initialEnabledBehaviours; // Behaviour.enabled is not a field, it's a property. Store it separately.
 	[NonSerialized] private Dictionary<Type, Dictionary<FieldInfo, System.Object>> savedBehaviours = null;
+	[NonSerialized] private Dictionary<Type, Dictionary<FieldInfo, System.Object>> initialBehaviours = null;
 	
 	public void Start() {
-		SaveState();
+		SaveStateInitial();
 		
 	}
 	
 	public void Update() {
-		if(restore) {
+		if (reset) {
+			savedBehaviours = initialBehaviours;
+			enabledBehaviours = initialEnabledBehaviours;
+			position = initialPosition;
+			rotation = initialRotation;
+			scale = initialScale;
+			savedParent = initialSavedParent;
+			Restore();
+		} else if(restore) {
 			Restore();
 		} else if(save) {
 			SaveState();
 		}
-		
 	}
 	
 	public void LateUpdate() {
 		restore = false;
 		save = false;
-		
+		reset = false;
 	}
 	
 	public void SaveState() {
@@ -73,6 +87,17 @@ public class SavesState : MonoBehaviour {
 			}
 		}
 		
+	}
+	
+	public void SaveStateInitial() {
+		SaveState();
+		initialBehaviours = savedBehaviours;
+		initialEnabledBehaviours = enabledBehaviours;
+		initialPosition = position;
+		initialRotation = rotation;
+		initialScale = scale;
+		initialSavedParent = savedParent;
+		SaveState();
 	}
 	
 	public void Restore() {
