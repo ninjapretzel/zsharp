@@ -10,13 +10,19 @@ public class ZEditorWindow : EditorWindow {
 	public bool changed = false;
 	public bool checkChanges = false;
 	
+	
+	public virtual Color changedColor { get { return new Color(1, .5f, .5f, 1); } }
 	public void SetChangedColor() { SetChangedColor(changed); }
 	public void SetChangedColor(bool b) {
 		GUI.color = Color.white;
-		if (b) { GUI.color = Color.red; }
+		if (b) { GUI.color = changedColor; }
 	}
 	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Generic wrapper functions
+	
 	public static void Label(string content, params GUILayoutOption[] options) { GUILayout.Label(content, options); }
 	public static void Label(Texture content, params GUILayoutOption[] options) { GUILayout.Label(content, options); }
 	public static void Label(GUIContent content, params GUILayoutOption[] options) { GUILayout.Label(content, options); }
@@ -69,6 +75,11 @@ public class ZEditorWindow : EditorWindow {
 	public static void FlexibleSpace() { GUILayout.FlexibleSpace(); }
 	public static void Space(float size) { GUILayout.Space(size); }
 	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Layout wrappers
+	
 	public static Vector2 BeginScrollView(Vector2 pos, params GUILayoutOption[] options) { return GUILayout.BeginScrollView(pos, options); }
 	public static Vector2 BeginScrollView(Vector2 pos, bool h, bool v, params GUILayoutOption[] options) { return GUILayout.BeginScrollView(pos, h, v, options); }	
 	public static void EndScrollView() { GUILayout.EndScrollView(); }
@@ -85,6 +96,11 @@ public class ZEditorWindow : EditorWindow {
 	public static void BeginHorizontal(string style, params GUILayoutOption[] options) { EditorGUILayout.BeginHorizontal(style, options); }
 	public static void EndHorizontal() { EditorGUILayout.EndHorizontal(); }
 	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Option Wrappers
+	
 	public static GUILayoutOption Height(float size) { return GUILayout.Height(size); }
 	public static GUILayoutOption MinHeight(float val) { return GUILayout.MinHeight(val); }
 	public static GUILayoutOption MaxHeight(float val) { return GUILayout.MaxHeight(val); }
@@ -95,23 +111,45 @@ public class ZEditorWindow : EditorWindow {
 	public static GUILayoutOption MaxWidth(float val) { return GUILayout.MaxWidth(val); }
 	public static GUILayoutOption ExpandWidth(bool expand) { return GUILayout.ExpandWidth(expand); }
 	
-	public string TextField(string text) { return EditorGUILayout.TextField(text); }
-	public string TextField(string text, params GUILayoutOption[] options) { return EditorGUILayout.TextField(text, options); }
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Field wrappers
 	
-	public float FloatField(float val) { return EditorGUILayout.FloatField(val); }
-	public float FloatField(float val, params GUILayoutOption[] options) { return EditorGUILayout.FloatField(val, options); }
+	public static string TextField(string text) { return EditorGUILayout.TextField(text); }
+	public static string TextField(string text, params GUILayoutOption[] options) { return EditorGUILayout.TextField(text, options); }
 	
-	public int IntField(int val) { return EditorGUILayout.IntField(val); }
-	public int IntField(int val, params GUILayoutOption[] options) { return EditorGUILayout.IntField(val, options); }
+	public static float FloatField(float val) { return EditorGUILayout.FloatField(val); }
+	public static float FloatField(float val, params GUILayoutOption[] options) { return EditorGUILayout.FloatField(val, options); }
 	
-	public Color ColorField(Color color) { return EditorGUILayout.ColorField(color); }
-	public Color ColorField(Color color, params GUILayoutOption[] options) { return EditorGUILayout.ColorField(color, options); }
+	public static int IntField(int val) { return EditorGUILayout.IntField(val); }
+	public static int IntField(int val, params GUILayoutOption[] options) { return EditorGUILayout.IntField(val, options); }
 	
+	public static Color ColorField(Color color) { return EditorGUILayout.ColorField(color); }
+	public static Color ColorField(Color color, params GUILayoutOption[] options) { return EditorGUILayout.ColorField(color, options); }
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Placement functions
+	
+	public static void FixedLabel(string content) { GUILayout.Label(content, ExpandWidth(false), ExpandHeight(false)); }
+	public static void FixedBox(string content) { GUILayout.Box(content, ExpandWidth(false), ExpandHeight(false)); }
+	public static bool FixedButton(string content) { return GUILayout.Button(content, ExpandWidth(false), ExpandHeight(false)); }
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Custom fields.
+	//These will automatically adjust the changed flag.
+	//These are not static because they rely on the current window's flag.
+	public string TextFieldC(string text) { return TextField("", text, 1); }
+	public string TextField(string text, float scale) { return TextField("", text, scale); }
 	public string TextField(string label, string text) { return TextField(label, text, 1); }
 	public string TextField(string label, string text, float scale) {
 		string txt;
 		BeginHorizontal("box");
-			Label(label);
+			if (label != "") { Label(label); }
 			txt = EditorGUILayout.TextField(text, Width(fieldWidth * scale));
 			changed = changed || (checkChanges && (txt != text));
 		EndHorizontal();
@@ -144,13 +182,31 @@ public class ZEditorWindow : EditorWindow {
 			
 			BeginHorizontal(); {
 				for (int i = 0; i < list.Count; i++) {
-					Color c = EditorGUILayout.ColorField(list[i], Width(40), ExpandWidth(false));
-					if (!Button("-", ExpandWidth(false))) { l.Add(c); }
+					BeginVertical("box", Width(50)); {
+						
+						Color c = EditorGUILayout.ColorField(list[i], Width(40), ExpandWidth(false));
+						
+						BeginHorizontal(); {
+							if (Button("D", ExpandWidth(false))) { 
+								changed = true; 
+								l.Add(list[i]); 
+							}
+							
+							if (!Button("-", ExpandWidth(false))) { 
+								l.Add(c); 
+							} else {
+								changed = true;
+							}
+						} EndHorizontal();
+						
+					} EndVertical();
+					
 					
 					if ((i+1)%perLine == 0) {
 						EndHorizontal();
 						BeginHorizontal();
 					}
+					
 				}
 				if (Button("+", ExpandWidth(false))) { l.Add(Color.white); }
 				
