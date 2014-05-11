@@ -166,6 +166,14 @@ public static class GUIF {
 		return ret;
 	}
 	
+	public static bool ToggleButton(Rect area, bool toggle, string str) {
+		string s = str + " " + (toggle ? "[x]" : "[ ]");
+		if (GUI.Button(area, s)) {
+			return !toggle;
+		}
+		return toggle;
+	}
+	
 	public static Rect GetArea(Rect area, GUIContent c, GUIStyle style) { return GetArea(area, style.CalcSize(c), style); }
 	public static Rect GetArea(Rect area, string str, GUIStyle style) { return GetArea(area, style.CalcSize(new GUIContent(str)), style); }
 	public static Rect GetArea(Rect area, Vector2 size, GUIStyle style) {

@@ -21,6 +21,18 @@ public static class InputWrapper {
 		LoadFromTextAsset(file);
 		LoadCustomPlayerPrefs();
 	}
+
+	public static void ResetToTextAssetDefaults(string name) {
+		bindings = new ControlBindings();
+		LoadFromTextAsset(name);
+		bindings.DeleteAllCustoms();
+	}
+
+	public static void ResetToTextAssetDefaults(TextAsset ta) {
+		bindings = new ControlBindings();
+		LoadFromTextAsset(ta);
+		bindings.DeleteAllCustoms();
+	}
 	
 	public static void LoadFromTextAsset(string name) {
 		LoadFromTextAsset(Resources.Load(name, typeof(TextAsset)) as TextAsset);
@@ -405,6 +417,10 @@ public static class InputWrapper {
 // Static class for all custom controls.
 
 public class ControlBindings:Dictionary<string, Set<ControlBinding>> {
+
+	public ControlBindings():base() {
+
+	}
 	
 	public void Load(string name) {
 		if(PlayerPrefs.HasKey("controls_"+name+"_binds")) { // If it doesn't, check if playerprefs has a definition for it
@@ -441,19 +457,25 @@ public class ControlBindings:Dictionary<string, Set<ControlBinding>> {
 		}
 		return loaded;
 	}
-	
-	public bool Delete(string name) {
+
+	public bool DeleteCustom(string name) {
 		if(!this.ContainsKey(name)) {
+			Debug.Log("Can't delete input "+name+" because it does not exist!");
+			return false;
+		}
+		if(!InputWrapper.defaults.ContainsKey(name)) {
+			Debug.Log("Can't delete input "+name+" because there was no default!");
 			return false;
 		}
 		this[name] = LoadFromStringSet(InputWrapper.defaults[name]);
 		Save(name);
 		return true;
 	}
-	
-	public void DeleteAll() {
-		foreach(string key in this.Keys) {
-			Delete(key);
+
+	public void DeleteAllCustoms() {
+		string[] keys = this.Keys.ToArray<string>();
+		foreach(string key in keys) {
+			DeleteCustom(key);
 		}
 	}
 	

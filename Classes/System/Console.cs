@@ -57,8 +57,7 @@ public class Console : MonoBehaviour {
 		GUI.skin.FontSizeFull(20.0f);
 		float heightOfFont = GUI.skin.button.LineSize();
 		Rect sizeOfLabel = new Rect(0.0f, 0.0f, consoleWindowRect.width - 26.0f, Mathf.Max(heightOfGUIContent, consoleWindowRect.height - heightOfFont - 30.0f));
-		consoleScrollPos = GUI.BeginScrollView(new Rect(5.0f, 20.0f, consoleWindowRect.width - 10.0f, consoleWindowRect.height - heightOfFont - 30.0f), consoleScrollPos, sizeOfLabel, false, true);
-		{
+		consoleScrollPos = GUI.BeginScrollView(new Rect(5.0f, 20.0f, consoleWindowRect.width - 10.0f, consoleWindowRect.height - heightOfFont - 30.0f), consoleScrollPos, sizeOfLabel, false, true); {
 			GUI.color = new Color(0.0f, 0.0f, 0.0f, 0.6667f);
 			GUI.DrawTexture(sizeOfLabel, GUIF.pixel);
 			GUI.color = Color.white;
@@ -188,8 +187,13 @@ public class Console : MonoBehaviour {
 
 	}
 
+	public static void Echo() {
+		Echo("");
+
+	}
+
 	public static void Echo(string st = "") {
-		consoleText += "\n"+st;
+		consoleText += "\n"+st.ParseNewlines();
 		heightOfGUIContent = GUI.skin.label.CalcHeight(new GUIContent(consoleText), consoleWindowRect.width - 26.0f);
 		consoleScrollPos = new Vector2(0, heightOfGUIContent);
 
@@ -233,6 +237,16 @@ public class Console : MonoBehaviour {
 		} else {
 			aliases.Add(name, cmds.Trim('\"'));
 		}
+
+	}
+
+	public static void Print(string st) {
+		Debug.Log(st.ParseNewlines());
+
+	}
+
+	public static void Print() {
+		Debug.Log("");
 
 	}
 }
