@@ -6,6 +6,8 @@ public class RandomMaterial : MonoBehaviour {
 	public Material[] materials;
 	public float[] weights;
 	
+	public Renderer[] alsoSetThese;
+	
 	public bool onAwake = false;
 	public RandomType randomness = RandomType.Normal;	
 	public static int seed = 125623;
@@ -51,7 +53,13 @@ public class RandomMaterial : MonoBehaviour {
 			if (weights.Length == 0) { index = materials.RandomIndex(); }
 			else { index = RandomF.WeightedChoose(weights); }
 		}
-		renderer.material = materials[index];
+		
+		if (renderer != null) {
+			renderer.material = materials[index];
+		}
+		foreach (Renderer r in alsoSetThese) {
+			r.material = materials[index];
+		}
 		
 		Destroy(this);
 	}

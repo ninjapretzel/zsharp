@@ -6,6 +6,9 @@ using System;
 
 public static class QuaternionF {
 	
+	//Get the rotation that would be multiplied by to rotate a to b
+	public static Quaternion To(this Quaternion a, Quaternion b) { return Quaternion.Inverse(a) * b; }
+	
 	public static Quaternion FlattenZ(this Quaternion q) {
 		Vector3 e = q.eulerAngles;
 		e.x = 0;

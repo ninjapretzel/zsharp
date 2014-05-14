@@ -19,6 +19,8 @@ public static class RectF {
 		return new Rect(pos.x - .5f * width, pos.y - .5f * height, width, height);
 	}
 	
+	public static bool Contains(this Rect r, Touch t) { return r.Contains(t.ScreenPosition()); }
+	
 	public static Rect Scaled(this Rect r, Vector2 s) { return r.Scaled(s.x, s.y); }
 	public static Rect Scaled(this Rect r, float x, float y) { return new Rect(r.x * x, r.y * y, r.width * x, r.height * y); }
 	public static Rect Denormalized(this Rect r) { return r.Scaled(Screen.width, Screen.height); }

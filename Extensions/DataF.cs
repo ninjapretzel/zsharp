@@ -50,6 +50,8 @@ public static class DataF {
 	public static void Append<T>(this List<T> list, List<T> add) { foreach (T o in add) { list.Add(o); } }
 	public static void Append<T>(this List<T> list, T[] add) { foreach (T o in add) { list.Add(o); } }
 	
+	
+	
 	//Get a random valid index
 	public static int RandomIndex<T>(this List<T> list) { return (int)(RandomF.value * list.Count); }
 	
@@ -161,7 +163,11 @@ public static class DataF {
 	public static int RandomIndex<T>(this T[] array) { return (int)(RandomF.value * array.Length); }
 	
 	//Choose a random element from an array
-	public static T Choose<T>(this T[] array) { return array[array.RandomIndex()]; }
+	public static T Choose<T>(this T[] array) { 
+		if (array == null) { return default(T); }
+		if (array.Length == 0) { return default(T); }
+		return array[array.RandomIndex()]; 
+	}
 	
 	//Choose an element from an array using weights
 	public static T Choose<T>(this T[] array, float[] weights) {
@@ -208,11 +214,61 @@ public static class DataF {
 		
 	}
 	
-	///////////////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////////////
-	/////////////////////////////////////////////////////////////////////////////
-}	
 	
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+public static class DataFUnity {
+	
+	public static T[] AsArrayOf<T>(this Component[] comps) where T : Component { return comps.AsListOf<T>().ToArray(); }
+	public static List<T> AsListOf<T>(this Component[] comps) where T : Component {
+		List<T> list = new List<T>(comps.Length);
+		foreach (Component comp in comps) {
+			T t = comp.GetComponent<T>();
+			if (t != null) { list.Add(t); }
+		}
+		return list;
+	}
+	
+	public static T[] AsArrayOf<T>(this List<Component> comps) where T : Component { return comps.AsListOf<T>().ToArray(); }
+	public static List<T> AsListOf<T>(this List<Component> comps) where T : Component {
+		List<T> list = new List<T>(comps.Count);
+		foreach (Component comp in comps) {
+			T t = comp.GetComponent<T>();
+			if (t != null) { list.Add(t); }
+		}
+		return list;
+	}
+	
+	
+	public static T[] AsArrayOf<T>(this GameObject[] gobs) where T : Component { return gobs.AsListOf<T>().ToArray(); }
+	public static List<T> AsListOf<T>(this GameObject[] gobs) where T : Component {
+		List<T> list = new List<T>(gobs.Length);
+		foreach (GameObject gob in gobs) {
+			T t = gob.GetComponent<T>();
+			if (t != null) { list.Add(t); }
+		}
+		return list;
+	}
+	
+	public static T[] AsArrayOf<T>(this List<GameObject> gobs) where T : Component { return gobs.AsListOf<T>().ToArray(); }
+	public static List<T> AsListOf<T>(this List<GameObject> gobs) where T : Component {
+		List<T> list = new List<T>(gobs.Count);
+		foreach (GameObject gob in gobs) {
+			T t = gob.GetComponent<T>();
+			if (t != null) { list.Add(t); }
+		}
+		return list;
+	}
+}
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
 public static class DataFTable {
 	
 	
