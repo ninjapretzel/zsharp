@@ -146,11 +146,32 @@ public static class InputWrapper {
 			return false;
 		}
 	}
+	public static bool GUIGetAxisDown(string key) { return Event.current.type == EventType.Layout && GetAxisDown(key); }
+	public static bool GetAxisDown(string key) {
+		try {
+			return (prevAxes[key].val < axisDownMagnitude && GetAxis(key) >= axisDownMagnitude);
+		} catch(KeyNotFoundException) {
+			LogWarning("The control "+key+" is undefined!");
+			return false;
+		}
+	}
 
+	public static bool GUIGetAxisMiddle(string key) { return Event.current.type == EventType.Layout && GetAxisMiddle(key); }
+	public static bool GetAxisMiddle(string key) { return GetButtonUp(key); }
 	public static bool GUIGetButtonUp(string key) { return Event.current.type == EventType.Layout && GetButtonUp(key); }
 	public static bool GetButtonUp(string key) {
 		try {
 			return (Mathf.Abs(prevAxes[key].val) >= axisDownMagnitude && Mathf.Abs(GetAxis(key)) < axisDownMagnitude);
+		} catch(KeyNotFoundException) {
+			LogWarning("The control "+key+" is undefined!");
+			return false;
+		}
+	}
+
+	public static bool GUIGetAxisUp(string key) { return Event.current.type == EventType.Layout && GetAxisUp(key); }
+	public static bool GetAxisUp(string key) {
+		try {
+			return (prevAxes[key].val > -axisDownMagnitude && GetAxis(key) <= -axisDownMagnitude);
 		} catch(KeyNotFoundException) {
 			LogWarning("The control "+key+" is undefined!");
 			return false;
