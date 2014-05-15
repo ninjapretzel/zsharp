@@ -4,6 +4,9 @@ using System.Collections;
 
 public static class TransformF {
 	
+	public static Vector3 DirectionTo(this Component c, Component other) { return other.transform.position - c.transform.position; }
+	public static float DistanceTo(this Component c, Component other) { return c.DirectionTo(other).magnitude; }
+	
 	public static void SnapParent(this Component c, Component other) { c.transform.SnapParent(other.transform); }
 	
 	public static void SnapParent(this Transform t, Transform o) {

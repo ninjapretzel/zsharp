@@ -27,7 +27,7 @@ public class SpawnsStuffInAnArea : MonoBehaviour {
 	}
 	
 	
-	void Spawn() {
+	public void Spawn() {
 		if (randomness == RandomType.Seeded) {
 			RandomF.Push(seed++);
 		} else if (randomness == RandomType.Perlin) {

@@ -10,7 +10,7 @@ public class AppliesRandomForce : MonoBehaviour {
 		rigidbody.AddForceAtPosition(Random.insideUnitSphere * force, Random.insideUnitSphere, forceMode);
 		rigidbody.AddForceAtPosition(Random.insideUnitSphere * force, Random.insideUnitSphere, forceMode);
 		rigidbody.AddForceAtPosition(Random.insideUnitSphere * force, Random.insideUnitSphere, forceMode);
-	
+		Destroy(this);
 	}
 	
 	// Update is called once per frame
