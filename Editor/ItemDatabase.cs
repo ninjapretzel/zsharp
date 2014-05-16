@@ -48,6 +48,8 @@ public class ItemDatabase : ZEditorWindow {
 		removeAt = -1;
 		editing = new Item();
 		listChanged = false;
+		
+		items.Add(editing);
 	}
 	
 	
@@ -71,6 +73,9 @@ public class ItemDatabase : ZEditorWindow {
 		
 		
 		if (selection != lastSelection) {
+			GUI.SetNextControlName("Dicks");
+			GUI.TextField(new Rect(0, -300, 100, 30), "fuck dicks");
+			GUI.FocusControl("Dicks");
 			LoadSelection();
 		}
 		
@@ -82,13 +87,16 @@ public class ItemDatabase : ZEditorWindow {
 		GUI.Label(line, "Number of items: " + items.Count);
 		
 		line = line.MoveDown();
-		if (GUI.Button(line, "Extra button")) {
-			
+		GUI.color = (changed || listChanged) ? Color.red : Color.white;
+		
+		if (GUI.Button(line, "Apply and Save")) {
+			ApplySelection();
+			WriteDatabase();
 		}
 		
-		line = line.MoveDown();
 		GUI.color = listChanged ? Color.red : Color.white;
-		if (GUI.Button(line, "Apply To Database")) {
+		line = line.MoveDown();
+		if (GUI.Button(line, "Save Database")) {
 			WriteDatabase();
 		}
 		
@@ -130,10 +138,17 @@ public class ItemDatabase : ZEditorWindow {
 				
 				GUILayout.Space(10);
 				GUI.color = changed ? Color.red : Color.white;
+				
+				if (GUILayout.Button("Apply And Save")) {
+					ApplySelection();
+					WriteDatabase();
+				}
+				
 				if (GUILayout.Button("Apply Item")) {
 					listChanged = changed || listChanged;
 					ApplySelection();
 				}
+				
 				
 				GUI.color = Color.white;
 				
@@ -147,7 +162,7 @@ public class ItemDatabase : ZEditorWindow {
 		GUISkin blankSkin = GUIF.blankSkin;
 		Color lastColor = GUI.color;
 		
-		GUILayout.BeginVertical("box");
+		GUILayout.BeginVertical("box"); {
 		
 			GUILayout.Label("Basic Settings");
 			editing.name = TextField("Name", editing.name);
@@ -155,9 +170,9 @@ public class ItemDatabase : ZEditorWindow {
 			editing.type = TextField("Type", editing.type);
 			editing.desc = TextArea("Description", editing.desc);
 			
-			GUILayout.BeginHorizontal("box");
+			GUILayout.BeginHorizontal("box"); {
 				GUILayout.Label("Icon", GUILayout.Width(50));
-				GUILayout.BeginVertical(GUILayout.Width(400));
+				GUILayout.BeginVertical(GUILayout.Width(400)); {
 					string lastIconName = editing.iconName;
 					editing.iconName = TextField("Icon Name", editing.iconName, .3f);
 					if (lastIconName != editing.iconName) { editing.ReloadIcon(); }
@@ -170,7 +185,7 @@ public class ItemDatabase : ZEditorWindow {
 					
 					editing.color = ColorField("Color", editing.color);
 					
-				GUILayout.EndVertical();
+				} GUILayout.EndVertical();
 				
 				Texture2D icon = editing.icon;
 				GUI.color = editing.color;
@@ -184,12 +199,12 @@ public class ItemDatabase : ZEditorWindow {
 					GUILayout.Label("Icon\nNot\nFound", GUILayout.Width(64));
 				}
 				
-				
-			GUILayout.EndHorizontal();
+			} GUILayout.EndHorizontal();
 			
 			GUI.color = lastColor;
 		
-		GUILayout.EndVertical();
+		} GUILayout.EndVertical();
+		
 	}
 	
 	
@@ -290,8 +305,7 @@ public class ItemDatabase : ZEditorWindow {
 	void LoadDatabase() {
 		if (!Directory.Exists(path)) { Directory.CreateDirectory(path); }
 		if (File.Exists(target)) {
-			string[] lines = File.ReadAllLines(target);
-			items = Item.LoadLinesAsList(lines);
+			items = (new Inventory(File.ReadAllText(target))) as List<Item>;
 			
 		} else {
 			WriteDatabase();
@@ -326,9 +340,14 @@ public class ItemDatabase : ZEditorWindow {
 	void DrawOption(int i) {
 		OptionEntry o = stats[i];
 		GUILayout.BeginHorizontal("box");
+			OptionEntry temp = new OptionEntry(o);
+			
 			if (GUILayout.Button("-", GUILayout.Width(20))) { removeAt = i; }
+			
 			o.name = GUILayout.TextField(o.name);
 			o.value = EditorGUILayout.FloatField(o.value);
+			
+			changed = changed || (!o.Equals(temp));
 		GUILayout.EndHorizontal();
 	}
 	
@@ -337,6 +356,15 @@ public class ItemDatabase : ZEditorWindow {
 		public float value;
 		
 		public OptionEntry(string s, float f) { name = s; value = f; }
+		public OptionEntry(OptionEntry o) { name = o.name; value = o.value; }
+		
+		public new bool Equals(System.Object other) {
+			if (other == null) { return false; } 
+			if (other.GetType() != GetType()) { return false; }
+			OptionEntry o = other as OptionEntry;
+			return o.name == name && o.value == value;
+		}
+		
 	}
 	
 	

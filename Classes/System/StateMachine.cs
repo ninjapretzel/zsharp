@@ -29,6 +29,7 @@ public class StateMachine<T> where T : Component {
 	public bool Switch(State<T> s) {
 		if (s == null) { return Switch(State<T>.baseInstance); }
 		if (s == currentState) { return false; }
+		s.target = owner;
 		
 		previousState = currentState;
 		currentState = s;
@@ -125,26 +126,26 @@ public class State<T> where T : Component {
 	public virtual void OnMouseUpAsButton() {}
 
 	///Depreciated functions
-	[Obsolete] public virtual void Enter(T owner) {}
-	[Obsolete] public virtual void Exit(T owner) {}
-	[Obsolete] public virtual void EnterGUI(T owner) {}
-	[Obsolete] public virtual void EnterFrame(T owner) {}
-	[Obsolete] public virtual void Update(T owner) {}
-	[Obsolete] public virtual void LateUpdate(T owner) {}
-	[Obsolete] public virtual void FixedUpdate(T owner) {}
-	[Obsolete] public virtual void OnGUI(T owner) {}
-	[Obsolete] public virtual void OnTriggerEnter(T owner, Collider c) {}
-	[Obsolete] public virtual void OnTriggerStay(T owner, Collider c) {}
-	[Obsolete] public virtual void OnTriggerExit(T owner, Collider c) {}
-	[Obsolete] public virtual void OnCollisionEnter(T owner, Collision c) {}
-	[Obsolete] public virtual void OnCollisionStay(T owner, Collision c) {}
-	[Obsolete] public virtual void OnCollisionExit(T owner, Collision c) {}
-	[Obsolete] public virtual void OnMouseEnter(T owner) {}
-	[Obsolete] public virtual void OnMouseOver(T owner) {}
-	[Obsolete] public virtual void OnMouseExit(T owner) {}
-	[Obsolete] public virtual void OnMouseDown(T owner) {}
-	[Obsolete] public virtual void OnMouseUp(T owner) {}
-	[Obsolete] public virtual void OnMouseUpAsButton(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use Enter() ")] public virtual void Enter(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use Exit() ")] public virtual void Exit(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use EnterGUI() ")] public virtual void EnterGUI(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use EnterFrame() ")] public virtual void EnterFrame(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use Update() ")] public virtual void Update(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use LateUpdate() ")] public virtual void LateUpdate(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use FixedUpdate() ")] public virtual void FixedUpdate(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use OnGUI() ")] public virtual void OnGUI(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use OnTriggerEnter(Collider c) ")] public virtual void OnTriggerEnter(T owner, Collider c) {}
+	[Obsolete("No longer need to pass in the owner. Use OnTriggerStay(Collider c) ")] public virtual void OnTriggerStay(T owner, Collider c) {}
+	[Obsolete("No longer need to pass in the owner. Use OnTriggerExit(Collider c) ")] public virtual void OnTriggerExit(T owner, Collider c) {}
+	[Obsolete("No longer need to pass in the owner. Use OnCollisionEnter(Collision c) ")] public virtual void OnCollisionEnter(T owner, Collision c) {}
+	[Obsolete("No longer need to pass in the owner. Use OnCollisionStay(Collision c) ")] public virtual void OnCollisionStay(T owner, Collision c) {}
+	[Obsolete("No longer need to pass in the owner. Use OnCollisionExit(Collision c) ")] public virtual void OnCollisionExit(T owner, Collision c) {}
+	[Obsolete("No longer need to pass in the owner. Use OnMouseEnter() ")] public virtual void OnMouseEnter(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use OnMouseOver() ")] public virtual void OnMouseOver(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use OnMouseExit() ")] public virtual void OnMouseExit(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use OnMouseDown() ")] public virtual void OnMouseDown(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use OnMouseUp() ")] public virtual void OnMouseUp(T owner) {}
+	[Obsolete("No longer need to pass in the owner. Use OnMouseUpAsButton() ")] public virtual void OnMouseUpAsButton(T owner) {}
 	
 }
 

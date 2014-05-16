@@ -6,50 +6,61 @@ using System.Linq;
 using System;
 
 public class Inventory : List<Item> {
-
+	
+	public Inventory() : base() { }
+	public Inventory(string s) : base() { LoadString(s); }
 	
 	
+	
+	public Item Get(string name) { return GetNamed(name); }
 	public Item GetNamed(string name) {
 		foreach (Item i in this) { if (i.name == name) { return i; } }
 		return null;
 	}
 	
+	public List<Item> stackables { get { return this.Where(item => item.stacks).ToList(); } }
+	public List<Item> nonStackables { get { return this.Where(item => !item.stacks).ToList(); } }
+	
+	public List<Item> unlocked { get { return this.Where(item => !item.locked).ToList(); } }
+	public List<Item> locked { get { return this.Where(item => item.locked).ToList(); } }
 	
 	
-	public List<Item> SelectStackable(bool stackables) {
-		return this.Where(item => item.stacks == stackables).ToList();
-		// List<Item> list = new List<Item>();
-		// foreach (Item i in this) {
-			// if (i.stacks == stackables) { list.Add(i); }
-		// }
-		// return list;
+	public List<Item> SelectType(string type) { return this.Where(item => item.type == type).ToList(); }
+	
+	public List<Item> SelectOverRarity(float rarity) { return this.Where(item => item.rarity > rarity).ToList(); }
+	public List<Item> SelectUnderRarity(float rarity) { return this.Where(item => item.rarity < rarity).ToList(); }
+	
+	public void Save(string key) {
+		PlayerPrefs.SetString(key, ToString());
 		
 	}
 	
-	
-	public List<Item> SelectType(string type) {
-		List<Item> list = new List<Item>();
-		foreach (Item i in this) {
-			if (i.type == type) { list.Add(i); }
-		}
-		return list;
+	public void Load(string key) {
+		LoadString(PlayerPrefs.GetString(key));
+		
 	}
 	
-	public List<Item> SelectOverRarity(float rarity) {
-		List<Item> list = new List<Item>();
-		foreach (Item i in this) {
-			if (i.rarity > rarity) { list.Add(i); }
+	public void LoadString(string str) {
+		string[] lines = str.Split('\n');
+		
+		for (int i = 0; i < lines.Length; i++) {
+			if (lines[i].Length <= 3) { continue; }
+			if (lines[i][0] == '#') { continue; }
+			Add(new Item(lines[i]));
 		}
-		return list;
+		
+		
 	}
 	
-	public List<Item> SelectUnderRarity(float rarity) {
-		List<Item> list = new List<Item>();
-		foreach (Item i in this) {
-			if (i.rarity < rarity) { list.Add(i); }
+	public override string ToString() {
+		StringBuilder str = new StringBuilder("");
+		for (int i = 0; i < Count; i++) {
+			str.Append(this[i].ToString());
+			if (i < Count-1) { str.Append("\n"); }
 		}
-		return list;
+		return str.ToString();
 	}
+	
 	
 	
 	
@@ -59,14 +70,10 @@ public class Inventory : List<Item> {
 
 [System.Serializable]
 public class Item : IComparable<Item> {
-	public string name = "Crystalized Error";
-	public string baseName = "";
-	public string desc = "Somewhere, something went wrong";
-	public string type = "Loot";
-	public string iconName = "";
 	public Texture2D iconLoaded;
 	public Table stats;
 	public Table properties;
+	public StringMap strings;
 	
 	public static Inventory database;
 	
@@ -74,8 +81,7 @@ public class Item : IComparable<Item> {
 		database = new Inventory();
 		TextAsset file = Resources.Load("Items", typeof(TextAsset)) as TextAsset;
 		if (file != null) {
-			string[] lines = file.text.Split('\n');
-			database = LoadLines(lines);
+			database = new Inventory(file.text);
 			
 		}
 		
@@ -92,15 +98,24 @@ public class Item : IComparable<Item> {
 		}
 	}
 	
+	public string name { get { return strings["name"]; } set { strings["name"] = value; } }
+	public string desc { get { return strings["desc"]; } set { strings["desc"] = value; } }
+	public string type { get { return strings["type"]; } set { strings["type"] = value; } }
+	public string baseName { get { return strings["baseName"]; } set { strings["baseName"] = value; } }
+	public string iconName { get { return strings["iconName"]; } set { strings["iconName"] = value; } }
+	
 	public Color color { get { return properties.GetColor("color"); } set { properties.SetColor("color", value); }  }
 	public bool locked { get { return properties["locked"] == 1; } set { properties["locked"] = value ? 1 : 0; } }
 	public bool stacks { get { return properties["stacks"] == 1; } set { properties["stacks"] = value ? 1 : 0; } }
 	public bool equip { get { return properties["equip"] == 1; } set { properties["equip"] = value ? 1 : 0; } }
+	public bool equipInWholeRange { get { return properties["equipInWholeRange"] == 1; } set { properties["equipInWholeRange"] = value ? 1 : 0; } }
 	
 	
 	public int count { get { return (int)properties["count"]; } set { properties["count"] = value; } }
 	public int maxStack { get { return (int)properties["maxStack"]; } set { properties["maxStack"] = value; } }
 	public int equipSlot { get { return (int)properties["equipSlot"]; } set { properties["equipSlot"] = value; } }
+	public int maxSlot { get { return (int)properties["maxSlot"]; } set { properties["maxSlot"] = value; } }
+	public int minSlot { get { return (int)properties["minSlot"]; } set { properties["minSlot"] = value; } }
 	
 	public float value { get { return properties["value"]; } set { properties["value"] = value; } }
 	public float rarity { get { return properties["rarity"]; } set { properties["rarity"] = value; } }
@@ -137,8 +152,31 @@ public class Item : IComparable<Item> {
 	public Item() {
 		stats = new Table();
 		properties = new Table();
+		strings = new StringMap();
+		
+		
+		name = "Crystalized Error";
+		desc = "Somewhere, something went wrong";
+		type = "Loot";
+		baseName = "";
+		iconName = "";
+		
+	}
+	
+	public Item(string str) {
+		stats = new Table();
+		properties = new Table();
+		strings = new StringMap();
 		color = Color.white;
 		
+		name = "Crystalized Error";
+		desc = "Somewhere, something went wrong";
+		type = "Loot";
+		baseName = "";
+		iconName = "";
+		color = Color.white;
+		
+		LoadFromString(str);
 	}
 	
 	public Item Clone() {
@@ -150,6 +188,8 @@ public class Item : IComparable<Item> {
 		clone.iconName = iconName;
 		clone.stats = stats.Clone();
 		clone.properties = properties.Clone();
+		clone.strings = strings.Clone();
+		
 		return clone;
 	}
 	
@@ -167,27 +207,12 @@ public class Item : IComparable<Item> {
 	public override string ToString() { return ToString('|'); }
 	public string ToString(char delim) {
 		StringBuilder str = new StringBuilder("");
-		str.Append(name + delim);
-		str.Append(baseName + delim);
-		str.Append(desc + delim);
-		str.Append(type + delim);
-		str.Append(iconName + delim);
+		str.Append(strings.ToString('`') + delim);
 		str.Append(stats.ToLine(',') + delim);
 		str.Append(properties.ToLine(',') + delim);
 		return str.ToString();
 	}
 	
-	
-	public static List<Item> LoadLinesAsList(string[] lines) { return (List<Item>)LoadLines(lines); }
-	public static Inventory LoadLines(string[] lines) {
-		Inventory items = new Inventory();
-		for (int i = 0; i < lines.Length; i++) {
-			if (lines[i].Length <= 3) { continue; }
-			if (lines[i][0] == '#') { continue; }
-			items.Add(Item.FromString(lines[i]));
-		}
-		return items;
-	}
 	
 	
 	public static Item FromString(string s) { return FromString(s, '|'); }
@@ -200,18 +225,14 @@ public class Item : IComparable<Item> {
 	public void LoadFromString(string s) { LoadFromString(s, '|'); }
 	public void LoadFromString(string s, char delim) {
 		string[] content = s.Split(delim);
-		if (content.Length < 8) {
+		if (content.Length < 3) {
 			Debug.LogWarning("Tried to load a malformed string as an item.\nDelim: " + delim + "\n" + s);
 			return;
 		}
 		
-		name = 			content[0];
-		baseName = 		content[1];
-		desc = 			content[2];
-		type = 			content[3];
-		iconName = 		content[4];
-		stats = 		content[5].ParseTable(',');
-		properties =	content[6].ParseTable(',');
+		strings = 		content[0].ParseStringMap('`');
+		stats = 		content[1].ParseTable(',');
+		properties =	content[2].ParseTable(',');
 		
 	}
 	
