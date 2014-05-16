@@ -72,7 +72,7 @@ public class Console : MonoBehaviour {
 		} else if(Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.DownArrow && cmdIndex < previousCommands.Count - 1) {
 			cmdIndex++;
 			consoleInput = previousCommands[cmdIndex];
-		} else if(Event.current.type == EventType.KeyDown && (Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Menu) && cmdIndex < previousCommands.Count - 1) {
+		} else if(Event.current.type == EventType.KeyDown && (Event.current.keyCode == KeyCode.Escape || (Event.current.keyCode == KeyCode.Menu && Application.platform == RuntimePlatform.Android))) {
 			_consoleUp = false;
 			consoleInput = "";
 		}
