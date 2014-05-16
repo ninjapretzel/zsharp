@@ -4,6 +4,38 @@ using System.Collections;
 
 public static class UnityF {
 	
+	public static void TryDeactivate(this Component c) {
+		if (c != null) {
+			if (c.GetType().IsSubclassOf(typeof(Behaviour))) {
+				Behaviour b = c as Behaviour;
+				//Debug.Log("Target: " + target + " found.");
+				b.enabled = false;
+			}
+			
+			if (c.GetType().IsSubclassOf(typeof(Renderer))) {
+				Renderer r = c as Renderer;
+				//Debug.Log("Target: " + target + " found.");
+				r.enabled = false;
+			}
+		}
+	}
+	
+	public static void TryActivate(this Component c) {
+		if (c != null) {
+			if (c.GetType().IsSubclassOf(typeof(Behaviour))) {
+				Behaviour b = c as Behaviour;
+				//Debug.Log("Target: " + target + " found.");
+				b.enabled = true;
+			}
+			
+			if (c.GetType().IsSubclassOf(typeof(Renderer))) {
+				Renderer r = c as Renderer;
+				//Debug.Log("Target: " + target + " found.");
+				r.enabled = true;
+			}
+		}
+	}
+	
 	public static GameObject Duplicate(this Component c) { 
 		GameObject g = (GameObject)GameObject.Instantiate(c.gameObject, c.transform.position, c.transform.rotation);
 		g.transform.parent = c.transform.parent;
