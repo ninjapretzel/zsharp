@@ -277,12 +277,12 @@ public static class GUIF {
 		return ret;
 	}
 	
-	
-	//Depreciated
+	[System.Obsolete("Use SButton instead.")]
 	public static bool SelectableButton(Rect area, string str, string name) {
 		return SelectableButton(area, str, name, defaultPadding);
 	}
-	//Depreciated
+	
+	[System.Obsolete("Use SButton instead.")]
 	public static bool SelectableButton(Rect area, string str, string name, float padding) {
 		//string nn = NextControlName();
 		AddControl(new SelectableControl(area, name));

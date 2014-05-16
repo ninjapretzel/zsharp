@@ -27,7 +27,7 @@ public class ControlBinder : EditorWindow {
 	public static void ShowWindow() {
 		targets = new List<string>();
 		ControlBinder main = (ControlBinder)EditorWindow.GetWindow(typeof(ControlBinder));
-		main.minSize = new Vector2(345,0);
+		main.minSize = new Vector2(398,0);
 		main.autoRepaintOnSceneChange = true;
 		UnityEngine.Object.DontDestroyOnLoad(main);
 		main.Start();
@@ -119,7 +119,7 @@ public class ControlBinder : EditorWindow {
 						GUILayout.Label("", GUILayout.Width(66));
 						GUILayout.Box("#", GUILayout.Width(20));
 						GUILayout.Box("Control", GUILayout.Width(200));
-						GUILayout.Box("Keys/Axes", GUILayout.Width(position.width - 328));
+						GUILayout.Box("Keys/Axes", GUILayout.Width(Mathf.Max(70, position.width - 328)));
 					} EditorGUILayout.EndHorizontal();
 					if(controls == null) {
 						LoadCurrent();

@@ -229,8 +229,88 @@ public static class StringF {
 	public static string ParseNewlines(this string input) {
 		return input.Replace("\\n", "\n");
 	}
-	
-	
+
+	// This will split a string using the split character, but ignores split characters which are between two
+	// of the "container" characters. For example, splitting the string using spaces unless inside quotes
+	// "I like pie" said the farmer.
+	// returns an array of strings { "I like pie", "said", "the", "farmer" }
+	public static List<string> SplitUnlessInContainer(this string st, char split, char container) {
+		List<string> result = new List<string>();
+		st = st.Trim(split);
+		if(st.IndexOf(split) < 0) {
+			result.Add(st);
+		} else {
+			bool inContainer = false;
+			int lastSplitChar = -1;
+			for(int i = 0; i < st.Length; i++) {
+				if(st[i] == container) { inContainer = !inContainer; continue; }
+				if(!inContainer && st[i] == split) {
+					string substring = st.Substring(lastSplitChar + 1, i - lastSplitChar);
+					if(substring.Length > 0) {
+						result.Add(substring.Trim(split).Replace(container.ToString(), ""));
+					}
+					lastSplitChar = i;
+				}
+			}
+			result.Add(st.Substring(lastSplitChar + 1).Replace(container.ToString(), ""));
+		}
+		return result;
+	}
+
+	// Similar to the previous method, this will replace one character with another, but only outside of the container character.
+	// ReplaceMe and ReplaceWith should not be the same as Container, or this will produce somewhat unpredictable results.
+	public static string ReplaceUnlessInContainer(this string st, char replaceMe, char replaceWith, char container) {
+		StringBuilder bob = new StringBuilder(st.Length);
+		bool inContainer = false;
+		foreach(char currentChar in st) {
+			if(currentChar == container) { inContainer = !inContainer; }
+			if(currentChar == replaceMe && !inContainer) {
+				bob.Append(replaceWith);
+			} else {
+				bob.Append(currentChar);
+			}
+		}
+		return bob.ToString();
+	}
+
+	// Replaces only first instance of a certain character.
+	public static string ReplaceFirst(this string st, char replaceMe, char replaceWith) {
+		StringBuilder bob = new StringBuilder(st.Length);
+		int index = st.IndexOf(replaceMe);
+		if(index >= 0) {
+			bob.Append(st, 0, index);
+			bob.Append(replaceWith);
+			if(index < st.Length) {
+				bob.Append(st.Substring(index + 1));
+			}
+			//Debug.Log(st.Substring(0, index));
+			return bob.ToString();
+		} else {
+			return st;
+		}
+	}
+
+	// Replaces only the last instance of a certain character.
+	public static string ReplaceLast(this string st, char replaceMe, char replaceWith) {
+		StringBuilder bob = new StringBuilder(st.Length);
+		int index = st.LastIndexOf(replaceMe);
+		if(index >= 0) {
+			bob.Append(st, 0, index);
+			bob.Append(replaceWith);
+			if(index < st.Length) {
+				bob.Append(st.Substring(index + 1));
+			}
+			//Debug.Log(st.Substring(0, index));
+			return bob.ToString();
+		} else {
+			return st;
+		}
+	}
+
+	// Replaces the first and last instance of a certain character.
+	public static string ReplaceFirstAndLast(this string st, char replaceMe, char replaceWith) {
+		return st.ReplaceFirst(replaceMe, replaceWith).ReplaceLast(replaceMe, replaceWith);
+	}
 	
 }
 
