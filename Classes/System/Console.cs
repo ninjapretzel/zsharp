@@ -11,13 +11,14 @@ public class Console : MonoBehaviour {
 	private static Rect consoleWindowRect = new Rect(Screen.width * 0.125f, Screen.height * 0.125f, Screen.width * 0.75f, Screen.height * 0.75f);
 	private static bool _consoleUp = false;
 	public static bool consoleUp { get { return _consoleUp; } }
-	private static bool consoleWasClosed = false;
+	private static bool focusTheTextField = false;
 	private static Vector2 consoleScrollPos;
 	private static string consoleInput = "";
 	private static float heightOfGUIContent = 0.0f;
 	private static int cmdIndex = 0;
 	private static List<string> previousCommands = new List<string>();
 	private static Dictionary<string, string> aliases = new Dictionary<string, string>();
+	//private static Message message = new Message();
 
 	public void Start() {
 		consoleText = initialText;
@@ -38,7 +39,7 @@ public class Console : MonoBehaviour {
 			ConsoleWindow(-1);
 #endif
 		} else {
-			consoleWasClosed = true;
+			focusTheTextField = true;
 		}
 
 	}
@@ -48,23 +49,14 @@ public class Console : MonoBehaviour {
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN || UNITY_STANDALONE_MAC
 		GUI.DragWindow(new Rect(4, 4, consoleWindowRect.width - 36, 16));
 #endif
+		float heightOfFont = GUI.skin.button.LineSize();
 		if(GUI.Button(new Rect(consoleWindowRect.width - 32, 2, 32, 16), "X")) {
 			_consoleUp = false;
 			consoleInput = "";
 		}
-		GUI.skin.label.alignment = TextAnchor.UpperLeft;
-		GUI.skin.label.wordWrap = true;
-		GUI.skin.FontSizeFull(20.0f);
-		float heightOfFont = GUI.skin.button.LineSize();
-		Rect sizeOfLabel = new Rect(0.0f, 0.0f, consoleWindowRect.width - 26.0f, Mathf.Max(heightOfGUIContent, consoleWindowRect.height - heightOfFont - 30.0f));
-		consoleScrollPos = GUI.BeginScrollView(new Rect(5.0f, 20.0f, consoleWindowRect.width - 10.0f, consoleWindowRect.height - heightOfFont - 30.0f), consoleScrollPos, sizeOfLabel, false, true); {
-			GUI.color = new Color(0.0f, 0.0f, 0.0f, 0.6667f);
-			GUI.DrawTexture(sizeOfLabel, GUIF.pixel);
-			GUI.color = Color.white;
-			GUI.Label(sizeOfLabel, consoleText);
-		} GUI.EndScrollView();
+
 		if(((Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return) || (GUI.Button(new Rect(consoleWindowRect.width * 0.9f + 5.0f, consoleWindowRect.height - heightOfFont - 5.0f, consoleWindowRect.width * 0.1f - 10.0f, heightOfFont), "Send"))) && consoleInput.Length > 0) {
-			Echo(">"+consoleInput);
+			Echo("> "+consoleInput);
 			try {
 				Execute(consoleInput);
 			} catch(System.Exception e) {
@@ -73,8 +65,8 @@ public class Console : MonoBehaviour {
 			previousCommands.Add(consoleInput);
 			cmdIndex = previousCommands.Count;
 			consoleInput = "";
-		}
-		else if(Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.UpArrow && cmdIndex > 0) {
+			focusTheTextField = true;
+		} else if(Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.UpArrow && cmdIndex > 0) {
 			cmdIndex--;
 			consoleInput = previousCommands[cmdIndex];
 		} else if(Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.DownArrow && cmdIndex < previousCommands.Count - 1) {
@@ -83,22 +75,36 @@ public class Console : MonoBehaviour {
 		} else if(Event.current.type == EventType.KeyDown && (Event.current.keyCode == KeyCode.Escape || Event.current.keyCode == KeyCode.Menu) && cmdIndex < previousCommands.Count - 1) {
 			_consoleUp = false;
 			consoleInput = "";
-		} else {
-			GUI.SetNextControlName("ConsoleInput");
-			consoleInput = GUI.TextField(new Rect(5.0f, consoleWindowRect.height - heightOfFont - 5.0f, consoleWindowRect.width * 0.9f - 10.0f, heightOfFont), consoleInput);
 		}
-		if(consoleWasClosed) {
+		GUI.SetNextControlName("ConsoleInput");
+		consoleInput = GUI.TextField(new Rect(5.0f, consoleWindowRect.height - heightOfFont - 5.0f, consoleWindowRect.width * 0.9f - 10.0f, heightOfFont), consoleInput);
+		if(focusTheTextField) {
 			heightOfGUIContent = GUI.skin.label.CalcHeight(new GUIContent(consoleText), consoleWindowRect.width - 26.0f);
 			GUI.FocusControl("ConsoleInput");
-			consoleWasClosed = false;
+			focusTheTextField = false;
 		}
+
+		GUI.skin.label.alignment = TextAnchor.UpperLeft;
+		GUI.skin.label.wordWrap = true;
+		GUI.skin.FontSizeFull(20.0f);
+		Rect sizeOfLabel = new Rect(0.0f, 0.0f, consoleWindowRect.width - 26.0f, Mathf.Max(heightOfGUIContent, consoleWindowRect.height - heightOfFont - 30.0f));
+		consoleScrollPos = GUI.BeginScrollView(new Rect(5.0f, 20.0f, consoleWindowRect.width - 10.0f, consoleWindowRect.height - heightOfFont - 30.0f), consoleScrollPos, sizeOfLabel, false, true); {
+			GUI.color = new Color(0.0f, 0.0f, 0.0f, 0.6667f);
+			GUI.DrawTexture(sizeOfLabel, GUIF.pixel);
+			GUI.color = Color.white;
+			GUI.Label(sizeOfLabel, consoleText);
+			//message.str = consoleText;
+			//message.Draw(sizeOfLabel);
+		} GUI.EndScrollView();
 
 	}
 
+	// Execute takes a line and attempts to turn it into commands which will be executed, through reflection.
+	// Order: Properties, Variables, Functions, Aliases
 	public static void Execute(string line) {
 		line = line.Trim();
 		if(line.Length < 1) { return; }
-		List<string> substrings = SplitUnlessInQuotes(line, ';');
+		List<string> substrings = line.SplitUnlessInContainer(';', '\"');
 		if(substrings.Count > 1) {
 			foreach(string st in substrings) {
 				Execute(st);
@@ -159,31 +165,9 @@ public class Console : MonoBehaviour {
 		}
 	}
 
-	public static List<string> SplitUnlessInQuotes(string st, char split) {
-		List<string> result = new List<string>();
-		st = st.Trim(split);
-		if(st.IndexOf(split) < 0) {
-			result.Add(st);
-		} else {
-			bool inQuotes = false;
-			int lastSplitChar = -1;
-			for(int i = 0; i < st.Length; i++) {
-				if(st[i] == '\"') { inQuotes = !inQuotes; }
-				if(!inQuotes && st[i] == split) {
-					string substring = st.Substring(lastSplitChar + 1, i - lastSplitChar);
-					if(substring.Length > 0) {
-						result.Add(substring.Trim(split));
-					}
-					lastSplitChar = i;
-				}
-			}
-			result.Add(st.Substring(lastSplitChar + 1));
-		}
-		return result;
-	}
-
 	public static void ToggleConsole() {
 		_consoleUp = !_consoleUp;
+		consoleInput = "";
 
 	}
 
@@ -212,7 +196,7 @@ public class Console : MonoBehaviour {
 	}
 
 	public static void Alias(string st) {
-		List<string> parameters = SplitUnlessInQuotes(st, ' ');
+		List<string> parameters = st.SplitUnlessInContainer(' ', '\"');
 		switch(parameters.Count) {
 			case 0:
 				Alias();
@@ -249,4 +233,5 @@ public class Console : MonoBehaviour {
 		Debug.Log("");
 
 	}
+
 }
