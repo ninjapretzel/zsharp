@@ -11,9 +11,6 @@ public class Console : MonoBehaviour {
 	public GUISkin consoleSkin;
 	public static string consoleText = "";
 	public static Color color = Color.white;
-	
-	// Test variables; delete us!!!!1
-	public static Console main;
 
 	private static Rect consoleWindowRect = new Rect(Screen.width * 0.125f, Screen.height * 0.125f, Screen.width * 0.75f, Screen.height * 0.75f);
 	private static bool _consoleUp = false;
@@ -31,7 +28,6 @@ public class Console : MonoBehaviour {
 
 	public void Start() {
 		consoleText = initialText;
-		main = this;
 
 	}
 
@@ -235,7 +231,7 @@ public class Console : MonoBehaviour {
 			fieldInfo.SetValue(instance, result);
 			return true;
 		} else {
-			return CallField(instance.GetType(), fieldInfo.Name);
+			return CallField(fieldInfo.DeclaringType, fieldInfo.Name);
 		}
 	}
 
@@ -316,7 +312,7 @@ public class Console : MonoBehaviour {
 			propertyInfo.SetValue(instance, result, null);
 			return true;
 		} else {
-			return CallProperty(instance.GetType(), propertyInfo.Name);
+			return CallProperty(propertyInfo.DeclaringType, propertyInfo.Name);
 		}
 	}
 
@@ -427,12 +423,13 @@ public class Console : MonoBehaviour {
 	public static object ParseParameterListIntoType(string typeName, List<string> parameters) {
 		switch(typeName) {
 			case "Vector2":
-				if(parameters.Count != 2) { return null; }
 				Vector2 targetV2;
 				PropertyInfo vector2ByName = typeof(Vector2).GetProperty(parameters[0], BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty);
 				if(vector2ByName != null) {
+					if(parameters.Count != 1) { return null; }
 					targetV2 = (Vector2)vector2ByName.GetValue(null, null);
 				} else {
+					if(parameters.Count != 2) { return null; }
 					float x = 0.0f;
 					try {
 						x = System.Single.Parse(parameters[0]);
@@ -445,12 +442,13 @@ public class Console : MonoBehaviour {
 				}
 				return targetV2;
 			case "Vector3":
-				if(parameters.Count != 3) { return null; }
 				Vector3 targetV3;
 				PropertyInfo vector3ByName = typeof(Vector3).GetProperty(parameters[0], BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty);
 				if(vector3ByName != null) {
+					if(parameters.Count != 1) { return null; }
 					targetV3 = (Vector3)vector3ByName.GetValue(null, null);
 				} else {
+					if(parameters.Count != 3) { return null; }
 					float x = 0.0f;
 					try {
 						x = System.Single.Parse(parameters[0]);
@@ -467,12 +465,13 @@ public class Console : MonoBehaviour {
 				}
 				return targetV3;
 			case "Color":
-				if(parameters.Count != 4) { return null; }
 				Color targetColor;
 				PropertyInfo colorByName = typeof(Color).GetProperty(parameters[0], BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty);
 				if(colorByName != null) {
+					if(parameters.Count != 1) { return null; }
 					targetColor = (Color)colorByName.GetValue(null, null);
 				} else {
+					if(parameters.Count != 4) { return null; }
 					float r = 0.0f;
 					try {
 						r = System.Single.Parse(parameters[0]);
@@ -541,6 +540,8 @@ public class Console : MonoBehaviour {
 				if(parameters.Count != 1) { return null; }
 				if(parameters[0] == "1" || parameters[0].Equals("on", System.StringComparison.InvariantCultureIgnoreCase)) {
 					return true;
+				} else if(parameters[0] == "0" || parameters[0].Equals("off", System.StringComparison.InvariantCultureIgnoreCase)) {
+					return false;
 				} else {
 					try {
 						return System.Boolean.Parse(parameters[0]);
