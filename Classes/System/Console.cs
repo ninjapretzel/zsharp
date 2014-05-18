@@ -23,11 +23,11 @@ public class Console : MonoBehaviour {
 	private static List<string> previousCommands = new List<string>();
 	private static Dictionary<string, string> aliases = new Dictionary<string, string>();
 	private static Dictionary<KeyCode, string> binds = new Dictionary<KeyCode, string>();
-	private static string configPath { get { return Application.persistentDataPath + "config.cfg"; } }
+	public static string configPath { get { return Application.persistentDataPath + "/config.cfg"; } }
 	//private static Message message = new Message();
-
+	 
 	public void Start() {
-		consoleText = initialText;
+		consoleText = initialText.ParseNewlines();
 
 	}
 
@@ -39,6 +39,7 @@ public class Console : MonoBehaviour {
 				}
 			}
 		}
+
 	}
 
 	public void OnGUI() {
@@ -59,7 +60,8 @@ public class Console : MonoBehaviour {
 		}
 
 	}
-		
+	
+	// The GUIWindow containing the console (simply occupies the top half of the screen on mobile)
 	private static void ConsoleWindow(int id) {
 		GUI.color = Color.white;
 #if UNITY_EDITOR || UNITY_STANDALONE_WIN || UNITY_STANDALONE_MAC
@@ -71,9 +73,11 @@ public class Console : MonoBehaviour {
 			consoleInput = "";
 		}
 
+		// Handle some inputs
 		if(((Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return) || (GUI.Button(new Rect(consoleWindowRect.width * 0.9f + 5.0f, consoleWindowRect.height - heightOfFont - 5.0f, consoleWindowRect.width * 0.1f - 10.0f, heightOfFont), "Send"))) && consoleInput.Length > 0) {
 			Echo("> "+consoleInput);
 			try {
+				// Execute the current line
 				Execute(consoleInput);
 			} catch(System.Exception e) {
 				Debug.LogError("Internal error executing console command:\n"+e);
@@ -120,12 +124,14 @@ public class Console : MonoBehaviour {
 	public static void Execute(string line) {
 		line = line.Trim();
 		if(line.Length < 1) { return; }
+		// Allow for multiple commands separated by a semicolon
 		List<string> substrings = line.SplitUnlessInContainer(';', '\"');
 		if(substrings.Count > 1) {
 			foreach(string st in substrings) {
 				Execute(st);
 			}
 		} else {
+			// Separate command from parameters
 			int indexOfSpace = line.IndexOf(' ');
 			string command = "";
 			string parameters = "";
@@ -138,6 +144,7 @@ public class Console : MonoBehaviour {
 			}
 			string targetClassName = null;
 			string targetMemberName = null;
+			// Separate class specification from member call
 			int indexOfDot = command.LastIndexOf('.');
 			System.Type targetClass;
 			if(indexOfDot > 0) {
@@ -148,6 +155,7 @@ public class Console : MonoBehaviour {
 				targetClass = typeof(Console);
 				targetMemberName = command;
 			}
+			// Attempt to reference the named member in named class
 			if(targetClass != null) {
 				if(!CallField(targetClass, targetMemberName, parameters)) {
 					if(!CallMethod(targetClass, targetMemberName, parameters)) {
@@ -167,40 +175,38 @@ public class Console : MonoBehaviour {
 
 	}
 
+	// Attempt to locate the member as a field, and deal with it based on the given parameters
+	// Returns: boolean indicating whether the command was handled here
 	public static bool CallField(System.Type targetClass, string varName, string parameters) {
-		if(parameters == null || parameters.Length < 1) { return CallField(targetClass, varName); }
-		FieldInfo targetVar = targetClass.GetField(varName, BindingFlags.Public | BindingFlags.Static);
-		if(targetVar != null) {
-			return SetFieldValue(null, targetVar, parameters.SplitUnlessInContainer(' ', '\"'));
-		} else {
-			object main = GetMainOfClass(targetClass);
-			if(main != null) {
-				return SetFieldValue(main, targetClass.GetField(varName), parameters.SplitUnlessInContainer(' ', '\"'));
+		// Attempt to find the field
+		FieldInfo targetVar = targetClass.GetField(varName, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+		object targetInstance = null;
+		if(targetVar == null) {
+			targetInstance = GetMainOfClass(targetClass);
+			if(targetInstance != null) {
+				targetVar = targetClass.GetField(varName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 			}
 		}
-		return false;
-	}
-
-	public static bool CallField(System.Type targetClass, string varName) {
-		string output = GetFieldValue(null, targetClass.GetField(varName, BindingFlags.Public | BindingFlags.Static));
-		if(output != null) {
+		if(targetVar == null) { return false; } // Fail: Couldn't find field
+		// If field is found, deal with it appropriately based on the parameters given
+		if(parameters == null || parameters.Length < 1) {
+			string output = GetFieldValue(targetInstance, targetVar);
+			if(output == null) { return false; } // Fail: Field is not of a supported type
 			Echo(varName + " is " + output);
-			return true;
-		} else {
-			object main = GetMainOfClass(targetClass);
-			if(main != null) {
-				output = GetFieldValue(main, targetClass.GetField(varName));
-				if(output != null) {
-					Echo(varName + " is " + output);
-					return true;
-				}
-			}
+			return true; // Success: Value is printed when no parameters given
 		}
-		return false;
+		if(!SetFieldValue(targetInstance, targetVar, parameters.SplitUnlessInContainer(' ', '\"'))) {
+			Echo("Invalid " + targetVar.FieldType.Name + ": " + parameters);
+		}
+		return true; // Success: Whether or not the field could be set (input was valid/invalid) the user is notified and the case is handled
 	}
 
+	// Get the current value of the specified field owned by instance. If instance is null then field is static.
+	// Returns: results of the ToString method when called on the field, or null if field is of unsupported type.
 	public static string GetFieldValue(object instance, FieldInfo fieldInfo) {
 		if(fieldInfo == null) { return null; }
+		// Only support types that can also be set by the user (see ParseParameterListIntoType)
+		// so as not to mislead the user into thinking they can modify other types of variables
 		switch(fieldInfo.FieldType.Name) {
 			case "Vector2":
 			case "Vector3":
@@ -224,62 +230,46 @@ public class Console : MonoBehaviour {
 		}
 	}
 
+	// Set the current value of the specified field owned by instance. If instance is null then field is static.
+	// Returns: boolean indicating whether the field was successfully changed
 	public static bool SetFieldValue(object instance, FieldInfo fieldInfo, List<string> parameters) {
-		if(fieldInfo == null) { return false; }
 		object result = ParseParameterListIntoType(fieldInfo.FieldType.Name, parameters);
 		if(result != null) {
 			fieldInfo.SetValue(instance, result);
 			return true;
 		} else {
-			return CallField(fieldInfo.DeclaringType, fieldInfo.Name);
+			return false; // Fail: The parameters could not be parsed into the desired type
 		}
 	}
 
-	public static bool CallProperty(System.Type targetClass, string propName, string parameters) {
-		if(parameters == null || parameters.Length < 1) { return CallProperty(targetClass, propName); }
-		PropertyInfo targetProp = targetClass.GetProperty(propName, BindingFlags.Public | BindingFlags.Static);
-		if(targetProp != null) {
-			if(targetProp.GetSetMethod() != null) {
-				return SetPropertyValue(null, targetProp, parameters.SplitUnlessInContainer(' ', '\"'));
-			} else {
-				Echo(propName+" is read-only!");
-				return CallProperty(targetClass, propName);
-			}
-		} else {
-			object main = GetMainOfClass(targetClass);
-			if(main != null) {
-				targetProp = targetClass.GetProperty(propName, BindingFlags.Public | BindingFlags.Instance);
-				if(targetProp != null) {
-					if(targetProp.GetSetMethod() != null) {
-						return SetPropertyValue(main, targetProp, parameters.SplitUnlessInContainer(' ', '\"'));
-					} else {
-						Echo(propName+" is read-only!");
-						return CallProperty(targetClass, propName);
-					}
-				}
+	// Attempt to locate the member as a property, and deal with it based on the given parameters
+	// Returns: boolean indicating whether the command was handled here
+	public static bool CallProperty(System.Type targetClass, string propertyName, string parameters) {
+		// Attempt to find the property
+		PropertyInfo targetProperty = targetClass.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+		object targetInstance = null;
+		if(targetProperty == null) {
+			targetInstance = GetMainOfClass(targetClass);
+			if(targetInstance != null) {
+				targetProperty = targetClass.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 			}
 		}
-		return false;
-	}
-
-	public static bool CallProperty(System.Type targetClass, string propName) {
-		string output = GetPropertyValue(null, targetClass.GetProperty(propName, BindingFlags.Public | BindingFlags.Static));
-		if(output != null) {
-			Echo(propName + " is " + output);
-			return true;
-		} else {
-			object main = GetMainOfClass(targetClass);
-			if(main != null) {
-				output = GetPropertyValue(main, targetClass.GetProperty(propName, BindingFlags.Public | BindingFlags.Instance));
-				if(output != null) {
-					Echo(propName + " is " + output);
-					return true;
-				}
-			}
+		if(targetProperty == null) { return false; } // Fail: Couldn't find property
+		// If field is found, deal with it appropriately based on the parameters given
+		if(parameters == null || parameters.Length < 1) {
+			string output = GetPropertyValue(targetInstance, targetProperty);
+			if(output == null) { return false; } // Fail: Property is not of a supported type
+			Echo(propertyName + " is " + output);
+			return true; // Success: Value is printed when no parameters given
 		}
-		return false;
+		if(!SetPropertyValue(targetInstance, targetProperty, parameters.SplitUnlessInContainer(' ', '\"'))) {
+			Echo("Invalid " + targetProperty.PropertyType.Name + ": " + parameters);
+		}
+		return true; // Success: Whether or not the field could be set (input was valid/invalid) the user is notified and the case is handled
 	}
 
+	// Get the current value of the specified property owned by instance. If instance is null then property is static.
+	// Returns: results of the ToString method when called on the result of the property, "write-only" if property is write-only, or null if property is of unsupported type.
 	public static string GetPropertyValue(object instance, PropertyInfo propertyInfo) {
 		if(propertyInfo == null) { return null; }
 		if(propertyInfo.GetGetMethod() == null) { return "write-only!"; }
@@ -306,22 +296,35 @@ public class Console : MonoBehaviour {
 		}
 	}
 
+	// Set the current value of the specified property owned by instance. If instance is null then property is static.
+	// Returns: boolean indicating whether the property was successfully changed, or if property is read-only.
 	public static bool SetPropertyValue(object instance, PropertyInfo propertyInfo, List<string> parameters) {
+		if(propertyInfo.GetSetMethod() == null) {
+			string output = GetPropertyValue(instance, propertyInfo);
+			if(output == null) { return false; } // Fail: Property is not of a supported type
+			Echo(propertyInfo.Name + " is read-only!");
+			Echo(propertyInfo.Name + " is " + output);
+			return true; // Success: Value is printed when property is read-only
+		}
 		object result = ParseParameterListIntoType(propertyInfo.PropertyType.Name, parameters);
 		if(result != null) {
 			propertyInfo.SetValue(instance, result, null);
 			return true;
 		} else {
-			return CallProperty(propertyInfo.DeclaringType, propertyInfo.Name);
+			return false; // Fail: The parameters could not be parsed into the desired type
 		}
 	}
 
+	// Attempt to find a method methodName matching the parameters given. If none is found, try to pass the entire string to a method methodName.
+	// If neither of those things work, or no parameters are given, try to call a parameterless version of methodName. If none is found, either
+	// methodName has no overload matching parameters given or methodName does not exist.
+	// Returns: boolean indicating whether or not the command was handled here (true, if a method with the correct name was found, regardless of other failures).
 	public static bool CallMethod(System.Type targetClass, string methodName, string parameters) {
-		MethodInfo[] targetMethods = targetClass.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod);
+		MethodInfo[] targetMethods = targetClass.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy);
 		MethodInfo[] targetInstancedMethods = new MethodInfo[0];
 		object main = GetMainOfClass(targetClass);
 		if(main != null) {
-			targetInstancedMethods = targetClass.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod);
+			targetInstancedMethods = targetClass.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy);
 		}
 		if(parameters != null && parameters.Length != 0) {
 			// Try to find a static method matching name and parameters
@@ -335,14 +338,14 @@ public class Console : MonoBehaviour {
 				}
 			}
 			// Try to find a static method matching name with one string parameter
-			MethodInfo targetMethod = targetClass.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, new System.Type[] { typeof(string) }, null);
+			MethodInfo targetMethod = targetClass.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy, null, new System.Type[] { typeof(string) }, null);
 			if(targetMethod != null) {
 				InvokeAndEchoResult(targetMethod, null, new string[] { ParseParameterListIntoType("String", parameters.SplitUnlessInContainer(' ', '\"')).ToString() });
 				return true;
 			}
 			// Try to find a method matching name with one string parameter if a main object to invoke on exists
 			if(main != null) {
-				MethodInfo targetInstancedMethod = targetClass.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, new System.Type[] { typeof(string) }, null);
+				MethodInfo targetInstancedMethod = targetClass.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy, null, new System.Type[] { typeof(string) }, null);
 				if(targetMethod != null) {
 					InvokeAndEchoResult(targetInstancedMethod, main, new string[] { ParseParameterListIntoType("String", parameters.SplitUnlessInContainer(' ', '\"')).ToString() });
 					return true;
@@ -350,14 +353,14 @@ public class Console : MonoBehaviour {
 			}
 		}
 		// Try to find a static parameterless method matching name
-		MethodInfo targetParameterlessMethod = targetClass.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, new System.Type[] { }, null);
+		MethodInfo targetParameterlessMethod = targetClass.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy, null, new System.Type[] { }, null);
 		if(targetParameterlessMethod != null) {
 			InvokeAndEchoResult(targetParameterlessMethod, null, new object[] { });
 			return true;
 		}
 		// Try to find a parameterless method matching name if a main object to invoke on exists
 		if(main != null) {
-			MethodInfo targetInstancedParameterlessMethod = targetClass.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod, null, new System.Type[] { }, null);
+			MethodInfo targetInstancedParameterlessMethod = targetClass.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy, null, new System.Type[] { }, null);
 			if(targetInstancedParameterlessMethod != null) {
 				InvokeAndEchoResult(targetInstancedParameterlessMethod, main, new object[] { });
 				return true;
@@ -388,11 +391,15 @@ public class Console : MonoBehaviour {
 		return false;
 	}
 
+	// Given a method name and an array of MethodInfo objects, try to match the name and parameter list provided on the given targetObject.
+	// If targetObject is null methods are static.
+	// Returns: boolean indicating whether a suitable method was found and invoked. Also whether command was handled here.
 	public static bool CallMethodMatchingParameters(object targetObject, string methodName, MethodInfo[] targetMethods, List<string> parameterList) {
 		foreach(MethodInfo targetMethod in targetMethods) {
 			if(targetMethod.Name != methodName) { continue; }
 			ParameterInfo[] parameterInfos = targetMethod.GetParameters();
 			if(parameterInfos.Length != parameterList.Count) { continue; }
+			if(parameterInfos[0].ParameterType.Name == "String" && parameterInfos.Length == 1) { continue; }
 			object[] parsedParameters = new object[parameterInfos.Length];
 			bool failed = false;
 			for(int i = 0; i < parsedParameters.Length; i++) {
@@ -411,6 +418,8 @@ public class Console : MonoBehaviour {
 		return false;
 	}
 
+	// Invokes the target method on the target object using the parameters supplied, and echoes the ToString of the result to the console.
+	// Echoes nothing if the method is void.
 	public static void InvokeAndEchoResult(MethodInfo targetMethod, object targetObject, object[] parameters) {
 		if(targetMethod.ReturnType == typeof(void)) {
 			targetMethod.Invoke(targetObject, parameters);
@@ -420,6 +429,10 @@ public class Console : MonoBehaviour {
 
 	}
 
+	// Attempts to parse the provided parameters into the specified type.
+	// This is VERY strict. Exactly the right number of parameters must be passed and they must all parse properly.
+	// The only thing that cannot possibly fail is String.
+	// Returns: object reference of the result. Null if improper parameters.
 	public static object ParseParameterListIntoType(string typeName, List<string> parameters) {
 		switch(typeName) {
 			case "Vector2":
@@ -532,6 +545,7 @@ public class Console : MonoBehaviour {
 			case "Double":
 				if(parameters.Count != 1) { return null; }
 				try {
+					// Use reflection to call the proper Parse method. Because I can.
 					return System.Type.GetType("System."+typeName).GetMethod("Parse", BindingFlags.Public | BindingFlags.Static, null, new System.Type[] { typeof(string) }, null).Invoke(null, new string[] { parameters[0] });
 				} catch(System.Reflection.TargetInvocationException) { // Is thrown in place of the Parse method's exceptions
 					return null;
@@ -555,6 +569,7 @@ public class Console : MonoBehaviour {
 
 	}
 
+	// Returns: object reference to a "public static main" object of the same type as the class provided, if it exists within the class provided.
 	public static object GetMainOfClass(System.Type targetClass) {
 		FieldInfo mainField = targetClass.GetField("main", BindingFlags.Public | BindingFlags.Static);
 		if(mainField != null && mainField.FieldType == targetClass) {
@@ -730,16 +745,6 @@ public class Console : MonoBehaviour {
 		if(binds.ContainsKey(unbindMe)) {
 			binds.Remove(unbindMe);
 		}
-
-	}
-
-	public static void Print(string st) {
-		Debug.Log(st.ParseNewlines());
-
-	}
-
-	public static void Print() {
-		Debug.Log("");
 
 	}
 
