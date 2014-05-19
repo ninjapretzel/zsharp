@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Reflection;
 using System.Collections.Generic;
+using System.IO;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -24,10 +25,29 @@ public class Console : MonoBehaviour {
 	private static Dictionary<string, string> aliases = new Dictionary<string, string>();
 	private static Dictionary<KeyCode, string> binds = new Dictionary<KeyCode, string>();
 	public static string configPath { get { return Application.persistentDataPath + "/config.cfg"; } }
+	public static string autoexecPath = Application.persistentDataPath + "/autoexec.cfg";
 	//private static Message message = new Message();
-	 
-	public void Start() {
+
+	public void Awake() {
 		consoleText = initialText.ParseNewlines();
+
+	}
+
+	public void Start() {
+		if(File.Exists(autoexecPath)) {
+			Exec(autoexecPath);
+		}
+		if(File.Exists(configPath)) {
+			Exec(configPath);
+		} else {
+			aliases.Add("quit", "Quit");
+			aliases.Add("alias", "Alias");
+			aliases.Add("bind", "Bind");
+			aliases.Add("ehco", "Echo");
+			aliases.Add("unalias", "Unalias");
+			aliases.Add("unbind", "Unbind");
+			SaveConfigFile();
+		}
 
 	}
 
@@ -39,6 +59,11 @@ public class Console : MonoBehaviour {
 				}
 			}
 		}
+
+	}
+
+	public void OnApplicationQuit() {
+		SaveConfigFile();
 
 	}
 
@@ -745,6 +770,45 @@ public class Console : MonoBehaviour {
 		if(binds.ContainsKey(unbindMe)) {
 			binds.Remove(unbindMe);
 		}
+
+	}
+
+	public static void Exec(string path) {
+		StreamReader sr;
+		if(File.Exists(path)) {
+			sr = File.OpenText(path);
+		} else {
+			if(File.Exists(Application.persistentDataPath + "/" + path)) {
+				sr = File.OpenText(Application.persistentDataPath + "/" + path);
+			} else {
+				if(File.Exists(Application.dataPath + "/" + path)) {
+					sr = File.OpenText(Application.dataPath + "/" + path);
+				} else {
+					Echo("Unable to find script file to execute "+path);
+					return;
+				}
+			}
+		}
+		while(!sr.EndOfStream) {
+			Execute(sr.ReadLine());
+		}
+		sr.Close();
+
+	}
+
+	public static void SaveConfigFile() {
+		if(File.Exists(configPath)) {
+			File.Delete(configPath);
+		}
+		StreamWriter sw = File.CreateText(configPath);
+		sw.WriteLine("autoexecPath \"" + autoexecPath + "\"");
+		foreach(string alias in aliases.Keys) {
+			sw.WriteLine("Alias \"" + alias + "\" \"" + aliases[alias].Replace('\"', '\'') + "\"");
+		}
+		foreach(KeyCode bind in binds.Keys) {
+			sw.WriteLine("Bind \"" + bind.ToString() + "\" \"" + binds[bind].Replace('\"', '\'') + "\"");
+		}
+		sw.Close();
 
 	}
 
