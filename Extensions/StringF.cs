@@ -268,7 +268,11 @@ public static class StringF {
 		List<string> result = new List<string>();
 		st = st.Trim(split);
 		if(st.IndexOf(split) < 0) {
-			result.Add(st);
+			if(st[0] == container && st[st.Length - 1] == container) {
+				result.Add(st.Substring(1, st.Length - 2));
+			} else {
+				result.Add(st);
+			}
 		} else {
 			bool inContainer = false;
 			int lastSplitChar = -1;
