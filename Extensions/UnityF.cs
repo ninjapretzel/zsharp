@@ -1,8 +1,14 @@
 using UnityEngine;
-using System.Collections.Generic;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+
+
 
 public static class UnityF {
+	
+	
+	
 	
 	public static void TryDeactivate(this Component c) {
 		if (c != null) {
@@ -125,4 +131,42 @@ public static class UnityF {
 	
 	
 
+}
+	
+	
+public static class Tap {
+	public static T Tap<T>(this T tap, Action<T> act) {
+		act(tap);
+		return tap;
+	}
+
+	public static T Log<T>(this T tap) {
+		Debug.Log(tap);
+		return tap;
+	}
+
+	public static T Log<T, S>(this T tap, Func<T, S> func) {
+		Debug.Log(func(tap));
+		return tap;
+	}
+	
+	//Comparison function for UnityEngine.Object objects
+	//Can save a few lines of code when you want to do something like
+	//
+	//	PlayerScript playerCheck = collided.GetComponent<PlayerScript>();
+	//	if (playerCheck != null) { 
+	//		playerCheck.Die();
+	//	}
+	//
+	//Can be written as:
+	//
+	//	collided.GetComponent<PlayerScript>().AndAnd(s => s.Die());
+	//
+	public static S AndAnd<T, S>(this T tap, Func<T, S> func) {
+		if (tap == null || tap is UnityEngine.Object && !(tap as UnityEngine.Object)) {
+			return default(S);
+		}
+
+		return func(tap);
+	}
 }

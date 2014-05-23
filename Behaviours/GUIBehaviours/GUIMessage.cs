@@ -35,6 +35,11 @@ public class GUIMessage : MonoBehaviour {
 	}
 	
 	
+	public Vector2 baseSpeed { get { return sets.speed; } set { sets.speed = value; } }
+	public Vector2 rndSpeed { get { return sets.rndSpeed; } set { sets.rndSpeed = value; } }
+	public Vector2 acceleration { get { return sets.acceleration; } set { sets.acceleration = value; } }
+	public float fadeTime { get { return sets.fadeTime; } set { sets.fadeTime = value; } }
+	public Color color { get { return sets.color; } set { sets.color = value; } }
 	
 	public Message msg;
 	
@@ -45,6 +50,7 @@ public class GUIMessage : MonoBehaviour {
 	
 	float time;
 	float startTime = 3.0f;
+	public bool outlined = false;
 	
 	public static GUIMessageSettings defaults;
 	public static GUISkin skin;
@@ -55,11 +61,14 @@ public class GUIMessage : MonoBehaviour {
 	public static int count = 0;
 	public static int order = 800000;
 	
+	
+	
+	
+	
 	static GUIMessage() {
 		skin = Resources.Load("message", typeof(GUISkin)) as GUISkin;
 		
 	}
-	
 	
 	void Awake() {
 		if (defaults == null) { defaults = new GUIMessageSettings(); }
@@ -100,20 +109,29 @@ public class GUIMessage : MonoBehaviour {
 		//Vector2 size = new Vector2(1, 1);
 		size.x += GUI.skin.box.padding.left + GUI.skin.box.padding.right + 2;
 		size.y += GUI.skin.box.padding.top + GUI.skin.box.padding.bottom + 2;
-		size.x /= Screen.width;
-		size.y /= Screen.height;
 		//position -= size * .5f;
 		
 		//Debug.Log(size);
 		
+		/*
+		size.x /= Screen.width;
+		size.y /= Screen.height;
 		Rect area = new Rect(position.x, position.y, size.x, size.y);
 		area.x -= size.x *.5f;
 		area.y -= size.y *.5f;
-		//Rect area = new Rect(position.x * Screen.width, position.y * Screen.height, size.x, size.y);
-		//area = area.Pad(4.0f);
-		//area = area.Move(-.5f, -.5f);
 		msg.Draw(area);
-		//GUIF.Label(area, message);
+		//*/
+		
+		//*
+		Rect area = new Rect(position.x * Screen.width, position.y * Screen.height, size.x, size.y);
+		area = area.Pad(4.0f);
+		area = area.Move(-.5f, -.5f);
+		if (outlined) { 
+			GUIF.Label(area, message);
+		} else {
+			GUI.Label(area, message);
+		}
+		//*/
 	}
 	
 	public static GUIMessage Create(Vector2 pos, string msg, GUIMessageSettings sets) {

@@ -9,15 +9,44 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public static class DataF {
 	
+	public static void LogEach<T>(this T[] array) { array.LogEach(1); }
+	public static void LogEach<T>(this T[] array, int perLine) {
+		StringBuilder str = new StringBuilder();
+		
+		for (int i = 0; i < array.Length; i++) {
+			str.Append(array[i].ToString());
+			str.Append(", ");
+			if ((1+i)%perLine == 0) { str.Append('\n'); }
+		}
+		Debug.Log(str.ToString());
+	}
+	
+	public static List<int> Permutation(int max) { return Permutation(max, max); }
+	public static List<int> Permutation(int max, int length) {
+		List<int> nums = new List<int>(max);
+		for (int i = 0; i < max; i++) { nums.Add(i); }
+		
+		List<int> chosen = new List<int>(length);
+		for (int i = 0; i < length; i++) {
+			int j = nums.RandomIndex();
+			chosen.Add(nums[j]);
+			nums.RemoveAt(j);
+		}
+		
+		return chosen;
+	}
+	
 	public static float ToFloat(this byte[] b, int i) { return BitConverter.ToSingle(b, i); }
 	public static int ToInt(this byte[] b, int i) { return BitConverter.ToInt32(b, i); }
 	
 	 public static T DeepCopy<T>(T obj) {
 		MemoryStream ms = new MemoryStream();
 		BinaryFormatter bf = new BinaryFormatter();
+		
 		bf.Serialize(ms, obj);
 		ms.Seek(0, SeekOrigin.Begin);
 		T retval = (T)bf.Deserialize(ms);
+		
 		ms.Close();
 		return retval;
 	}

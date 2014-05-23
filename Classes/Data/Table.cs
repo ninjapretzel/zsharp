@@ -1,4 +1,6 @@
 using UnityEngine;
+using System;
+using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -69,24 +71,28 @@ public class Table : Dictionary<string, float> {
 		}
 	}
 	
+	public static Table operator +(float a, Table b) { return b + a; }
 	public static Table operator +(Table a, float b) {
 		Table c = new Table();
 		foreach (string key in a.Keys) { c[key] = a[key] + b; }
 		return c;
 	}
 	
+	public static Table operator -(float a, Table b) { return b - a; }
 	public static Table operator -(Table a, float b) {
 		Table c = new Table();
 		foreach (string key in a.Keys) { c[key] = a[key] - b; }
 		return c;
 	}
 	
+	public static Table operator *(float a, Table b) { return b * a; }
 	public static Table operator *(Table a, float b) {
 		Table c = new Table();
 		foreach (string key in a.Keys) { c[key] = a[key] * b; }
 		return c;
 	}
 	
+	public static Table operator /(float a, Table b) { return b / a; }
 	public static Table operator /(Table a, float b) {
 		if (b == 0) { Debug.LogWarning("Trying to divide table by zero..."); return a; }
 		Table c = new Table();
@@ -124,6 +130,16 @@ public class Table : Dictionary<string, float> {
 		return c;
 	}
 	
+	
+	public Table Mask(string mask) { return Mask(mask, ','); }
+	public Table Mask(string mask, char delim) { return Mask(mask.Split(delim)); }
+	public Table Mask(string[] fields) {
+		Table t = new Table();
+		foreach (string field in fields) {
+			if (this[field] != 0) { t.Add(this[field]); }
+		}
+		return t;
+	}
 	
 	//Quick check functions
 	public bool ContainsColorQ(string s) { return ContainsKey(s+".r"); }
@@ -167,8 +183,11 @@ public class Table : Dictionary<string, float> {
 	public void Subtract(float f) { foreach (string s in Keys) { this[s] -= f; } }
 	public void Subtract(Table t) { foreach (string s in t.Keys) { this[s] -= t[s]; } }
 	
-	public void AddRandomly(float f) { foreach (string s in Keys) { this[s] += f; } }
-	public void AddRandomly(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * Random.value; } }
+	public void AddRandomly(float f) { foreach (string s in Keys) { this[s] += f * RandomF.value; } }
+	public void AddRandomly(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * RandomF.value; } }
+	
+	public void AddRandomNormal(float f) { foreach (string s in Keys) { this[s] += f * RandomF.normal; } }
+	public void AddRandomNormal(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * RandomF.normal; } }
 
 	public void Multiply(float f) { foreach (string s in Keys) { this[s] *= f; } }
 	public void Multiply(Table t) { 
@@ -295,4 +314,75 @@ public class Table : Dictionary<string, float> {
 	}
 	
 }
+
+public class ConvertsToTable {
+
+	public Table asTable {
+		get { return this.ToTable(); }
+		set { this.SetTable(value); }
+	}
+	
+}
+
+
+public static class TableHelper {
+	public static Table ToTable(this object obj) {
+		Table t = new Table();
+			
+		FieldInfo[] fields = obj.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
+		for (int i = 0; i < fields.Length; i++) {
+			FieldInfo field = fields[i];
+			if (field.FieldType == typeof(float)) {
+				t[field.Name] = (float) field.GetValue(obj);
+			}
+			
+			if (field.FieldType == typeof(double)) {
+				t[field.Name] = (float) (double) field.GetValue(obj);
+				
+			}
+			
+			if (field.FieldType == typeof(int)) {
+				t[field.Name] = (float) (int) field.GetValue(obj);
+			}
+				
+			if (field.FieldType == typeof(bool)) {
+				t[field.Name] = ((bool)field.GetValue(obj)) ? 1f : 0f;
+			}
+		}
+		
+		return t;
+		
+	}
+	
+	
+	public static void SetTable(this object obj, Table table) {
+		foreach (string s in table.Keys) {
+			FieldInfo field = obj.GetType().GetField(s, BindingFlags.Public | BindingFlags.Instance);
+			if (field != null) {
+				if (field.FieldType == typeof(float)) {
+					field.SetValue(obj, table[s]);
+					continue;
+				}
+				
+				if (field.FieldType == typeof(float)) {
+					field.SetValue(obj, (double)table[s]);
+					continue;
+				}
+				
+				if (field.FieldType == typeof(int)) {
+					field.SetValue(obj, (int)table[s]);
+					continue;
+				}
+				
+				if (field.FieldType == typeof(bool)) {
+					field.SetValue(obj, (table[s] == 1f) ? true : false);
+					continue;
+				}
+				
+			}
+		}
+	}
+	
+}
+
 

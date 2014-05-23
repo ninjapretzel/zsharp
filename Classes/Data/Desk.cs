@@ -31,6 +31,7 @@ public class Desk : Dictionary<string, Table> {
 		}
 	}
 	
+	public static Table operator *(Table a, Desk b) { return b * a; }
 	public static Table operator *(Desk a, Table b) {
 		Table c = new Table();
 		foreach (string key in a.Keys) {
@@ -84,7 +85,7 @@ public class Desk : Dictionary<string, Table> {
 			this[key] = new Table();
 			for (int j = 1; j < content.Length; j += 2) {
 				//Debug.Log(content[j]);
-				this[key].Add(content[j], float.Parse(content[j+1]));
+				this[key].Add(content[j].Trim(), float.Parse(content[j+1]));
 			}
 			
 		}

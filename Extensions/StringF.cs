@@ -80,6 +80,33 @@ public static class StringF {
 		return "" + ir + s;
 	}
 	
+	
+	static string[] notations = { "", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "No"};
+	public static string ShortString(this float f) {
+		if (f.IsNAN()) { return "NaN"; }
+		
+		string notationValue = "";
+		float val = f;
+		
+		if (f >= 1000000f) {
+			val /= 1000f;
+			int b = 0;
+			
+			while(val.Round() >= 1000) {
+				val /= 1000f;
+				b++;
+			}
+			if (b >= notations.Length) { return "WAY TO HIGH"; }
+			else { notationValue = notations[b]; }
+			
+		}
+		return Mathf.Round(val * 1000f) / 1000f + notationValue;
+	}
+	
+	
+	
+	
+	
 	//Formats a float as if it represents time in seconds
 	public static string TimeFormat(this float f) { return f.TimeFormat(2); }
 	public static string TimeFormat(this float f, int places) {

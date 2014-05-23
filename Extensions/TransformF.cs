@@ -6,6 +6,11 @@ public static class TransformF {
 	
 	public static Vector3 DirectionTo(this Component c, Component other) { return other.transform.position - c.transform.position; }
 	public static float DistanceTo(this Component c, Component other) { return c.DirectionTo(other).magnitude; }
+	public static float FlatDistanceTo(this Component c, Component other) { 
+		Vector3 dir = c.DirectionTo(other);
+		dir.y = 0;
+		return dir.magnitude;
+	}
 	
 	public static void SnapParent(this Component c, Component other) { c.transform.SnapParent(other.transform); }
 	

@@ -9,7 +9,20 @@ public class StickToSurfaceOnStart : MonoBehaviour {
 	public bool useZUp = false;
 	public LayerMask layers = Physics.DefaultRaycastLayers;
 	
+	public bool waitForFixedUpdate = false;
+	
 	void Start() {
+		if (!waitForFixedUpdate) {
+			Stick();
+		}
+		
+	}
+	
+	void FixedUpdate() {
+		Stick();
+	}
+	
+	void Stick() {
 		RaycastHit hit;
 		if (Physics.Raycast(transform.position, direction, out hit, maxDistance, layers)) {
 			transform.position = hit.point + offset;
