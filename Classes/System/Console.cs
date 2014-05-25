@@ -1,3 +1,5 @@
+#define CONSOLE
+
 using UnityEngine;
 using System.Reflection;
 using System.Collections.Generic;
@@ -12,6 +14,7 @@ public class Console : MonoBehaviour {
 	public GUISkin consoleSkin;
 	public static string consoleText = "";
 	public static Color color = Color.white;
+	public static bool cheats = false;
 
 	private static Rect consoleWindowRect = new Rect(Screen.width * 0.125f, Screen.height * 0.125f, Screen.width * 0.75f, Screen.height * 0.75f);
 	private static bool _consoleUp = false;
@@ -25,20 +28,21 @@ public class Console : MonoBehaviour {
 	private static Dictionary<string, string> aliases = new Dictionary<string, string>();
 	private static Dictionary<KeyCode, string> binds = new Dictionary<KeyCode, string>();
 	public static string configPath { get { return Application.persistentDataPath + "/config.cfg"; } }
-	public static string autoexecPath = Application.persistentDataPath + "/autoexec.cfg";
+	public static string autoexecPath;
 	//private static Message message = new Message();
 
 	public void Awake() {
 		consoleText = initialText.ParseNewlines();
+		autoexecPath = Application.persistentDataPath + "/autoexec.cfg";
 
 	}
 
 	public void Start() {
-		if(File.Exists(autoexecPath)) {
-			Exec(autoexecPath);
-		}
 		if(File.Exists(configPath)) {
 			Exec(configPath);
+			if(File.Exists(autoexecPath)) {
+				Exec(autoexecPath);
+			}
 		} else {
 			aliases.Add("quit", "Quit");
 			aliases.Add("alias", "Alias");
@@ -212,7 +216,7 @@ public class Console : MonoBehaviour {
 				targetVar = targetClass.GetField(varName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 			}
 		}
-		if(targetVar == null) { return false; } // Fail: Couldn't find field
+		if(targetVar == null || !IsAccessible(targetVar)) { return false; } // Fail: Couldn't find field, or it's marked inaccessible
 		// If field is found, deal with it appropriately based on the parameters given
 		if(parameters == null || parameters.Length < 1) {
 			string output = GetFieldValue(targetInstance, targetVar);
@@ -220,10 +224,14 @@ public class Console : MonoBehaviour {
 			Echo(varName + " is " + output);
 			return true; // Success: Value is printed when no parameters given
 		}
-		if(!SetFieldValue(targetInstance, targetVar, parameters.SplitUnlessInContainer(' ', '\"'))) {
-			Echo("Invalid " + targetVar.FieldType.Name + ": " + parameters);
+		if(IsCheat(targetVar) && !cheats) {
+			PrintCheatMessage(targetVar.Name);
+		} else {
+			if(!SetFieldValue(targetInstance, targetVar, parameters.SplitUnlessInContainer(' ', '\"'))) {
+				Echo("Invalid " + targetVar.FieldType.Name + ": " + parameters);
+			}
 		}
-		return true; // Success: Whether or not the field could be set (input was valid/invalid) the user is notified and the case is handled
+		return true; // Success: Whether or not the field could be set, the user is notified and the case is handled
 	}
 
 	// Get the current value of the specified field owned by instance. If instance is null then field is static.
@@ -279,7 +287,7 @@ public class Console : MonoBehaviour {
 				targetProperty = targetClass.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 			}
 		}
-		if(targetProperty == null) { return false; } // Fail: Couldn't find property
+		if(targetProperty == null || !IsAccessible(targetProperty)) { return false; } // Fail: Couldn't find property, or it's marked inaccessible
 		// If field is found, deal with it appropriately based on the parameters given
 		if(parameters == null || parameters.Length < 1) {
 			string output = GetPropertyValue(targetInstance, targetProperty);
@@ -287,8 +295,12 @@ public class Console : MonoBehaviour {
 			Echo(propertyName + " is " + output);
 			return true; // Success: Value is printed when no parameters given
 		}
-		if(!SetPropertyValue(targetInstance, targetProperty, parameters.SplitUnlessInContainer(' ', '\"'))) {
-			Echo("Invalid " + targetProperty.PropertyType.Name + ": " + parameters);
+		if(IsCheat(targetProperty) && !cheats) {
+			PrintCheatMessage(targetProperty.Name);
+		} else {
+			if(!SetPropertyValue(targetInstance, targetProperty, parameters.SplitUnlessInContainer(' ', '\"'))) {
+				Echo("Invalid " + targetProperty.PropertyType.Name + ": " + parameters);
+			}
 		}
 		return true; // Success: Whether or not the field could be set (input was valid/invalid) the user is notified and the case is handled
 	}
@@ -364,30 +376,46 @@ public class Console : MonoBehaviour {
 			}
 			// Try to find a static method matching name with one string parameter
 			MethodInfo targetMethod = targetClass.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy, null, new System.Type[] { typeof(string) }, null);
-			if(targetMethod != null) {
-				InvokeAndEchoResult(targetMethod, null, new string[] { ParseParameterListIntoType("String", parameters.SplitUnlessInContainer(' ', '\"')).ToString() });
+			if(targetMethod != null && IsAccessible(targetMethod)) {
+				if(IsCheat(targetMethod) && !cheats) {
+					PrintCheatMessage(targetMethod.Name);
+				} else {
+					InvokeAndEchoResult(targetMethod, null, new string[] { ParseParameterListIntoType("String", parameters.SplitUnlessInContainer(' ', '\"')).ToString() });
+				}
 				return true;
 			}
 			// Try to find a method matching name with one string parameter if a main object to invoke on exists
 			if(main != null) {
 				MethodInfo targetInstancedMethod = targetClass.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy, null, new System.Type[] { typeof(string) }, null);
-				if(targetMethod != null) {
-					InvokeAndEchoResult(targetInstancedMethod, main, new string[] { ParseParameterListIntoType("String", parameters.SplitUnlessInContainer(' ', '\"')).ToString() });
+				if(targetInstancedMethod != null && IsAccessible(targetInstancedMethod)) {
+					if(IsCheat(targetInstancedMethod) && !cheats) {
+						PrintCheatMessage(targetInstancedMethod.Name);
+					} else {
+						InvokeAndEchoResult(targetInstancedMethod, main, new string[] { ParseParameterListIntoType("String", parameters.SplitUnlessInContainer(' ', '\"')).ToString() });
+					}
 					return true;
 				}
 			}
 		}
 		// Try to find a static parameterless method matching name
 		MethodInfo targetParameterlessMethod = targetClass.GetMethod(methodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy, null, new System.Type[] { }, null);
-		if(targetParameterlessMethod != null) {
-			InvokeAndEchoResult(targetParameterlessMethod, null, new object[] { });
+		if(targetParameterlessMethod != null && IsAccessible(targetParameterlessMethod)) {
+			if(IsCheat(targetParameterlessMethod) && !cheats) {
+				PrintCheatMessage(targetParameterlessMethod.Name);
+			} else {
+				InvokeAndEchoResult(targetParameterlessMethod, null, new object[] { });
+			}
 			return true;
 		}
 		// Try to find a parameterless method matching name if a main object to invoke on exists
 		if(main != null) {
 			MethodInfo targetInstancedParameterlessMethod = targetClass.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.FlattenHierarchy, null, new System.Type[] { }, null);
-			if(targetInstancedParameterlessMethod != null) {
-				InvokeAndEchoResult(targetInstancedParameterlessMethod, main, new object[] { });
+			if(targetInstancedParameterlessMethod != null && IsAccessible(targetInstancedParameterlessMethod)) {
+				if(IsCheat(targetInstancedParameterlessMethod) && !cheats) {
+					PrintCheatMessage(targetInstancedParameterlessMethod.Name);
+				} else {
+					InvokeAndEchoResult(targetInstancedParameterlessMethod, main, new object[] { });
+				}
 				return true;
 			}
 		}
@@ -395,11 +423,11 @@ public class Console : MonoBehaviour {
 		if(targetMethods.Length > 0 || targetInstancedMethods.Length > 0) {
 			bool methodWithRightNameFound = false;
 			foreach(MethodInfo methodInfo in targetMethods) {
-				if(methodInfo.Name == methodName) { methodWithRightNameFound = true; break; }
+				if(methodInfo.Name == methodName && IsAccessible(methodInfo)) { methodWithRightNameFound = true; break; }
 			}
 			if(!methodWithRightNameFound) {
 				foreach(MethodInfo methodInfo in targetInstancedMethods) {
-					if(methodInfo.Name == methodName) { methodWithRightNameFound = true; break; }
+					if(methodInfo.Name == methodName && IsAccessible(methodInfo)) { methodWithRightNameFound = true; break; }
 				}
 			}
 			if(methodWithRightNameFound) {
@@ -421,23 +449,27 @@ public class Console : MonoBehaviour {
 	// Returns: boolean indicating whether a suitable method was found and invoked. Also whether command was handled here.
 	public static bool CallMethodMatchingParameters(object targetObject, string methodName, MethodInfo[] targetMethods, List<string> parameterList) {
 		foreach(MethodInfo targetMethod in targetMethods) {
-			if(targetMethod.Name != methodName) { continue; }
-			ParameterInfo[] parameterInfos = targetMethod.GetParameters();
-			if(parameterInfos.Length != parameterList.Count) { continue; }
-			if(parameterInfos[0].ParameterType.Name == "String" && parameterInfos.Length == 1) { continue; }
-			object[] parsedParameters = new object[parameterInfos.Length];
-			bool failed = false;
-			for(int i = 0; i < parsedParameters.Length; i++) {
-				// Need to split the given parameters AGAIN here if not in container, since ParseParameterListIntoType expects its parameters separately.
-				// For example, if a method takes an int and a Color as an attribute, the user could type
-				// Class.MethodName "7" "1 0.4 0.2 1"
-				// which would get split into "7" and "1 0.4 0.2 1", and this method would try to find a method matching two parameters.
-				// If such a method is found, it would further split "1 0.4 0.2 1" into four separate strings and pass them to ParseParameterListIntoType
-				parsedParameters[i] = ParseParameterListIntoType(parameterInfos[i].ParameterType.Name, parameterList[i].SplitUnlessInContainer(' ', '\"'));
-				if(parsedParameters[i] == null) { failed = true; break; }
+			if(targetMethod.Name != methodName || !IsAccessible(targetMethod)) { continue; }
+			if(IsCheat(targetMethod) && !cheats) {
+				PrintCheatMessage(targetMethod.Name);
+			} else {
+				ParameterInfo[] parameterInfos = targetMethod.GetParameters();
+				if(parameterInfos.Length != parameterList.Count) { continue; }
+				if(parameterInfos[0].ParameterType.Name == "String" && parameterInfos.Length == 1) { continue; }
+				object[] parsedParameters = new object[parameterInfos.Length];
+				bool failed = false;
+				for(int i = 0; i < parsedParameters.Length; i++) {
+					// Need to split the given parameters AGAIN here if not in container, since ParseParameterListIntoType expects its parameters separately.
+					// For example, if a method takes an int and a Color as an attribute, the user could type
+					// Class.MethodName "7" "1 0.4 0.2 1"
+					// which would get split into "7" and "1 0.4 0.2 1", and this method would try to find a method matching two parameters.
+					// If such a method is found, it would further split "1 0.4 0.2 1" into four separate strings and pass them to ParseParameterListIntoType
+					parsedParameters[i] = ParseParameterListIntoType(parameterInfos[i].ParameterType.Name, parameterList[i].SplitUnlessInContainer(' ', '\"'));
+					if(parsedParameters[i] == null) { failed = true; break; }
+				}
+				if(failed) { continue; }
+				InvokeAndEchoResult(targetMethod, targetObject, parsedParameters);
 			}
-			if(failed) { continue; }
-			InvokeAndEchoResult(targetMethod, targetObject, parsedParameters);
 			return true;
 		}
 		return false;
@@ -601,6 +633,20 @@ public class Console : MonoBehaviour {
 			return mainField.GetValue(null);
 		}
 		return null;
+	}
+
+	// Returns: boolean, true if member is not marked Inaccessible
+	public static bool IsAccessible(MemberInfo member) {
+		return System.Attribute.GetCustomAttribute(member, typeof(InaccessibleAttribute)) == null;
+	}
+
+	// Returns: boolean, true if member is marked cheat. Changing any property, field, or calling any method marked cheat through the console must trigger appropriate responses.
+	public static bool IsCheat(MemberInfo member) {
+		return System.Attribute.GetCustomAttribute(member, typeof(CheatAttribute)) != null;
+	}
+
+	[Inaccessible] public static void PrintCheatMessage(string memberName) {
+		Echo(memberName + " is a cheat command. Set \"cheats\" to 1 to use it.");
 	}
 
 	public static void ToggleConsole() {
@@ -818,6 +864,18 @@ public class Console : MonoBehaviour {
 #else
 		Application.Quit();
 #endif
+
+	}
+
+	public class CheatAttribute : System.Attribute {
+
+		public CheatAttribute() { }
+
+	}
+
+	public class InaccessibleAttribute : System.Attribute {
+
+		public InaccessibleAttribute() { }
 
 	}
 }
