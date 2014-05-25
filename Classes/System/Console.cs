@@ -609,9 +609,9 @@ public class Console : MonoBehaviour {
 				}
 			case "Boolean":
 				if(parameters.Count != 1) { return null; }
-				if(parameters[0] == "1" || parameters[0].Equals("on", System.StringComparison.InvariantCultureIgnoreCase)) {
+				if(parameters[0] == "1" || parameters[0].Equals("on", System.StringComparison.InvariantCultureIgnoreCase) || parameters[0].Equals("yes", System.StringComparison.InvariantCultureIgnoreCase)) {
 					return true;
-				} else if(parameters[0] == "0" || parameters[0].Equals("off", System.StringComparison.InvariantCultureIgnoreCase)) {
+				} else if(parameters[0] == "0" || parameters[0].Equals("off", System.StringComparison.InvariantCultureIgnoreCase) || parameters[0].Equals("no", System.StringComparison.InvariantCultureIgnoreCase)) {
 					return false;
 				} else {
 					try {
@@ -629,7 +629,7 @@ public class Console : MonoBehaviour {
 	// Returns: object reference to a "public static main" object of the same type as the class provided, if it exists within the class provided.
 	public static object GetMainOfClass(System.Type targetClass) {
 		FieldInfo mainField = targetClass.GetField("main", BindingFlags.Public | BindingFlags.Static);
-		if(mainField != null && mainField.FieldType == targetClass) {
+		if(mainField != null && mainField.FieldType == targetClass && IsAccessible(mainField)) {
 			return mainField.GetValue(null);
 		}
 		return null;
