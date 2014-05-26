@@ -8,20 +8,20 @@ using System.Collections.Generic;
 public static class UnityF {
 	
 	
-	
+	public static GUIMessage MakeGUIMessage(this Component c, string message) { return c.MakeGUIMessage(Vector2.zero, message); } 
+	public static GUIMessage MakeGUIMessage(this Component c, Vector3 offset, string message) {
+		GUIMessage m = GUIMessage.Create(c.transform.GetViewPosition() + offset, message);
+		return m;
+	}
 	
 	public static void TryDeactivate(this Component c) {
 		if (c != null) {
 			if (c.GetType().IsSubclassOf(typeof(Behaviour))) {
-				Behaviour b = c as Behaviour;
-				//Debug.Log("Target: " + target + " found.");
-				b.enabled = false;
+				(c as Behaviour).enabled = true;
 			}
 			
 			if (c.GetType().IsSubclassOf(typeof(Renderer))) {
-				Renderer r = c as Renderer;
-				//Debug.Log("Target: " + target + " found.");
-				r.enabled = false;
+				(c as Renderer).enabled = true;
 			}
 		}
 	}
@@ -29,15 +29,11 @@ public static class UnityF {
 	public static void TryActivate(this Component c) {
 		if (c != null) {
 			if (c.GetType().IsSubclassOf(typeof(Behaviour))) {
-				Behaviour b = c as Behaviour;
-				//Debug.Log("Target: " + target + " found.");
-				b.enabled = true;
+				(c as Behaviour).enabled = true;
 			}
 			
 			if (c.GetType().IsSubclassOf(typeof(Renderer))) {
-				Renderer r = c as Renderer;
-				//Debug.Log("Target: " + target + " found.");
-				r.enabled = true;
+				(c as Renderer).enabled = true;
 			}
 		}
 	}

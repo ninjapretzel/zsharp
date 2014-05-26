@@ -38,6 +38,7 @@ public class SimplexNoise {
 	
 	static int[][] grad3;
 	
+	
 	static Vector3[] grad3_Vectors = {
 		new Vector3( 1, 1, 0), new Vector3(-1, 1, 0), new Vector3( 1,-1, 0), new Vector3(-1,-1, 0),
 		new Vector3( 1, 0, 1), new Vector3(-1, 0, 1), new Vector3( 1, 0,-1), new Vector3(-1, 0,-1),
@@ -75,6 +76,56 @@ public class SimplexNoise {
 		perm = stdPerm;
 	}
 	
+	public Texture2D GetSplatMap(Vector2 start, Vector2 end, int size) {
+		Texture2D splatmap = new Texture2D(size+1, size+1, TextureFormat.ARGB32, false);
+		splatmap.SetPixels(GetSplats(start, end, size));
+		splatmap.wrapMode = TextureWrapMode.Clamp;
+		splatmap.Apply();
+		return splatmap;
+	}
+	
+	public Color[] GetSplats(Vector2 start, Vector2 end, int size) {
+		Color[] splats = new Color[(size + 1) * (size + 1)];
+		
+		float sz = (float)size;
+		Vector2 dist = (end - start) / sz;
+		int i = 0;
+		for (int yy = 0; yy <= size; yy++) {
+			for (int xx = 0; xx <= size; xx++) {
+				
+				
+				Vector2 pr = start + new Vector2(dist.x * xx, dist.y * yy);
+				if (pr.magnitude < .01f) { pr = new Vector2(.1f, .1f); }
+				
+				Vector2 pg = pr * 2f;
+				Vector2 pb = pr * 3f;
+				Vector2 pa = pr * 4f;
+				
+				float r = OctaveNoise2D(pr);
+				float g = OctaveNoise2D(pg);
+				float b = OctaveNoise2D(pb);
+				float a = OctaveNoise2D(pa);
+				
+				r *= r * r;
+				g *= g * g;
+				b *= b * b;
+				a *= a * a;
+				
+				float t = r + g + b + a;
+				r /= t;
+				g /= t;
+				b /= t;
+				a /= t;
+				
+				splats[i++] = new Color(r, g, b, a);
+				
+			}
+		}
+		
+		return splats;
+	}
+	
+	
 	public Vector3[,] GetNormals(Vector2 start, Vector2 end, int size) {
 		Vector3[,] normals = new Vector3[size+1, size+1];
 		
@@ -83,18 +134,15 @@ public class SimplexNoise {
 		
 		for (int yy = 0; yy <= size; yy++) {
 			for (int xx = 0; xx <= size; xx++) {
-
 				Vector2 p01 = start + new Vector2((xx-1) * dist.x, yy * dist.y);
 				Vector2 p21 = start + new Vector2((xx+1) * dist.x, yy * dist.y);
 				Vector2 p10 = start + new Vector2(xx * dist.x, (yy-1) * dist.y);
 				Vector2 p12 = start + new Vector2(xx * dist.x, (yy+1) * dist.y);
 				
-				//float s11 = OctaveNoise2D(p11);
 				float s01 = OctaveNoise2D(p01);
 				float s21 = OctaveNoise2D(p21);
 				float s10 = OctaveNoise2D(p10);
 				float s12 = OctaveNoise2D(p12);
-				
 				Vector3 va = new Vector3(.5f, s21 - s01, 0).normalized;
 				Vector3 vb = new Vector3(0, s12 - s10, .5f).normalized;
 				

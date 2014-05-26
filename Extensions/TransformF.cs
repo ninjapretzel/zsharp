@@ -13,7 +13,6 @@ public static class TransformF {
 	}
 	
 	public static void SnapParent(this Component c, Component other) { c.transform.SnapParent(other.transform); }
-	
 	public static void SnapParent(this Transform t, Transform o) {
 		Transform p = t.parent;
 		Quaternion q = t.rotation.To(o.rotation);
@@ -28,6 +27,7 @@ public static class TransformF {
 		
 	}
 	
+	public static void FlattenRotationZ(this Component c) { c.transform.FlattenZ(); }
 	public static void FlattenZ(this Transform t) {
 		Quaternion q = t.rotation;
 		Vector3 v = q.eulerAngles;

@@ -4,8 +4,10 @@ using System.Collections;
 public class SpawnsStuffInAnArea : MonoBehaviour {
 	public Transform[] things;
 	public Bounds area;
+	
 	public int min = 5;
 	public int max = 10;
+	public float chancePerTry = 1;
 	public Vector3 orientation = Vector3.zero;
 	
 	public bool makePushable = false;
@@ -17,6 +19,8 @@ public class SpawnsStuffInAnArea : MonoBehaviour {
 	public bool onStart = true;
 	
 	void Awake() {
+		chancePerTry = chancePerTry.Clamp01();
+		
 		if (!onStart) {
 			Spawn();
 		}
@@ -40,6 +44,9 @@ public class SpawnsStuffInAnArea : MonoBehaviour {
 		//Debug.Log(num + " : " + min + "-" + max);
 		
 		for (int i = 0; i < num; i++) {
+			
+			if (RandomF.value >= chancePerTry) { continue; }
+			
 			Transform obj = Instantiate(things[(int)(things.Length * Random.value * .99999f)], transform.position + area.RandomInside(), Quaternion.identity) as Transform;
 			obj.Rotate(orientation);
 			obj.parent = transform;

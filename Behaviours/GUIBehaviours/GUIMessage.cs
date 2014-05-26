@@ -61,10 +61,6 @@ public class GUIMessage : MonoBehaviour {
 	public static int count = 0;
 	public static int order = 800000;
 	
-	
-	
-	
-	
 	static GUIMessage() {
 		skin = Resources.Load("message", typeof(GUISkin)) as GUISkin;
 		
@@ -133,6 +129,12 @@ public class GUIMessage : MonoBehaviour {
 		}
 		//*/
 	}
+	
+	public GUIMessage SetColor(Color c) { 
+		color = c;
+		return this;
+	}
+	
 	
 	public static GUIMessage Create(Vector2 pos, string msg, GUIMessageSettings sets) {
 		GUIMessage mess = Create(pos, msg);

@@ -72,7 +72,7 @@ public class TouchControlStick : MonoBehaviour {
 				Rect brush = new Rect(touchDown.x, touchDown.y, 0, 0).Pad(60, 60);
 				GUI.DrawTexture(brush, GUIF.pixel);
 				
-				brush = new Rect(pos.x, pos.y, 0, 0).Pad(60, 60);
+				brush = new Rect(pos.x, pos.y, 0, 0).Pad(Screen.height * .07f);
 				GUI.DrawTexture(brush, GUIF.pixel);
 					
 				

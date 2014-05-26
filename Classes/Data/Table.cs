@@ -130,6 +130,24 @@ public class Table : Dictionary<string, float> {
 		return c;
 	}
 	
+	public Set<string> FieldKeys {
+		get {
+			Set<string> ukeys = new Set<string>();
+			
+			foreach (string s in Keys) {
+				int index = s.LastIndexOf('.');
+				if (index < 0) { ukeys.Add(s); continue; }
+				
+				string k = s.Substring(0, index);
+				if (s.Length - k.Length <= 2) { ukeys.Add(k); }
+				else { ukeys.Add(s); }
+				
+			}
+			
+			return ukeys;
+		}
+	}
+	
 	
 	public Table Mask(string mask) { return Mask(mask, ','); }
 	public Table Mask(string mask, char delim) { return Mask(mask.Split(delim)); }
@@ -348,6 +366,20 @@ public static class TableHelper {
 			if (field.FieldType == typeof(bool)) {
 				t[field.Name] = ((bool)field.GetValue(obj)) ? 1f : 0f;
 			}
+			
+			if (field.FieldType == typeof(Vector2)) {
+				t.SetVector2(field.Name, (Vector2)field.GetValue(obj));
+			}
+			
+			if (field.FieldType == typeof(Vector3)) {
+				t.SetVector3(field.Name, (Vector3)field.GetValue(obj));
+			}
+			
+			if (field.FieldType == typeof(Color)) {
+				t.SetColor(field.Name, (Color)field.GetValue(obj));
+			}
+			
+			
 		}
 		
 		return t;
@@ -356,7 +388,7 @@ public static class TableHelper {
 	
 	
 	public static void SetTable(this object obj, Table table) {
-		foreach (string s in table.Keys) {
+		foreach (string s in table.FieldKeys) {
 			FieldInfo field = obj.GetType().GetField(s, BindingFlags.Public | BindingFlags.Instance);
 			if (field != null) {
 				if (field.FieldType == typeof(float)) {
@@ -364,7 +396,7 @@ public static class TableHelper {
 					continue;
 				}
 				
-				if (field.FieldType == typeof(float)) {
+				if (field.FieldType == typeof(double)) {
 					field.SetValue(obj, (double)table[s]);
 					continue;
 				}
@@ -377,6 +409,18 @@ public static class TableHelper {
 				if (field.FieldType == typeof(bool)) {
 					field.SetValue(obj, (table[s] == 1f) ? true : false);
 					continue;
+				}
+				
+				if (field.FieldType == typeof(Vector2)) {
+					field.SetValue(obj, table.GetVector2(s));
+				}
+				
+				if (field.FieldType == typeof(Vector3)) {
+					field.SetValue(obj, table.GetVector3(s));
+				}
+				
+				if (field.FieldType == typeof(Color)) {
+					field.SetValue(obj, table.GetColor(s));
 				}
 				
 			}
