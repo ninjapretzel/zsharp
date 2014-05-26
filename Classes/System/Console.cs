@@ -1,9 +1,8 @@
-#define CONSOLE
-
 using UnityEngine;
 using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -15,6 +14,8 @@ public class Console : MonoBehaviour {
 	public static string consoleText = "";
 	public static Color color = Color.white;
 	public static bool cheats = false;
+	[Inaccessible] public string[] blacklistedClasses;
+	[Inaccessible] public static List<string> classBlacklist = new List<string>();
 
 	private static Rect consoleWindowRect = new Rect(Screen.width * 0.125f, Screen.height * 0.125f, Screen.width * 0.75f, Screen.height * 0.75f);
 	private static bool _consoleUp = false;
@@ -34,6 +35,9 @@ public class Console : MonoBehaviour {
 	public void Awake() {
 		consoleText = initialText.ParseNewlines();
 		autoexecPath = Application.persistentDataPath + "/autoexec.cfg";
+		classBlacklist = blacklistedClasses.ToList<string>();
+		if(!classBlacklist.Contains("InAppPurchases")) { classBlacklist.Add("InAppPurchases"); }
+		if(!classBlacklist.Contains("AdManager")) { classBlacklist.Add("AdManager"); }
 
 	}
 
@@ -178,6 +182,14 @@ public class Console : MonoBehaviour {
 			System.Type targetClass;
 			if(indexOfDot > 0) {
 				targetClassName = command.Substring(0, indexOfDot);
+				if(classBlacklist.Contains(targetClassName)) {
+#if !DEBUG && !UNITY_EDITOR
+					Echo("Unknown command: "+command);
+					return;
+#else
+					Echo("Class "+targetClassName+" is blacklisted and cannot be accessed normally!");
+#endif
+				}
 				targetMemberName = command.Substring(indexOfDot+1);
 				targetClass = System.Type.GetType(targetClassName);
 			} else {
@@ -637,12 +649,26 @@ public class Console : MonoBehaviour {
 
 	// Returns: boolean, true if member is not marked Inaccessible
 	public static bool IsAccessible(MemberInfo member) {
+#if DEBUG || UNITY_EDITOR
+		if(System.Attribute.GetCustomAttribute(member, typeof(InaccessibleAttribute)) != null) {
+			Echo("Member "+member.Name+" is marked inaccessible and cannot be accessed normally!");
+		}
+		return true;
+#else
 		return System.Attribute.GetCustomAttribute(member, typeof(InaccessibleAttribute)) == null;
+#endif
 	}
 
 	// Returns: boolean, true if member is marked cheat. Changing any property, field, or calling any method marked cheat through the console must trigger appropriate responses.
 	public static bool IsCheat(MemberInfo member) {
+#if DEBUG || UNITY_EDITOR
+		if(System.Attribute.GetCustomAttribute(member, typeof(CheatAttribute)) != null) {
+			Echo("Member "+member.Name+" is marked a cheat and cannot be accessed normally without cheats!");
+		}
+		return false;
+#else
 		return System.Attribute.GetCustomAttribute(member, typeof(CheatAttribute)) != null;
+#endif
 	}
 
 	[Inaccessible] public static void PrintCheatMessage(string memberName) {
