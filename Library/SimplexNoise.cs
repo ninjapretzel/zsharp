@@ -77,9 +77,12 @@ public class SimplexNoise {
 	}
 	
 	public Texture2D GetSplatMap(Vector2 start, Vector2 end, int size) {
-		Texture2D splatmap = new Texture2D(size+1, size+1, TextureFormat.ARGB32, false);
+		Texture2D splatmap = new Texture2D(size+1, size+1, TextureFormat.ARGB32, true);
 		splatmap.SetPixels(GetSplats(start, end, size));
 		splatmap.wrapMode = TextureWrapMode.Clamp;
+		splatmap.filterMode = FilterMode.Bilinear;
+		splatmap.Apply();
+		splatmap.filterMode = FilterMode.Trilinear;
 		splatmap.Apply();
 		return splatmap;
 	}
@@ -196,8 +199,10 @@ public class SimplexNoise {
 	public float GetValue(Vector2 position) { return OctaveNoise2D(position, 0, 1); }
 	public float OctaveNoise2D(Vector2 position, float min, float max) {
 		float val = OctaveNoise2D(position);
-		return min + ((val - 1f) / 2f) * (max-min);
+		return min + ((val + 1f) / 2f) * (max-min);
 	}
+	
+	
 	
 	public float OctaveNoise2D(Vector2 position) {
 		float total = 0;
@@ -288,7 +293,8 @@ public class SimplexNoise {
 			n2 = t2 * t2 * Dot(grad3[gi2], x2, y2);
 		}
 		
-		//n0 = n1 = n2 = 0;
+		//Add contributions from each corner to get the final noise value.
+		//The result is scaled to return values in the interval [-1,1].
 		return 70.0f * (n0 + n1 + n2);
 	}
 	

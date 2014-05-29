@@ -217,14 +217,21 @@ public class ZEditorWindow : EditorWindow {
 		return l;
 	}
 	
+	public bool ToggleField(string label, bool val) { return ToggleField(val, label); }
+	public bool ToggleField(bool val, string label) {
+		bool b = Toggle(val, label, ExpandWidth(false));
+		changed = changed || (checkChanges && (b != val));
+		return b;
+	}
+	
 	public MM RangeField(string label, MM range) { return RangeField(label, range, 1); }
 	public MM RangeField(string label, MM range, float scale) {
 		MM v = new MM(range.ToString());
 		
 		BeginHorizontal("box");
-			Label(label, MaxWidth(100));
+			FixedLabel(label);
 			v.min = EditorGUILayout.FloatField(range.min, Width(fieldWidth * scale/2f));
-			Label("-", ExpandWidth(false));
+			FixedLabel("-");
 			v.max = EditorGUILayout.FloatField(range.max, Width(fieldWidth * scale/2f));
 		EndHorizontal();
 		
@@ -237,7 +244,7 @@ public class ZEditorWindow : EditorWindow {
 	public float FloatField(string label, float val, float scale) {
 		float v;
 		BeginHorizontal("box");
-			Label(label);
+			FixedLabel(label);
 			v = EditorGUILayout.FloatField(val, Width(fieldWidth * scale));
 			changed = changed || (checkChanges && (v != val));
 		EndHorizontal();
@@ -245,12 +252,14 @@ public class ZEditorWindow : EditorWindow {
 		return v;
 	}
 	
+	
+	
 	public int IntField(string label, int val) { return IntField(label, val, 1); }
 	public int IntField(string label, int val, float scale) {
 		int v;
 		BeginHorizontal("box");
-			Label(label);
-			v = EditorGUILayout.IntField(val, Width(fieldWidth));
+			FixedLabel(label);
+			v = EditorGUILayout.IntField(val, Width(fieldWidth * scale));
 			changed = changed || (checkChanges && (v != val));
 		EndHorizontal();
 		
@@ -261,7 +270,7 @@ public class ZEditorWindow : EditorWindow {
 	public Color ColorField(string label, Color color, float scale) {
 		Color c;
 		BeginHorizontal("box");
-			Label(label);
+			FixedLabel(label);
 			c = EditorGUILayout.ColorField(color, Width(fieldWidth * scale));
 			changed = changed || (checkChanges && (c != color));
 		EndHorizontal();

@@ -108,14 +108,15 @@ public class Item : IComparable<Item> {
 	public bool locked { get { return properties["locked"] == 1; } set { properties["locked"] = value ? 1 : 0; } }
 	public bool stacks { get { return properties["stacks"] == 1; } set { properties["stacks"] = value ? 1 : 0; } }
 	public bool equip { get { return properties["equip"] == 1; } set { properties["equip"] = value ? 1 : 0; } }
+	public bool equipInRange { get { return properties["equipInRange"] == 1; } set { properties["equipInRange"] = value ? 1 : 0; } }
 	public bool equipInWholeRange { get { return properties["equipInWholeRange"] == 1; } set { properties["equipInWholeRange"] = value ? 1 : 0; } }
 	
 	
 	public int count { get { return (int)properties["count"]; } set { properties["count"] = value; } }
 	public int maxStack { get { return (int)properties["maxStack"]; } set { properties["maxStack"] = value; } }
 	public int equipSlot { get { return (int)properties["equipSlot"]; } set { properties["equipSlot"] = value; } }
+	public int minSlot { get { return (int)properties["equipSlot"]; } set { properties["equipSlot"] = value; } }
 	public int maxSlot { get { return (int)properties["maxSlot"]; } set { properties["maxSlot"] = value; } }
-	public int minSlot { get { return (int)properties["minSlot"]; } set { properties["minSlot"] = value; } }
 	
 	public float value { get { return properties["value"]; } set { properties["value"] = value; } }
 	public float rarity { get { return properties["rarity"]; } set { properties["rarity"] = value; } }

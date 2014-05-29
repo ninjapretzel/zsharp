@@ -63,6 +63,7 @@ public static class GUIF {
 		RectOffset prevMargin = GUI.skin.label.margin;
 		RectOffset prevPadding = GUI.skin.label.padding;
 		RectOffset prevOverflow = GUI.skin.label.overflow;
+		int fontSize = GUI.skin.label.fontSize;
 		
 		GUI.skin.label.alignment = callingFrom.alignment;
 		GUI.skin.label.imagePosition = callingFrom.imagePosition;
@@ -70,6 +71,7 @@ public static class GUIF {
 		GUI.skin.label.margin = callingFrom.margin;
 		GUI.skin.label.padding = callingFrom.padding;
 		GUI.skin.label.overflow = callingFrom.overflow;
+		GUI.skin.label.fontSize = callingFrom.fontSize;
 		
 		Label(area, content, padding);
 
@@ -79,6 +81,7 @@ public static class GUIF {
 		GUI.skin.label.margin = prevMargin;
 		GUI.skin.label.padding = prevPadding;
 		GUI.skin.label.overflow = prevOverflow;
+		GUI.skin.label.fontSize = fontSize;
 		//GUI.skin.label = prevStyle;
 	}
 	

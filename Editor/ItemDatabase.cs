@@ -115,14 +115,14 @@ public class ItemDatabase : ZEditorWindow {
 		//Rect editArea = new Rect(210, 0, position.width - 210, position.height);
 		//Rect editView = new Rect(0, 0, editArea.width-10, position.height * 2);
 		checkChanges = true;
-		GUILayout.BeginHorizontal();
-			GUILayout.Space(210);
+		BeginHorizontal();
+			Space(210);
 			
-			GUILayout.BeginVertical("box");
+			BeginVertical("box");
 			
-				editScroll = GUILayout.BeginScrollView(editScroll);
+				editScroll = BeginScrollView(editScroll);
 				
-					GUILayout.BeginVertical("box");
+					BeginVertical("box");
 					
 						BasicSettingsBox();
 							
@@ -132,19 +132,19 @@ public class ItemDatabase : ZEditorWindow {
 						
 						StatsBox();
 						
-					GUILayout.EndVertical();
+					EndVertical();
 					
-				GUILayout.EndScrollView();
+				EndScrollView();
 				
-				GUILayout.Space(10);
+				Space(10);
 				GUI.color = changed ? Color.red : Color.white;
-				
-				if (GUILayout.Button("Apply And Save")) {
+
+				if (Button("Apply And Save")) {
 					ApplySelection();
 					WriteDatabase();
 				}
 				
-				if (GUILayout.Button("Apply Item")) {
+				if (Button("Apply Item")) {
 					listChanged = changed || listChanged;
 					ApplySelection();
 				}
@@ -152,8 +152,8 @@ public class ItemDatabase : ZEditorWindow {
 				
 				GUI.color = Color.white;
 				
-			GUILayout.EndVertical();
-		GUILayout.EndHorizontal();
+			EndVertical();
+		EndHorizontal();
 		
 	}
 	
@@ -162,22 +162,22 @@ public class ItemDatabase : ZEditorWindow {
 		GUISkin blankSkin = GUIF.blankSkin;
 		Color lastColor = GUI.color;
 		
-		GUILayout.BeginVertical("box"); {
+		BeginVertical("box"); {
 		
-			GUILayout.Label("Basic Settings");
+			Label("Basic Settings");
 			editing.name = TextField("Name", editing.name);
 			editing.baseName = TextField("Base Name", editing.baseName);
 			editing.type = TextField("Type", editing.type);
 			editing.desc = TextArea("Description", editing.desc);
 			
-			GUILayout.BeginHorizontal("box"); {
-				GUILayout.Label("Icon", GUILayout.Width(50));
-				GUILayout.BeginVertical(GUILayout.Width(400)); {
+			BeginHorizontal("box"); {
+				Label("Icon", Width(50));
+				BeginVertical(Width(400)); {
 					string lastIconName = editing.iconName;
 					editing.iconName = TextField("Icon Name", editing.iconName, .3f);
 					if (lastIconName != editing.iconName) { editing.ReloadIcon(); }
 					
-					if (GUILayout.Button("Use Name")) {
+					if (Button("Use Name")) {
 						if (editing.name != editing.iconName) { changed = true; }
 						editing.iconName = editing.name;
 						editing.ReloadIcon();
@@ -185,7 +185,7 @@ public class ItemDatabase : ZEditorWindow {
 					
 					editing.color = ColorField("Color", editing.color);
 					
-				} GUILayout.EndVertical();
+				} EndVertical();
 				
 				Texture2D icon = editing.icon;
 				GUI.color = editing.color;
@@ -196,14 +196,14 @@ public class ItemDatabase : ZEditorWindow {
 					
 					GUILayout.Label(editing.icon, iconStyle);
 				} else {
-					GUILayout.Label("Icon\nNot\nFound", GUILayout.Width(64));
+					Label("Icon\nNot\nFound", Width(64));
 				}
 				
-			} GUILayout.EndHorizontal();
+			} EndHorizontal();
 			
 			GUI.color = lastColor;
 		
-		} GUILayout.EndVertical();
+		} EndVertical();
 		
 	}
 	
@@ -211,57 +211,65 @@ public class ItemDatabase : ZEditorWindow {
 	void PropertiesBox() {
 		Color lastColor = GUI.color;
 		
-		GUILayout.BeginVertical("box");
-			GUILayout.Label("Properties");
+		BeginVertical("box"); {
+			Label("Properties");
 			
-			bool temp;
-			int tempNum;
-			
-			GUILayout.BeginHorizontal("box");
-				GUILayout.BeginHorizontal("box");
-					temp = editing.stacks;
-					editing.stacks = GUILayout.Toggle(editing.stacks, "Stacks");
-					if (editing.stacks != temp) { changed = true; }
+			BeginHorizontal("box"); {
+				BeginHorizontal("box", ExpandWidth(false)); {
+					editing.stacks = ToggleField(editing.stacks, "Stacks");
 					
-				GUILayout.EndHorizontal();
-				tempNum = editing.maxStack;
+				} EndHorizontal();
 				editing.maxStack = IntField("Max Stack", editing.maxStack);
-				if (editing.maxStack != tempNum) { changed = true; }
 				
-			GUILayout.EndHorizontal();
+			} EndHorizontal();
 			
-			GUILayout.BeginHorizontal("box");
-				GUILayout.BeginHorizontal("box");
-					temp = editing.equip;
-					editing.equip = GUILayout.Toggle(editing.equip, "Equippable");
-					if (editing.equip != temp) { changed = true; }
+			BeginHorizontal("box"); {
+				BeginHorizontal("box"); { 
 					
-				GUILayout.EndHorizontal();
-				tempNum = editing.equipSlot;
-				editing.equipSlot = IntField("Equip Slot", editing.equipSlot);
-				if (editing.equipSlot != tempNum) { changed = true; }
+					editing.equip = ToggleField(editing.equip, "Equippable");
+					
+				} EndHorizontal();
 				
-			GUILayout.EndHorizontal();
+				BeginHorizontal("box"); {
+					editing.equipInRange = ToggleField(editing.equipInRange, "Equips To Range");
+				} EndHorizontal();
+				
+				if (editing.equipInRange) {
+					BeginHorizontal("box"); {
+						editing.equipInWholeRange = ToggleField(editing.equipInWholeRange, "Exclusive");
+						FixedLabel("Min Slot: ");
+						editing.minSlot = EditorGUILayout.IntField(editing.minSlot, ExpandWidth(false));
+						FixedLabel("Max Slot: ");
+						editing.maxSlot = EditorGUILayout.IntField(editing.maxSlot, ExpandWidth(false));
+					} EndHorizontal();
+				} else {
+					editing.equipSlot = IntField("Equip Slot", editing.equipSlot, .5f);
+				}
+				
+				
+				
+			} EndHorizontal();
 			
-			//GUILayout.Space(fieldWidth*.3f);
+			//Space(fieldWidth*.3f);
 			
 			
 			
-			GUILayout.BeginHorizontal();
-			editing.value = FloatField("Value", editing.value, .2f);
-			GUI.color = editing.rarityColor;
-			editing.rarity = FloatField("Rarity", editing.rarity, .2f);
-			GUI.color = lastColor;
-			editing.quality = FloatField("Quality", editing.quality, .2f);
-			GUILayout.EndHorizontal();
+			BeginHorizontal(); {
+				editing.value = FloatField("Value", editing.value, .2f);
+				GUI.color = editing.rarityColor;
+				editing.rarity = FloatField("Rarity", editing.rarity, .2f);
+				GUI.color = lastColor;
+				editing.quality = FloatField("Quality", editing.quality, .2f);
+			} EndHorizontal();
 			
 			
-		GUILayout.EndVertical();
+		} EndVertical();
+		
 	}
 	
 	void StatsBox() {
-		GUILayout.BeginVertical("box");
-			GUILayout.Label("Item Stats Options");
+		BeginVertical("box");
+			Label("Item Stats Options");
 			numOptions = IntField("Number", numOptions);
 			
 			OptionsButtons();
@@ -276,7 +284,7 @@ public class ItemDatabase : ZEditorWindow {
 			
 			OptionsButtons();
 			
-		GUILayout.EndVertical();
+		EndVertical();
 	}
 	
 	
@@ -331,24 +339,24 @@ public class ItemDatabase : ZEditorWindow {
 	
 	
 	void OptionsButtons() {
-		GUILayout.BeginHorizontal();
-		GUILayout.Space(20);
-		if (GUILayout.Button("+", GUILayout.Width(20))) { numOptions++; }
-		GUILayout.EndHorizontal();
+		BeginHorizontal();
+		Space(20);
+		if (Button("+", Width(20))) { numOptions++; }
+		EndHorizontal();
 	}
 	
 	void DrawOption(int i) {
 		OptionEntry o = stats[i];
-		GUILayout.BeginHorizontal("box");
+		BeginHorizontal("box");
 			OptionEntry temp = new OptionEntry(o);
 			
-			if (GUILayout.Button("-", GUILayout.Width(20))) { removeAt = i; }
+			if (Button("-", Width(20))) { removeAt = i; }
 			
-			o.name = GUILayout.TextField(o.name);
+			o.name = TextField(o.name);
 			o.value = EditorGUILayout.FloatField(o.value);
 			
 			changed = changed || (!o.Equals(temp));
-		GUILayout.EndHorizontal();
+		EndHorizontal();
 	}
 	
 	public class OptionEntry {

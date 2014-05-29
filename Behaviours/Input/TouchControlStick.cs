@@ -17,6 +17,9 @@ public class TouchControlStick : MonoBehaviour {
 	Vector2 touchDown;
 	bool hasTouch = false;
 	
+	public Texture2D touchDownGraphic;
+	public Texture2D holdGraphic;
+	
 	Touch closestTouch {
 		get {
 			float distance = System.Single.MaxValue;
@@ -67,13 +70,17 @@ public class TouchControlStick : MonoBehaviour {
 			
 				Vector2 pos = t.ScreenPosition();
 				Vector2 diff = pos - touchDown;
-				diff *= sensitivity / (Screen.width * .15f);
+				
+				diff /= (Screen.width * .15f);
+				diff *= sensitivity;
+				
+				//GUI.Label(area, "" + diff + "." + diff.magnitude);
 				
 				Rect brush = new Rect(touchDown.x, touchDown.y, 0, 0).Pad(60, 60);
-				GUI.DrawTexture(brush, GUIF.pixel);
+				GUI.DrawTexture(brush, touchDownGraphic ? touchDownGraphic : GUIF.pixel);
 				
 				brush = new Rect(pos.x, pos.y, 0, 0).Pad(Screen.height * .07f);
-				GUI.DrawTexture(brush, GUIF.pixel);
+				GUI.DrawTexture(brush, holdGraphic ? holdGraphic : GUIF.pixel);
 					
 				
 				if (diff.magnitude > 1) {

@@ -27,7 +27,12 @@ public static class GUIStyleF {
 	public static GUIStyle FontSize(this GUIStyle style, string s) { return style.FontSize(GUIFontSize.Get(s)); }
 	public static GUIStyle FontSize(this GUIStyle style, float p) { 
 		GUIStyle copy = new GUIStyle(style);
-		copy.fontSize = (int) (p/720f * Screen.height);
+		int size = (int) (p/720f * Screen.height);
+		if (size <= 1) {
+			copy.fontSize = 1;
+		} else {
+			copy.fontSize = size;
+		}
 		return copy;
 	}
 	

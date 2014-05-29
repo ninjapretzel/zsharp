@@ -205,15 +205,18 @@ public static class DataF {
 	}
 	
 	
-	//Returns the lines as a string array from a csv formatted TextAsset (.txt)
-	public static string Load(string filename) {
+	public static string LoadTextAsset(string filename) {
 		TextAsset file = Resources.Load(filename, typeof(TextAsset)) as TextAsset;
 		if (file == null) { 
 			Debug.Log("Tried to load " + filename + ".txt/" + filename + ".csv - File does not exist");
 			return "";
 		}
-		return file.text.Replace("\t", "");
+		return file.text;
 	}
+	
+	//Returns the lines as a string array from a csv formatted TextAsset (.txt)
+	//removes all tabs. If you don't want tabs removed, just use the above function.
+	public static string Load(string filename) { return LoadTextAsset(filename).Replace("\t", ""); }
 	
 	//Removes all tabs and splits the file by newlines. 
 	public static string[] LoadLines(string filename) {

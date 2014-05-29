@@ -50,13 +50,84 @@ from multiplying the stats table with each of the 'instructional' tables.
 [System.Serializable]
 public class Table : Dictionary<string, float> {
 	
-	
-	public Table Clone() {
-		Table d = new Table();
-		foreach (string key in Keys) { d[key] = this[key]; }
-		return d;
+	////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////
+	//Constructors and Loading
+	#region
+	public Table() : base() {}
+	public Table(string csv) : base() { LoadCSV(csv); }
+	public Table(string csv, char separator) : base() { LoadCSV(csv, separator); }
+	public Table(TextAsset textAsset) : base() { LoadCSV(textAsset.text); }
+	public Table(TextAsset textAsset, char separator) : base() { LoadCSV(textAsset.text, separator); }
+	public Table(Dictionary<string, float> source) : base() { 
+		foreach (string s in source.Keys) { 
+			this[s] = source[s];
+		}
 	}
 	
+	public static Table LoadTextAsset(string name) { return LoadTextAsset(name, ','); }
+	public static Table LoadTextAsset(string name, char delim) {
+		TextAsset asset = Resources.Load(name, typeof(TextAsset)) as TextAsset;
+		if (asset == null) { return null; }
+		return new Table(asset, delim);
+	}
+	
+	public Table Clone() { return new Table(this); }
+	public static Table CreateFromLine(string line) { return CreateFromLine(line, ','); }
+	public static Table CreateFromLine(string line, char separator) { 
+		Table tb = new Table();
+		tb.LoadLine(line, separator);
+		return tb;
+	}
+	
+	public void LoadLine(string line) { LoadLine(line, ','); }
+	public void LoadLine(string line, char separator) {
+		Clear();
+		string[] content = line.Split(separator);
+		if (line.Length == 0) { 
+			//Debug.LogWarning("Table.LoadLine passed blank string, Table cleared.");
+			return;
+		}
+		
+		for (int i = 0; i < content.Length; i += 2) {
+			this[content[i]] = float.Parse(content[i+1]);
+		}
+		
+	}
+	
+	public static Table CreateFromCSV(string csv) { return CreateFromCSV(csv, ','); }
+	public static Table CreateFromCSV(string csv, char separator) {
+		Table tb = new Table();
+		tb.LoadCSV(csv, separator);
+		return tb;
+	}
+	
+	
+	
+	public void LoadCSV(string csv) { LoadCSV(csv, ','); }
+	public void LoadCSV(string csv, char separator) {
+		Clear();
+		string[] lines = csv.Split('\n');
+		
+		for (int i = 0; i < lines.Length; i++) {
+			if (lines[i].Length < 3) { continue; }
+			if (lines[i][0] == '#') { continue; }
+			string[] content = lines[i].Split(separator);
+			for (int j = 0; j < content.Length; j += 2) {
+				this[content[j]] = float.Parse(content[j+1]);
+			}
+		}
+		
+	}
+	#endregion
+	
+	
+	////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////
+	//Accessor
+	#region
 	public new float this[string key] {
 		get {
 			Dictionary<string, float> goy = this;
@@ -70,7 +141,13 @@ public class Table : Dictionary<string, float> {
 			else { goy.Add(key, value); }
 		}
 	}
+	#endregion
 	
+	////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////
+	//Operators and Operator-like functions
+	#region
 	public static Table operator +(float a, Table b) { return b + a; }
 	public static Table operator +(Table a, float b) {
 		Table c = new Table();
@@ -130,6 +207,54 @@ public class Table : Dictionary<string, float> {
 		return c;
 	}
 	
+	
+	public new void Add(string s, float f) { this[s] = f; }
+	public void Add(float f, string s) { this[s] = f; }
+	public void Add(string s) { this[s] = 0; }
+	
+	public void Add(float f) { foreach (string s in Keys) { this[s] += f; } }
+	public void Add(Table t) { foreach (string s in t.Keys) { this[s] += t[s]; } }
+	
+	public void Subtract(float f) { foreach (string s in Keys) { this[s] -= f; } }
+	public void Subtract(Table t) { foreach (string s in t.Keys) { this[s] -= t[s]; } }
+	
+	public void AddRandomly(float f) { foreach (string s in Keys) { this[s] += f * RandomF.value; } }
+	public void AddRandomly(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * RandomF.value; } }
+	
+	public void AddRandomNormal(float f) { foreach (string s in Keys) { this[s] += f * RandomF.normal; } }
+	public void AddRandomNormal(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * RandomF.normal; } }
+
+	public void Multiply(float f) { foreach (string s in Keys) { this[s] *= f; } }
+	public void Multiply(Table t) { 
+		foreach (string s in Keys) {
+			if (t.ContainsKey(s)) { this[s] *= t[s]; }
+		}
+	}
+	
+	public void Divide(float f) { foreach (string s in Keys) { this[s] /= f; } }
+	public void Divide(Table t) { 
+		foreach (string s in Keys) {
+			if (t.ContainsKey(s) && t[s] != 0) { this[s] /= t[s]; }
+		}
+	}
+	
+	public Table Mask(string mask) { return Mask(mask, ','); }
+	public Table Mask(string mask, char delim) { return Mask(mask.Split(delim)); }
+	public Table Mask(string[] fields) {
+		Table t = new Table();
+		foreach (string field in fields) {
+			if (this[field] != 0) { t[field] = this[field]; }
+		}
+		return t;
+	}
+	
+	#endregion
+	
+	////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////
+	//Support for containing certain data types
+	#region
 	public Set<string> FieldKeys {
 		get {
 			Set<string> ukeys = new Set<string>();
@@ -146,17 +271,6 @@ public class Table : Dictionary<string, float> {
 			
 			return ukeys;
 		}
-	}
-	
-	
-	public Table Mask(string mask) { return Mask(mask, ','); }
-	public Table Mask(string mask, char delim) { return Mask(mask.Split(delim)); }
-	public Table Mask(string[] fields) {
-		Table t = new Table();
-		foreach (string field in fields) {
-			if (this[field] != 0) { t.Add(this[field]); }
-		}
-		return t;
 	}
 	
 	//Quick check functions
@@ -190,37 +304,14 @@ public class Table : Dictionary<string, float> {
 		this[s+".x"] = v.x;
 		this[s+".y"] = v.y;
 	}
+	#endregion
 	
-	public new void Add(string s, float f) { this[s] = f; }
-	public void Add(float f, string s) { this[s] = f; }
-	public void Add(string s) { this[s] = 0; }
 	
-	public void Add(float f) { foreach (string s in Keys) { this[s] += f; } }
-	public void Add(Table t) { foreach (string s in t.Keys) { this[s] += t[s]; } }
 	
-	public void Subtract(float f) { foreach (string s in Keys) { this[s] -= f; } }
-	public void Subtract(Table t) { foreach (string s in t.Keys) { this[s] -= t[s]; } }
-	
-	public void AddRandomly(float f) { foreach (string s in Keys) { this[s] += f * RandomF.value; } }
-	public void AddRandomly(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * RandomF.value; } }
-	
-	public void AddRandomNormal(float f) { foreach (string s in Keys) { this[s] += f * RandomF.normal; } }
-	public void AddRandomNormal(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * RandomF.normal; } }
-
-	public void Multiply(float f) { foreach (string s in Keys) { this[s] *= f; } }
-	public void Multiply(Table t) { 
-		foreach (string s in Keys) {
-			if (t.ContainsKey(s)) { this[s] *= t[s]; }
-		}
-	}
-	
-	public void Divide(float f) { foreach (string s in Keys) { this[s] /= f; } }
-	public void Divide(Table t) { 
-		foreach (string s in Keys) {
-			if (t.ContainsKey(s) && t[s] != 0) { this[s] /= t[s]; }
-		}
-	}
-	
+	////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////
+	//Misc functions
 	public override string ToString() { return ToString(','); }
 	public string ToString(char delim) {
 		StringBuilder str = new StringBuilder("#Formatted Table as .csv:");
@@ -247,53 +338,15 @@ public class Table : Dictionary<string, float> {
 	}
 	
 	
-	public static Table CreateFromLine(string line) { return CreateFromLine(line, ','); }
-	public static Table CreateFromLine(string line, char separator) { 
-		Table tb = new Table();
-		tb.LoadLine(line, separator);
-		return tb;
+	public float Sum() {
+		float f = 0;
+		foreach (string key in Keys) { f += this[key]; }
+		return f;
 	}
 	
-	public void LoadLine(string line) { LoadLine(line, ','); }
-	public void LoadLine(string line, char separator) {
-		Clear();
-		string[] content = line.Split(separator);
-		if (line.Length == 0) { 
-			Debug.LogWarning("Table.LoadLine passed blank string, Table cleared.");
-			return;
-		}
-		
-		for (int i = 0; i < content.Length; i += 2) {
-			this[content[i]] = float.Parse(content[i+1]);
-		}
-		
-	}
-	
-	public static Table CreateFromCSV(string csv) { return CreateFromCSV(csv, ','); }
-	public static Table CreateFromCSV(string csv, char separator) {
-		Table tb = new Table();
-		tb.LoadCSV(csv, separator);
-		return tb;
-	}
 	
 	public void Set(Table t) {
 		foreach (string s in t.Keys) { this[s] = t[s]; }
-	}
-	
-	public void LoadCSV(string csv) { LoadCSV(csv, ','); }
-	public void LoadCSV(string csv, char separator) {
-		Clear();
-		string[] lines = csv.Split('\n');
-		
-		for (int i = 0; i < lines.Length; i++) {
-			if (lines[i].Length < 3) { continue; }
-			if (lines[i][0] == '#') { continue; }
-			string[] content = lines[i].Split(separator);
-			for (int j = 0; j < content.Length; j += 2) {
-				this[content[j]] = float.Parse(content[j+1]);
-			}
-		}
-		
 	}
 	
 	public void Save(string name) {

@@ -8,9 +8,11 @@ using System.Collections.Generic;
 public static class UnityF {
 	
 	
-	public static GUIMessage MakeGUIMessage(this Component c, string message) { return c.MakeGUIMessage(Vector2.zero, message); } 
-	public static GUIMessage MakeGUIMessage(this Component c, Vector3 offset, string message) {
-		GUIMessage m = GUIMessage.Create(c.transform.GetViewPosition() + offset, message);
+	public static GUIMessage MakeGUIMessage(this Component c, string message) { return c.MakeGUIMessage(Vector2.zero, message, "defaultSettings"); } 
+	public static GUIMessage MakeGUIMessage(this Component c, string message, string style) { return c.MakeGUIMessage(Vector2.zero, message, style); } 
+	public static GUIMessage MakeGUIMessage(this Component c, Vector3 offset, string message) { return c.MakeGUIMessage(Vector2.zero, message, "defaultSettings"); }
+	public static GUIMessage MakeGUIMessage(this Component c, Vector3 offset, string message, string style) {
+		GUIMessage m = GUIMessage.Create(c.transform.GetViewPosition() + offset, message, style);
 		return m;
 	}
 	
@@ -102,6 +104,15 @@ public static class UnityF {
 		foreach (Renderer r in c.GetComponentsInChildren<Renderer>() as Renderer[]) { r.Require<RendererFader>().FadeOut(time, position); }
 	}
 	
+	
+	public static void SetRendererAlpha(this Component c, float alpha) {
+		foreach (Renderer r in c.GetComponentsInChildren<Renderer>() as Renderer[]) {
+			Color col = r.material.color;
+			col.a = alpha;
+			r.material.color = col;
+		}
+		
+	}
 	
 	public static T GetComponentOnOrAbove<T>(this Component c) where T : Component {
 		Transform test = c.transform;
