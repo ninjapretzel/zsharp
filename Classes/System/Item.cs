@@ -76,6 +76,9 @@ public class Item : IComparable<Item> {
 	public StringMap strings;
 	
 	public static Inventory database;
+	public static List<string> DEFAULT_STRINGS { get { return _DEFAULT_STRINGS; } }
+	static List<string> _DEFAULT_STRINGS;
+	
 	
 	static Item() {
 		database = new Inventory();
@@ -85,6 +88,8 @@ public class Item : IComparable<Item> {
 			
 		}
 		
+		string[] defaultStrings = { "name", "desc", "type", "baseName", "iconName" };
+		_DEFAULT_STRINGS = defaultStrings.ToList();
 		
 	}
 	

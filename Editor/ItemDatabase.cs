@@ -13,31 +13,39 @@ public class ItemDatabase : ZEditorWindow {
 	public static string path { get { return Application.dataPath + "/Data/Resources/"; } } 
 	public static string target { get { return path + "Items.csv"; } }
 	
-	List<Item> items;
+	private List<Item> items;
 	
-	List<OptionEntry> stats;
-	int numOptions;
-	int removeAt;
+	private List<OptionEntry> stats;
+	private StringMap strings;
+	private int numOptions;
+	private int numStringOptions;
+	private int removeAt;
 	
-	Vector4 selectScroll;
-	Vector2 editScroll;
+	private Vector4 selectScroll;
+	private Vector2 editScroll;
 	
-	int selection;
-	Item editing;
+	private int selection;
+	private Item editing;
 	
-	bool listChanged = false;
+	private bool listChanged = false;
 	public new float fieldWidth { get { return .6f * position.width; } }
 	
 	[MenuItem ("Window/Item Database")]
 	static void ShowWindow() {
-		ItemDatabase main = (ItemDatabase)EditorWindow.GetWindow(typeof(ItemDatabase));
+		EditorWindow.GetWindow(typeof(ItemDatabase));
 		
-		main.Init();
+		
+		
+	}
+	
+	//
+	public ItemDatabase() : base() {
+		Init();
 		//main.items.Add(new Item());
-		main.LoadDatabase();
+		LoadDatabase();
 		
-		if ( main.items.Count == 0) { main.items.Add(new Item()); }
-		main.LoadSelection();
+		if (items.Count == 0) { items.Add(new Item()); }
+		LoadSelection();
 		
 	}
 	
@@ -48,6 +56,8 @@ public class ItemDatabase : ZEditorWindow {
 		removeAt = -1;
 		editing = new Item();
 		listChanged = false;
+		changed = false;
+		selection = 0;
 		
 		items.Add(editing);
 	}
@@ -268,7 +278,7 @@ public class ItemDatabase : ZEditorWindow {
 	}
 	
 	void StatsBox() {
-		BeginVertical("box");
+		BeginVertical("box"); {
 			Label("Item Stats Options");
 			numOptions = IntField("Number", numOptions);
 			
@@ -284,7 +294,19 @@ public class ItemDatabase : ZEditorWindow {
 			
 			OptionsButtons();
 			
-		EndVertical();
+		} EndVertical();
+		
+		
+		
+		BeginVertical("box"); {
+			Label("Item String Options");
+			
+			strings = StringMapField(strings, Item.DEFAULT_STRINGS);
+			
+			
+		} EndVertical();
+		
+		
 	}
 	
 	
@@ -323,9 +345,10 @@ public class ItemDatabase : ZEditorWindow {
 	
 	void ApplySelection() {
 		editing.stats = stats.ToTable();
+		editing.strings = strings.Clone();
 		
-		//Debug.Log(editing.stats);
 		items[selection] = editing;
+		
 		editing = items[selection].Clone();
 		changed = false;
 	}
@@ -333,7 +356,11 @@ public class ItemDatabase : ZEditorWindow {
 	void LoadSelection() {
 		editing = items[selection].Clone();
 		stats = editing.stats.ToListOfOptions();
+		strings = editing.strings.Clone();
+		
 		numOptions = stats.Count;
+		numStringOptions = strings.Count;
+		
 		changed = false;
 	}
 	
@@ -341,7 +368,10 @@ public class ItemDatabase : ZEditorWindow {
 	void OptionsButtons() {
 		BeginHorizontal();
 		Space(20);
-		if (Button("+", Width(20))) { numOptions++; }
+		if (Button("+", Width(20))) { 
+			numOptions++; 
+			changed = changed || checkChanges;
+		}
 		EndHorizontal();
 	}
 	

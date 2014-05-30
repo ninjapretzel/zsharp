@@ -217,6 +217,52 @@ public class ZEditorWindow : EditorWindow {
 		return l;
 	}
 	
+	
+	
+	public StringMap StringMapField(StringMap original) { return StringMapField(original, null); }
+	public StringMap StringMapField(StringMap original, List<string> toIgnore) {
+		
+		StringMap newMap = new StringMap();
+		BeginVertical("box"); {
+		
+			if (FixedButton("+")) {
+				newMap["blank"+(original.Count-5)] = "";
+				changed = changed || checkChanges;
+			}
+			
+			foreach (string key in original.Keys) {
+				if (toIgnore != null && toIgnore.Contains(key)) {
+					newMap[key] = original[key];
+				} else {
+					BeginHorizontal(); {
+						if (!FixedButton("-")) {
+							string fieldName = key;
+							string fieldValue = original[key];
+							
+							fieldName = TextField(fieldName, .3f);
+							FixedLabel("-");
+							fieldValue = TextField(fieldValue, .3f);
+							
+							newMap[fieldName] = fieldValue;
+							
+						} else {
+							changed = changed || checkChanges;
+						}
+						
+					} EndHorizontal();
+				}
+			}
+			
+			if (FixedButton("+")) {
+				newMap["blank"+(original.Count-5)] = "";
+				changed = changed || checkChanges;
+			}
+			
+		} EndVertical();
+		
+		return newMap;
+	}
+	
 	public bool ToggleField(string label, bool val) { return ToggleField(val, label); }
 	public bool ToggleField(bool val, string label) {
 		bool b = Toggle(val, label, ExpandWidth(false));
