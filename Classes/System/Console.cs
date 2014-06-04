@@ -65,6 +65,16 @@ public class Console : MonoBehaviour {
 				if(Input.GetKeyDown(bind)) {
 					Execute(binds[bind]);
 				}
+				if(binds[bind][0] == '+') {
+					if(Input.GetKeyUp(bind)) {
+						int semicolonindex = binds[bind].IndexOf(';');
+						if(semicolonindex > 0) {
+							Execute('-' + binds[bind].Substring(1, semicolonindex - 1));
+						} else {
+							Execute('-' + binds[bind].Substring(1));
+						}
+					}
+				}
 			}
 		}
 
