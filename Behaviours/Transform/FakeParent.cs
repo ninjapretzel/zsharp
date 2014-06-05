@@ -21,10 +21,14 @@ public class FakeParent : MonoBehaviour {
 	}
 	
 	void Move() {
-		transform.position = target.position + offset;
-		if (takeRotation) { 
-			transform.rotation = target.rotation;
+		if (target != null) {
+			transform.position = target.position + offset;
+			if (takeRotation) { 
+				transform.rotation = target.rotation;
+			}
+			transform.Rotate(offsetRotation);
 		}
-		transform.Rotate(offsetRotation);
+		
 	}
+	
 }

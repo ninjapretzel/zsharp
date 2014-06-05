@@ -78,6 +78,7 @@ public class SimplexNoise {
 	
 	public Texture2D GetSplatMap(Vector2 start, Vector2 end, int size) {
 		Texture2D splatmap = new Texture2D(size+1, size+1, TextureFormat.ARGB32, true);
+		
 		splatmap.SetPixels(GetSplats(start, end, size));
 		splatmap.wrapMode = TextureWrapMode.Clamp;
 		splatmap.filterMode = FilterMode.Bilinear;
@@ -87,33 +88,36 @@ public class SimplexNoise {
 		return splatmap;
 	}
 	
+	
+	
 	public Color[] GetSplats(Vector2 start, Vector2 end, int size) {
 		Color[] splats = new Color[(size + 1) * (size + 1)];
 		
 		float sz = (float)size;
 		Vector2 dist = (end - start) / sz;
 		int i = 0;
+		
 		for (int yy = 0; yy <= size; yy++) {
 			for (int xx = 0; xx <= size; xx++) {
 				
-				
+				//Make the grids for each color a different size, to make them seem more 'random'
 				Vector2 pr = start + new Vector2(dist.x * xx, dist.y * yy);
 				if (pr.magnitude < .01f) { pr = new Vector2(.1f, .1f); }
-				
 				Vector2 pg = pr * 2f;
 				Vector2 pb = pr * 3f;
 				Vector2 pa = pr * 4f;
 				
+				
+				//Grab a number representing each color for this location
 				float r = OctaveNoise2D(pr);
 				float g = OctaveNoise2D(pg);
 				float b = OctaveNoise2D(pb);
 				float a = OctaveNoise2D(pa);
 				
-				r *= r * r;
-				g *= g * g;
-				b *= b * b;
-				a *= a * a;
+				//Square all color amounts to make sure they are positive, and make the transitions smoother.
+				r = r * r; g = g * g; b = b * b; a = a * a;
 				
+				//Normalize all values
 				float t = r + g + b + a;
 				r /= t;
 				g /= t;

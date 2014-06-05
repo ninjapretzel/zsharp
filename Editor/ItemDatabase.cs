@@ -175,10 +175,10 @@ public class ItemDatabase : ZEditorWindow {
 		BeginVertical("box"); {
 		
 			Label("Basic Settings");
-			editing.name = TextField("Name", editing.name);
-			editing.baseName = TextField("Base Name", editing.baseName);
-			editing.type = TextField("Type", editing.type);
-			editing.desc = TextArea("Description", editing.desc);
+			strings["name"] = TextField("Name", strings["name"]);
+			strings["baseName"] = TextField("Base Name", strings["baseName"]);
+			strings["type"] = TextField("Type", strings["type"]);
+			strings["desc"] = TextArea("Description", strings["desc"]);
 			
 			BeginHorizontal("box"); {
 				Label("Icon", Width(50));

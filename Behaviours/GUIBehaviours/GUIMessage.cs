@@ -7,6 +7,8 @@ public class GUIMessageSettings : ConvertsToTable {
 	public Vector2 speed = new Vector2(0, -.2f);
 	public Vector2 rndSpeed = new Vector2(0, 0);
 	public Vector2 acceleration = new Vector2(0, .2f);
+
+	public bool outlined = false;
 	
 	public float time = 2.0f;
 	public float fadeTime = 1.0f;
@@ -18,20 +20,7 @@ public class GUIMessageSettings : ConvertsToTable {
 	
 	public GUIMessageSettings Clone() {
 		GUIMessageSettings sets = new GUIMessageSettings();
-		sets.speed = speed;
-		sets.rndSpeed = rndSpeed;
-		sets.acceleration = acceleration;
-		
-		sets.time = time;
-		sets.fadeTime = fadeTime;
-		
-		sets.fontSize = fontSize;
-		sets.dFontSize = dFontSize;
-		sets.ddFontSize = ddFontSize;
-		
-		
-		sets.color = color;
-		
+		sets.asTable = asTable;
 		return sets;
 	}
 	
@@ -50,6 +39,7 @@ public class GUIMessage : MonoBehaviour {
 	public Vector2 baseSpeed { get { return sets.speed; } set { sets.speed = value; } }
 	public Vector2 rndSpeed { get { return sets.rndSpeed; } set { sets.rndSpeed = value; } }
 	public Vector2 acceleration { get { return sets.acceleration; } set { sets.acceleration = value; } }
+	public bool outlined { get { return sets.outlined; } set { sets.outlined = value; } }
 	public float fadeTime { get { return sets.fadeTime; } set { sets.fadeTime = value; } }
 	public float ddFontSize { get { return sets.ddFontSize; } set { sets.ddFontSize = value; } }
 	public Color color { get { return sets.color; } set { sets.color = value; } }
@@ -64,7 +54,6 @@ public class GUIMessage : MonoBehaviour {
 	public Vector2 position = new Vector2(.5f, .5f);
 	public Vector2 speed = new Vector2(0, -.2f);
 	
-	public bool outlined = false;
 	
 	public int num = 0;
 	public int depth = 800000;
@@ -84,22 +73,33 @@ public class GUIMessage : MonoBehaviour {
 	
 	
 	static GUIMessage() {
-		skin = Resources.Load("MSG", typeof(GUISkin)) as GUISkin;
+		skin = Resources.Load<GUISkin>("MSG");
 		
 		if (skin == null) { 
 			Debug.Log("Message skin override not found.");
-			skin = Resources.Load("message", typeof(GUISkin)) as GUISkin; 
+			skin = Resources.Load<GUISkin>("message");
 		}
 		
 		settingsMap = new Dictionary<string, GUIMessageSettings>();
+		LoadTextAsset("DefaultGUIMessageSettings");
+		LoadTextAsset("GUIMessageSettings");
 		
-		TextAsset file = Resources.Load("GUIMessageSettings", typeof(TextAsset)) as TextAsset;
+		
+	}
+	
+	static void LoadTextAsset(string filename) {
+		TextAsset file = Resources.Load<TextAsset>(filename);
+		
+		if (file == null) { return; }
 		string[] lines = file.text.ConvertNewlines().Split('\n');
 		for (int i = 0; i < lines.Length; i++) {
+			if (lines[i].Length < 3) { continue; }
+			if (lines[i].Trim()[0] == '#') { continue; }
 			int index = lines[i].IndexOf(',');
 			string name = lines[i].Substring(0, index);
 			string rest = lines[i].Substring(index+1);
 			
+			//Debug.Log(name);
 			Table t = new Table(rest);
 			
 			GUIMessageSettings sets = new GUIMessageSettings();
@@ -108,8 +108,6 @@ public class GUIMessage : MonoBehaviour {
 			settingsMap.Add(name, sets);
 			
 		}
-		
-		
 		
 	}
 	
@@ -143,8 +141,10 @@ public class GUIMessage : MonoBehaviour {
 		//if (fontSize < 5) { fontSize = 5; }
 		dFontSize += ddFontSize * Time.deltaTime;
 		
+		
 		time -= Time.deltaTime;
 		if (time <= 0) { Destroy(gameObject); }
+		if (fontSize < 0) { Destroy(gameObject); }
 	}
 	
 	void OnGUI() {
@@ -206,6 +206,8 @@ public class GUIMessage : MonoBehaviour {
 		
 		if (settingsMap.ContainsKey(style)) {
 			mess.sets = settingsMap[style].Clone();
+		} else {
+			Debug.Log("GUIMessageStyle <" + style + "> not found.");
 		}
 		
 		mess.position = pos;

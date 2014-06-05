@@ -19,6 +19,7 @@ public static class FloatF {
 	public static float Lerp(this float f, float target, float v) { return Mathf.Lerp(f, target, v); }
 	
 	//Get the position of a value relative to two other values
+	public static float Normalize(this float f, float a, float b) { return f.Position(a, b); }
 	public static float Position(this float f, float a, float b) {
 		float min = Min(a, b);
 		float max = Max(a, b);
@@ -93,5 +94,12 @@ public static class FloatF {
 		return  a * (1-f) + b * f;
 	}
 	
+	public static bool IsInside(this float f, float a, float b) {
+		return (f >= Mathf.Min(a, b) && f <= Mathf.Max(a, b));
+	}
+	
+	public static bool IsBetween(this float f, float a, float b) {
+		return (f > Mathf.Min(a, b) && f < Mathf.Max(a, b));
+	}
 }
 	

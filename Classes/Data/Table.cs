@@ -126,6 +126,7 @@ public class Table : Dictionary<string, float> {
 			if (lines[i][0] == '#') { continue; }
 			string[] content = lines[i].Split(separator);
 			for (int j = 0; j < content.Length; j += 2) {
+				
 				this[content[j]] = float.Parse(content[j+1]);
 			}
 		}
