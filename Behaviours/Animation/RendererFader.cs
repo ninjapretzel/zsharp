@@ -13,6 +13,7 @@ public class RendererFader : MonoBehaviour {
 	float alpha;
 	
 	public float time = 1;
+
 	
 	public float percentage {
 		get { return time / fadeTime; }  
@@ -21,7 +22,13 @@ public class RendererFader : MonoBehaviour {
 	void Awake() {
 		if (wantsToBeVisible) { time = fadeTime; }
 		else { time = 0; }
+		if (renderer.material.shader.name == "Vertex Lit") {
+			baseShader = "Vertex Lit";
+			transparentShader = "Transparent/Vertex Lit";
+		}
+		
 		if (renderer.material.shader.name == "GUI/Text Shader") {
+			
 			baseShader = "GUI/Text Shader";
 			transparentShader = "GUI/Text Shader";
 		}
@@ -45,20 +52,39 @@ public class RendererFader : MonoBehaviour {
 		else if (time > 0 && !renderer.enabled) { renderer.enabled = true; }
 		
 		if (time == fadeTime && renderer.material.shader.name != baseShader) {
-			if (alpha * percentage >= 1) { renderer.material.shader = Shader.Find(baseShader); }
+			if (alpha * percentage >= 1) { SetBaseShader(); }
+			
+		} else if (time < fadeTime && renderer.material.shader.name != transparentShader) {
+			SetTransparentShader();
 			
 		}
 		
-		else if (time < fadeTime && renderer.material.shader.name != transparentShader) {
-			renderer.material.shader = Shader.Find(transparentShader);
-			
+		if (renderer.materials.Length > 1) {
+			for (int i = 0; i < renderer.materials.Length; i++) {
+				Color c = renderer.materials[i].color;
+				c.a = percentage * alpha;
+				renderer.materials[i].color = c;
+			}
+		} else {
+			Color c = renderer.material.color;
+			c.a = percentage * alpha;
+			renderer.material.color = c;
 		}
 		
-		Color c = renderer.material.color;
-		c.a = percentage * alpha;
-		renderer.material.color = c;
-		
-		
+	}
+	
+	
+	void SetBaseShader() { SetShader(baseShader); }
+	void SetTransparentShader() { SetShader(transparentShader); }
+	
+	void SetShader(string shader) {
+		if (renderer.materials.Length > 1) {
+			foreach (Material m in renderer.materials) {
+				m.shader = Shader.Find(shader);
+			}
+		} else {
+			renderer.material.shader = Shader.Find(shader);
+		}
 	}
 	
 	public void SetTime(float timeToFade) {

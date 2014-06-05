@@ -18,7 +18,6 @@ public class ItemDatabase : ZEditorWindow {
 	private List<OptionEntry> stats;
 	private StringMap strings;
 	private int numOptions;
-	private int numStringOptions;
 	private int removeAt;
 	
 	private Vector4 selectScroll;
@@ -29,6 +28,8 @@ public class ItemDatabase : ZEditorWindow {
 	
 	private bool listChanged = false;
 	public new float fieldWidth { get { return .6f * position.width; } }
+	
+	//private int numStringOptions;
 	
 	[MenuItem ("Window/Item Database")]
 	static void ShowWindow() {
@@ -359,7 +360,7 @@ public class ItemDatabase : ZEditorWindow {
 		strings = editing.strings.Clone();
 		
 		numOptions = stats.Count;
-		numStringOptions = strings.Count;
+		//numStringOptions = strings.Count;
 		
 		changed = false;
 	}
