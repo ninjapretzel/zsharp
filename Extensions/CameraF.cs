@@ -36,6 +36,10 @@ public static class CameraF {
 		return pos.x >= 0 && pos.x <= 1 && pos.y >= 0 && pos.y <= 1;
 	}
 	
+	public static Rect GetScreenSquare(this Component c, float h) { 
+		return c.GetScreenRect(h, h).MiddleCenterSquare(1);
+	}
+	
 	public static Rect GetScreenRect(this Component c, float s) { return c.GetScreenRect(s, s); }
 	public static Rect GetScreenRect(this Component c, float w, float h) {
 		Vector3 pos = c.GetScreenPosition();
