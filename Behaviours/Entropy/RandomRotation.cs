@@ -31,6 +31,9 @@ public class RandomRotation : MonoBehaviour {
 	}
 	
 	void SetRotation() {
+		Transform oldParent = transform.parent;
+		transform.parent = null;
+		
 		Vector3 rotation = transform.rotation.eulerAngles;
 		if (usePerlin) {
 			Vector3 pos = Vector3.Scale(transform.position, fieldScale);
@@ -51,6 +54,7 @@ public class RandomRotation : MonoBehaviour {
 		}
 		
 		transform.rotation = Quaternion.Euler(rotation);
+		transform.parent = oldParent;
 		Destroy(this);
 	}
 	

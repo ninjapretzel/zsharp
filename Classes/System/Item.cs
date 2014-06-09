@@ -10,7 +10,36 @@ public class Inventory : List<Item> {
 	public Inventory() : base() { }
 	public Inventory(string s) : base() { LoadString(s); }
 	
-	
+	public void Add(string name) { Add(name, 1); }
+	public void Add(string name, int qty) {
+		if (this == Item.database) { return; }
+		Item item = Item.database.Get(name).Clone();
+		
+		if (item.stacks) {
+			Item check = Get(item.name);
+			//Debug.Log(check);
+			if (check != null) {
+				if (check.stacks) {
+					check.count += qty;
+				} else {
+					Debug.LogWarning("Something went wrong, there are two items with the same name that are different. One stacks, the other doesnt.");
+				}
+			} else {
+				item.count = qty;
+				Add(item);
+				//Debug.Log(this.Count);
+				
+			}
+			
+		} else {
+			for (int i = 0; i < qty; i++) {
+				Add(item);
+			
+			}
+		
+		}
+		
+	}
 	
 	public Item Get(string name) { return GetNamed(name); }
 	public Item GetNamed(string name) {
@@ -36,6 +65,7 @@ public class Inventory : List<Item> {
 	}
 	
 	public void Load(string key) {
+		Clear();
 		LoadString(PlayerPrefs.GetString(key));
 		
 	}
@@ -117,7 +147,23 @@ public class Item : IComparable<Item> {
 	public bool equipInWholeRange { get { return properties["equipInWholeRange"] == 1; } set { properties["equipInWholeRange"] = value ? 1 : 0; } }
 	
 	
-	public int count { get { return (int)properties["count"]; } set { properties["count"] = value; } }
+	public int count { 
+		get { 
+			if (!stacks) { properties["count"] = 1; }
+			return (int)properties["count"]; 
+		}
+		
+		set { 
+			if (stacks) {
+				properties["count"] = value;
+				if (maxStack > 0 && count > maxStack) {
+					properties["count"] = maxStack;
+				}
+			}
+			
+		} 
+		
+	}
 	public int maxStack { get { return (int)properties["maxStack"]; } set { properties["maxStack"] = value; } }
 	public int equipSlot { get { return (int)properties["equipSlot"]; } set { properties["equipSlot"] = value; } }
 	public int minSlot { get { return (int)properties["equipSlot"]; } set { properties["equipSlot"] = value; } }

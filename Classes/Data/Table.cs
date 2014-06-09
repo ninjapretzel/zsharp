@@ -204,17 +204,17 @@ public class Table : Dictionary<string, float> {
 	}
 	
 	public static Table operator *(Table a, Table b) {
-		Table c = a.Clone();
+		Table c = new Table();
 		foreach (string key in b.Keys) { 
-			if (a.ContainsKey(key)) { c[key] *= b[key]; }
+			if (a.ContainsKey(key)) { c[key] = a[key] * b[key]; }
 		}
 		return c;
 	}
 	
 	public static Table operator /(Table a, Table b) {
-		Table c = a.Clone();
+		Table c = new Table();
 		foreach (string key in b.Keys) { 
-			if (a.ContainsKey(key)) { c[key] /= b[key]; }
+			if (a.ContainsKey(key)) { c[key] = a[key] / b[key]; }
 		}
 		return c;
 	}
