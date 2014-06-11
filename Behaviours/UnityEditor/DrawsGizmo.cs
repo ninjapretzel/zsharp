@@ -7,6 +7,12 @@ public class DrawsGizmo : MonoBehaviour {
 	public bool wireframe = false;
 	public Color color = Color.red;
 	
+	public bool disableInGame = false;
+	
+	void Start() {
+		if (disableInGame) { Destroy(this); }
+	}
+	
 	void OnDrawGizmos() {
 		Color c = color;
 		c.a *= .5f;

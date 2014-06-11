@@ -176,6 +176,8 @@ public class Item : IComparable<Item> {
 	public float mpCost { get { return properties["mpCost"]; } set { properties["mpCost"] = value; } }
 	public float power { get { return properties["power"]; } set { properties["power"] = value; } }
 	public float size { get { return properties["size"]; } set { properties["size"] = value; } }
+	
+	public float blendAmount { get { return properties["blendAmount"]; } set { properties["blendAmount"] = value.Clamp01(); } }
 	//public float xxxx { get { return properties["xxxx"]; } set { properties["xxxx"] = value; } }
 	
 	public Color rarityColor { get { return RarityColor(rarity); } }

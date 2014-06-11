@@ -18,7 +18,10 @@ public class ItemDatabase : ZEditorWindow {
 	private List<OptionEntry> stats;
 	private StringMap strings;
 	private int numOptions;
-	private int removeAt;
+	
+	private int removeAt = -1;
+	private int moveUp = -1;
+	private int moveDown = -1;
 	
 	private Vector4 selectScroll;
 	private Vector2 editScroll;
@@ -55,6 +58,9 @@ public class ItemDatabase : ZEditorWindow {
 		stats = new List<OptionEntry>();
 		numOptions = 0;
 		removeAt = -1;
+		moveUp = -1;
+		moveDown = -1;
+		
 		editing = new Item();
 		listChanged = false;
 		changed = false;
@@ -184,18 +190,19 @@ public class ItemDatabase : ZEditorWindow {
 			BeginHorizontal("box"); {
 				Label("Icon", Width(50));
 				BeginVertical(Width(400)); {
-					string lastIconName = editing.iconName;
-					editing.iconName = TextField("Icon Name", editing.iconName, .3f);
-					if (lastIconName != editing.iconName) { editing.ReloadIcon(); }
+					string lastIconName = strings["iconName"];
+					strings["iconName"] = TextField("Icon Name", strings["iconName"], .3f);
+					//if (lastIconName != strings["iconName"]) { editing.ReloadIcon(); }
 					
 					if (Button("Use Name")) {
-						if (editing.name != editing.iconName) { changed = true; }
-						editing.iconName = editing.name;
-						editing.ReloadIcon();
+						if (strings["name"] != strings["iconName"]) { changed = true; }
+						strings["iconName"] = strings["name"] ;
+						//editing.ReloadIcon();
 					}
 					
 					editing.color = ColorField("Color", editing.color);
 					
+					editing.blendAmount = FloatField("Blend Amount", editing.blendAmount, .3f); 
 				} EndVertical();
 				
 				Texture2D icon = editing.icon;
@@ -286,11 +293,27 @@ public class ItemDatabase : ZEditorWindow {
 			OptionsButtons();
 			numOptions = (int)numOptions.Clamp(0, 100);
 			
+			removeAt = -1;
+			moveDown = -1;
+			moveUp = -1;
+			
 			while (numOptions > stats.Count) { stats.Add(new OptionEntry("blank", 0)); }
 			while (numOptions < stats.Count) { stats.RemoveAt(stats.Count-1); }
 			for (int i = 0; i < stats.Count; i++) { DrawOption(i); }
 			
-			if (removeAt >= 0) { stats.RemoveAt(removeAt); removeAt = -1; }
+			if (removeAt >= 0) { 
+				changed = true; 
+				stats.RemoveAt(removeAt); 
+			}
+			if (moveDown >= 0 && moveDown < stats.Count-1) { 
+				changed = true; 
+				stats.Swap(moveDown, moveDown+1);
+			}
+			if (moveUp >= 1) { 
+				changed = true; 
+				stats.Swap(moveUp, moveUp-1); 
+			}
+			
 			numOptions = stats.Count;
 			
 			OptionsButtons();
@@ -382,6 +405,9 @@ public class ItemDatabase : ZEditorWindow {
 			OptionEntry temp = new OptionEntry(o);
 			
 			if (Button("-", Width(20))) { removeAt = i; }
+			if (Button("/\\", Width(20))) { moveUp = i; }
+			if (Button("\\/", Width(20))) { moveDown = i; }
+			
 			
 			o.name = TextField(o.name);
 			o.value = EditorGUILayout.FloatField(o.value);
