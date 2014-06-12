@@ -25,6 +25,10 @@ public static class UnityF {
 			if (c.GetType().IsSubclassOf(typeof(Renderer))) {
 				(c as Renderer).enabled = true;
 			}
+			
+			if (c.GetType().IsSubclassOf(typeof(Collider))) {
+				(c as Collider).enabled = true;
+			}
 		}
 	}
 	
@@ -36,6 +40,10 @@ public static class UnityF {
 			
 			if (c.GetType().IsSubclassOf(typeof(Renderer))) {
 				(c as Renderer).enabled = true;
+			}
+			
+			if (c.GetType().IsSubclassOf(typeof(Collider))) {
+				(c as Collider).enabled = true;
 			}
 		}
 	}

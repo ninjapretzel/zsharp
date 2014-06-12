@@ -41,6 +41,7 @@ public class Inventory : List<Item> {
 		
 	}
 	
+	
 	public Item Get(string name) { return GetNamed(name); }
 	public Item GetNamed(string name) {
 		foreach (Item i in this) { if (i.name == name) { return i; } }
