@@ -356,6 +356,13 @@ public class Table : Dictionary<string, float> {
 		return f;
 	}
 	
+	//Gets the first key that matches value
+	public string GetKey(float value) {
+		foreach (string key in Keys) {
+			if (this[key] == value) { return key; }
+		}
+		return "";
+	}
 	
 	public void Set(Table t) {
 		foreach (string s in t.Keys) { this[s] = t[s]; }

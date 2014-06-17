@@ -13,6 +13,8 @@ public class ItemDatabase : ZEditorWindow {
 	public static string path { get { return Application.dataPath + "/Data/Resources/"; } } 
 	public static string target { get { return path + "Items.csv"; } }
 	
+	private Table equipSlots;
+	
 	private List<Item> items;
 	
 	private List<OptionEntry> stats;
@@ -51,6 +53,8 @@ public class ItemDatabase : ZEditorWindow {
 		if (items.Count == 0) { items.Add(new Item()); }
 		LoadSelection();
 		
+		
+		
 	}
 	
 	void Init() {
@@ -67,6 +71,16 @@ public class ItemDatabase : ZEditorWindow {
 		selection = 0;
 		
 		items.Add(editing);
+		
+		TextAsset equipCSV = Resources.Load<TextAsset>("EquipSlots");
+		if (equipCSV != null) { 
+			equipSlots = new Table(equipCSV);
+		} else {
+			equipSlots = new Table();
+		}
+		
+		
+		
 	}
 	
 	
@@ -90,9 +104,7 @@ public class ItemDatabase : ZEditorWindow {
 		
 		
 		if (selection != lastSelection) {
-			GUI.SetNextControlName("Dicks");
-			GUI.TextField(new Rect(0, -300, 100, 30), "fuck dicks");
-			GUI.FocusControl("Dicks");
+			Unfocus();
 			LoadSelection();
 		}
 		
@@ -109,12 +121,14 @@ public class ItemDatabase : ZEditorWindow {
 		if (GUI.Button(line, "Apply and Save")) {
 			ApplySelection();
 			WriteDatabase();
+			Unfocus();
 		}
 		
 		GUI.color = listChanged ? Color.red : Color.white;
 		line = line.MoveDown();
 		if (GUI.Button(line, "Save Database")) {
 			WriteDatabase();
+			Unfocus();
 		}
 		
 		line = line.MoveDown();
@@ -122,6 +136,7 @@ public class ItemDatabase : ZEditorWindow {
 		if (GUI.Button(line.Left(.5f), "Add Item")) {
 			if (items.Count > 0) { items.Add(items.LastElement().Clone()); }
 			else { items.Add(new Item()); }
+			Unfocus();
 		}
 		
 		if (GUI.Button(line.Right(.5f), "Remove Item")) {
@@ -159,11 +174,13 @@ public class ItemDatabase : ZEditorWindow {
 				if (Button("Apply And Save")) {
 					ApplySelection();
 					WriteDatabase();
+					Unfocus();
 				}
 				
 				if (Button("Apply Item")) {
 					listChanged = changed || listChanged;
 					ApplySelection();
+					Unfocus();
 				}
 				
 				
@@ -183,6 +200,14 @@ public class ItemDatabase : ZEditorWindow {
 		
 			Label("Basic Settings");
 			strings["name"] = TextField("Name", strings["name"]);
+			BeginHorizontal(); {
+				Space(150);
+				if (Button("\\/ Set \\/", Width(150))) {
+					Unfocus();
+					strings["baseName"] = strings["name"];
+				}
+			} EndHorizontal();
+			
 			strings["baseName"] = TextField("Base Name", strings["baseName"]);
 			strings["type"] = TextField("Type", strings["type"]);
 			strings["desc"] = TextArea("Description", strings["desc"]);
@@ -190,29 +215,35 @@ public class ItemDatabase : ZEditorWindow {
 			BeginHorizontal("box"); {
 				Label("Icon", Width(50));
 				BeginVertical(Width(400)); {
-					string lastIconName = strings["iconName"];
+					//string lastIconName = strings["iconName"];
 					strings["iconName"] = TextField("Icon Name", strings["iconName"], .3f);
 					//if (lastIconName != strings["iconName"]) { editing.ReloadIcon(); }
 					
-					if (Button("Use Name")) {
-						if (strings["name"] != strings["iconName"]) { changed = true; }
-						strings["iconName"] = strings["name"] ;
-						//editing.ReloadIcon();
-					}
+					BeginHorizontal(); {
+						if (Button("Use Name")) {
+							Unfocus();
+							
+							if (strings["name"] != strings["iconName"]) { changed = true; }
+							strings["iconName"] = strings["name"] ;
+							//editing.ReloadIcon();
+						}
+						FlexibleSpace();
+					} EndHorizontal();
 					
 					editing.color = ColorField("Color", editing.color);
 					
 					editing.blendAmount = FloatField("Blend Amount", editing.blendAmount, .3f); 
 				} EndVertical();
 				
-				Texture2D icon = editing.icon;
+				
+				Texture2D icon = Resources.Load<Texture2D>(strings["iconName"]);
 				GUI.color = editing.color;
 				if (icon != null) {
 					GUIStyle iconStyle = blankSkin.label.Aligned(TextAnchor.MiddleCenter);
 					iconStyle.fixedHeight = 64;
 					iconStyle.fixedWidth = 64;
 					
-					GUILayout.Label(editing.icon, iconStyle);
+					GUILayout.Label(icon, iconStyle);
 				} else {
 					Label("Icon\nNot\nFound", Width(64));
 				}
@@ -248,6 +279,7 @@ public class ItemDatabase : ZEditorWindow {
 					
 				} EndHorizontal();
 				
+				
 				BeginHorizontal("box"); {
 					editing.equipInRange = ToggleField(editing.equipInRange, "Equips To Range");
 				} EndHorizontal();
@@ -262,11 +294,27 @@ public class ItemDatabase : ZEditorWindow {
 					} EndHorizontal();
 				} else {
 					editing.equipSlot = IntField("Equip Slot", editing.equipSlot, .5f);
+					
 				}
 				
 				
 				
 			} EndHorizontal();
+			
+			if (equipSlots != null) {
+				BeginHorizontal(); {
+					Space(250);
+					FixedLabel("Slot: ");
+					Space(5);
+					
+					FixedLabel(equipSlots.GetKey(editing.minSlot));
+					if (editing.equipInRange) {
+						FixedLabel(" - " + equipSlots.GetKey(editing.maxSlot));
+					}
+				} EndHorizontal();
+			}
+			
+			
 			
 			//Space(fieldWidth*.3f);
 			
@@ -416,6 +464,7 @@ public class ItemDatabase : ZEditorWindow {
 		EndHorizontal();
 	}
 	
+	[System.Serializable]
 	public class OptionEntry {
 		public string name;
 		public float value;

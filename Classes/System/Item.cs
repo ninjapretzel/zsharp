@@ -1,14 +1,31 @@
 ﻿using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using System.Text;
 using System.Linq;
-using System;
+using System.Reflection;
+using System.Collections;
+using System.Collections.Generic;
 
 public class Inventory : List<Item> {
 	
 	public Inventory() : base() { }
 	public Inventory(string s) : base() { LoadString(s); }
+	
+	
+	public new void Add(Item item) {
+		if (item.stacks) {
+			Item check = Get(item.name);
+			if (check != null) {
+				check.count += item.count;
+			} else {
+				List<Item> list = (List<Item>)this;
+				list.Add(item);
+			}
+		} else {
+			List<Item> list = (List<Item>)this;
+			list.Add(item);
+		}
+	}
 	
 	public void Add(string name) { Add(name, 1); }
 	public void Add(string name, int qty) {
@@ -165,6 +182,8 @@ public class Item : IComparable<Item> {
 		} 
 		
 	}
+	
+	
 	public int maxStack { get { return (int)properties["maxStack"]; } set { properties["maxStack"] = value; } }
 	public int equipSlot { get { return (int)properties["equipSlot"]; } set { properties["equipSlot"] = value; } }
 	public int minSlot { get { return (int)properties["equipSlot"]; } set { properties["equipSlot"] = value; } }
@@ -291,6 +310,28 @@ public class Item : IComparable<Item> {
 		
 	}
 	
+	//Attempts to use the item on a target.
+	//Returns true if successful, and false if unsucessful.
+	public bool Use<T>(T target) { return UseOn(target); }
+	public bool UseOn<T>(T target) {
+		Type t = target.GetType();
+		
+		string methodName = "Use" + type;
+		Type[] signature = { typeof(Item) };
+		
+		MethodInfo method = t.GetMethod(methodName, BindingFlags.Instance | BindingFlags.Public, null, signature, null);
+		
+		
+		//Object[] parms = new Object[1];
+		System.Object[] parms = { this };
+		
+		if (method != null) {
+			method.Invoke(target, parms);
+			return true;
+		}
+		
+		return false;
+	}
 	
 	
 	public void Save(string key) { PlayerPrefs.SetString(key, ToString()); }

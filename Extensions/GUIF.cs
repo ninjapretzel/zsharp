@@ -18,7 +18,6 @@ public static class GUIF {
 		get { return new Rect(0, 0, Screen.width, Screen.height); }
 	}
 	
-	
 	public static void Label(Rect area, string str, float padding) { Label(area, new GUIContent(str), padding); }
 	public static void Label(Rect area, string str) { Label(area, str, defaultPadding); }
 	public static void Label(Rect area, GUIContent content) { Label(area, content, defaultPadding); }

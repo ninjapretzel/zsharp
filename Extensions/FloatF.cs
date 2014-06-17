@@ -101,5 +101,16 @@ public static class FloatF {
 	public static bool IsBetween(this float f, float a, float b) {
 		return (f > Mathf.Min(a, b) && f < Mathf.Max(a, b));
 	}
+	
+	public static float Sin(this float f) { return Mathf.Sin(f); }
+	public static float Cos(this float f) { return Mathf.Cos(f); }
+	public static float Tan(this float f) { return Mathf.Tan(f); }
+	
+	public static float Sin01(this float f) { return (f.Sin() + 1f) / 2f; } 
+	public static float Cos01(this float f) { return (f.Cos() + 1f) / 2f; } 
+	
+	
+	
+	
 }
 	

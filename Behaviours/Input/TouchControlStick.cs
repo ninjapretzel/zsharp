@@ -11,14 +11,17 @@ public class TouchControlStick : MonoBehaviour {
 	public string stickName = "LeftStick";
 	public float sensitivity = 1;
 	
+	public float thumbSize = 1;
+	public float rootSize = 1;
+	
 	public bool invertX = false;
 	public bool invertY = false;
 	
 	Vector2 touchDown;
 	bool hasTouch = false;
 	
-	public Texture2D touchDownGraphic;
-	public Texture2D holdGraphic;
+	public Texture2D rootGraphic;
+	public Texture2D thumbGraphic;
 	
 	Touch closestTouch {
 		get {
@@ -76,11 +79,11 @@ public class TouchControlStick : MonoBehaviour {
 				
 				//GUI.Label(area, "" + diff + "." + diff.magnitude);
 				
-				Rect brush = new Rect(touchDown.x, touchDown.y, 0, 0).Pad(60, 60);
-				GUI.DrawTexture(brush, touchDownGraphic ? touchDownGraphic : GUIF.pixel);
+				Rect brush = new Rect(touchDown.x, touchDown.y, 0, 0).Pad(Screen.height * .1f * rootSize);
+				GUI.DrawTexture(brush, rootGraphic ? rootGraphic : GUIF.pixel);
 				
-				brush = new Rect(pos.x, pos.y, 0, 0).Pad(Screen.height * .07f);
-				GUI.DrawTexture(brush, holdGraphic ? holdGraphic : GUIF.pixel);
+				brush = new Rect(pos.x, pos.y, 0, 0).Pad(Screen.height * .1f * thumbSize);
+				GUI.DrawTexture(brush, thumbGraphic ? thumbGraphic : GUIF.pixel);
 					
 				
 				if (diff.magnitude > 1) {

@@ -1,5 +1,138 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
+//Class to represent a bar on the screen at some absolute position.
+//Mostly obsolete, but useful for testing.
+[System.Serializable]
+public class Bar {
+	
+	public enum Mode { Normal, Fixed, Repeat, Icons }
+	
+	public Mode mode = Mode.Normal;
+	public Texture2D pixel { get { return Resources.Load<Texture2D>("pixel"); } }
+	
+	public Texture2D frontGraphic;
+	public Texture2D backGraphic;
+	
+	public Color frontColor = Color.green;
+	public Color backColor = Color.black;
+	
+	public Rect area;
+	public Rect repeat;
+	
+	//Padding for 'back'
+	public float padding;
+	
+	public Bar() {
+		Init();
+		
+	}
+	
+	public Bar(Rect a) {
+		Init();
+		area = a;
+		
+	}
+	
+	public Bar(Rect a, Texture2D front, Texture2D back) {
+		area = a;
+		frontGraphic = front;
+		backGraphic = back;
+	}
+	
+	void Init() {
+		area = ScreenF.all.Bottom(.1f);
+		repeat = new Rect(0, 0, 1, 1);
+		frontGraphic = pixel;
+		backGraphic = pixel;
+	}
+	
+	public void Draw(float fill) {
+		if (mode == Mode.Normal) { DrawNormal(fill); }
+		else if (mode == Mode.Fixed) { DrawFixed(fill); }
+		else if (mode == Mode.Repeat) { DrawRepeat(fill); }
+	}
+	
+	//Normal draw method.
+	//Paints the background, then the foreground over it.
+	public void DrawNormal(float fill) {
+		Rect brush = area.Pad(padding);
+		float p = Mathf.Clamp01(fill);
+		
+		GUI.color = backColor;
+		GUI.DrawTexture(brush, backGraphic);
+		
+		brush = brush.Trim(padding);
+		if (area.width > area.height) { brush.width *= p; }
+		else { 
+			brush.y += area.height * (1.0f - p);
+			brush.height *= p;
+		}
+		GUI.color = frontColor;
+		GUI.DrawTexture(brush, frontGraphic);
+	}
+	
+	//Draws the stuff with 'fixed' texture positions
+	//The textures won't move relative to the left edges of the rectangles.
+	//Draws the foreground first, then paints the background over it.
+	public void DrawFixed(float fill) {
+		Rect brush = area;//.Pad(padding);
+		float p = Mathf.Clamp01(fill);
+		
+		
+		GUI.color = frontColor;
+		GUI.DrawTexture(brush, frontGraphic);
+		
+		if (area.width > area.height) {
+			brush.x += area.width * p;
+			brush.width *= p;
+		} else { brush.height *= (1.0f-p); }
+		GUI.color = backColor;
+		GUI.DrawTexture(brush, backGraphic);
+	}
+	
+	public void DrawRepeat(float fill) {
+		Rect brush = area.Pad(padding);
+		float p = Mathf.Clamp01(fill);
+		
+		
+		GUI.color = backColor;
+		GUI.DrawTextureWithTexCoords(brush, backGraphic, repeat);
+		brush = brush.Trim(padding);
+		
+		Rect filled = brush;
+		Rect filledReps = repeat;
+		Rect empty = brush;
+		Rect emptyReps = repeat;
+		
+		if (area.width > area.height) {
+			filled = filled.UpperLeft(p, 1);
+			filledReps = filledReps.UpperLeft(p, 1);
+			empty = empty.UpperRight(1.0f-p, 1);
+			emptyReps = emptyReps.UpperRight(1.0f-p, 1);
+		} else {
+			filled = filled.BottomLeft(1, p);
+			filledReps = filledReps.UpperLeft(1, p);
+			empty = empty.UpperLeft(1, 1.0f-p);
+			emptyReps = emptyReps.BottomLeft(1, 1.0f-p);
+		}
+		
+		GUI.color = frontColor;
+		GUI.DrawTextureWithTexCoords(filled, frontGraphic, filledReps);
+		GUI.color = backColor;
+		GUI.DrawTextureWithTexCoords(empty, backGraphic, emptyReps);
+	}
+	
+	public void DrawIcons(float fill) {
+		Bars.graphic = frontGraphic;
+		Bars.vertical = frontGraphic;
+		Bars.Draw(area, repeat, fill, frontColor, backColor);
+	}
+	
+	
+	
+}
 
 public static class Bars {
 	public static int defaultPadding = 2;
@@ -8,8 +141,8 @@ public static class Bars {
 	public static Texture2D vertical;
 	
 	static Bars() {
-		graphic = Resources.Load("pixel", typeof(Texture2D)) as Texture2D;
-		vertical = Resources.Load("pixel", typeof(Texture2D)) as Texture2D;
+		graphic = Resources.Load<Texture2D>("pixel");
+		vertical = Resources.Load<Texture2D>("pixel");
 		
 	}
 	
@@ -43,6 +176,7 @@ public static class Bars {
 		
 		GUI.color = back;
 		GUI.DrawTexture(brush, g);
+		
 		
 		
 		brush = brush.Trim(padding);
