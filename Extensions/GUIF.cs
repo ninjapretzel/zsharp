@@ -155,12 +155,19 @@ public static class GUIF {
 		return false;
 	}
 	
+	public static bool Button(Rect area, string str, System.Action action) { if(Button(area, str, defaultPadding, "MenuSelect")) { action(); return true; } return false; }
+	public static bool Button(Rect area, string str, string sound, System.Action action) { if(Button(area, str, defaultPadding, sound)) { action(); return true; } return false; }
+	public static bool Button(Rect area, string str, float padding, System.Action action) { if(Button(area, new GUIContent(str), padding, "MenuSelect")) { action(); return true; } return false; }
+	public static bool Button(Rect area, string str, float padding, string sound, System.Action action) { if(Button(area, new GUIContent(str), padding, sound)) { action(); return true; } return false; }
+	public static bool Button(Rect area, GUIContent c, System.Action action) { if(Button(area, c, defaultPadding, "MenuSelect")) { action(); return true; } return false; }
+	public static bool Button(Rect area, GUIContent c, float padding, System.Action action) { if(Button(area, c, padding, "MenuSelect")) { action(); return true; } return false; }
+	public static bool Button(Rect area, GUIContent c, float padding, string sound, System.Action action) { if(Button(area, c, padding, sound)) { action(); return true; } return false; }
 	public static bool Button(Rect area, string str) { return Button(area, str, defaultPadding, "MenuSelect"); }
 	public static bool Button(Rect area, string str, string sound) { return Button(area, str, defaultPadding, sound); }
-	public static bool Button(Rect area, string str, float padding) { return Button(area, new GUIContent(str), defaultPadding, "MenuSelect"); }
-	public static bool Button(Rect area, string str, float padding, string sound) { return Button(area, new GUIContent(str), defaultPadding, sound); }
+	public static bool Button(Rect area, string str, float padding) { return Button(area, new GUIContent(str), padding, "MenuSelect"); }
+	public static bool Button(Rect area, string str, float padding, string sound) { return Button(area, new GUIContent(str), padding, sound); }
 	public static bool Button(Rect area, GUIContent c) { return Button(area, c, defaultPadding, "MenuSelect"); }
-	public static bool Button(Rect area, GUIContent c, float padding) { return Button(area, c, defaultPadding, "MenuSelect"); }
+	public static bool Button(Rect area, GUIContent c, float padding) { return Button(area, c, padding, "MenuSelect"); }
 	public static bool Button(Rect area, GUIContent c, float padding, string sound) {
 		bool ret = GUI.Button(area, "");
 		Label(area, c, padding, GUI.skin.button);
@@ -270,6 +277,8 @@ public static class GUIF {
 		return name;
 	}
 	
+	public static bool SButton(Rect area, string str, System.Action action, float padding = defaultPadding, string selectControl = "Jump") { if(SButton(area, new GUIContent(str), padding, selectControl)) { action(); return true; } return false; }
+	public static bool SButton(Rect area, GUIContent c, System.Action action, float padding = defaultPadding, string selectControl = "Jump") { if(SButton(area, c, padding, selectControl)) { action(); return true; } return false; }
 	public static bool SButton(Rect area, string str, float padding = defaultPadding, string selectControl = "Jump") { return SButton(area, new GUIContent(str), padding, selectControl); }
 	public static bool SButton(Rect area, GUIContent c, float padding = defaultPadding, string selectControl = "Jump") {
 		string name = CreateNextControl(area);
