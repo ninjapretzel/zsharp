@@ -324,6 +324,22 @@ public class Table : Dictionary<string, float> {
 	///////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////////////////////
 	//Misc functions
+	#region
+	public string Choose() {
+		List<string> names = new List<string>(Count);
+		List<float> weights = new List<float>(Count);
+		
+		int i = 0;
+		foreach (string s in Keys) {
+			names.Add(s);
+			weights.Add(this[s]);
+			i++;
+		}
+		
+		return names.Choose(weights);
+		
+	}
+	
 	public override string ToString() { return ToString(','); }
 	public string ToString(char delim) {
 		StringBuilder str = new StringBuilder("#Formatted Table as .csv:");
@@ -402,6 +418,8 @@ public class Table : Dictionary<string, float> {
 			else { Add(key, val); }
 		}
 	}
+	
+	#endregion
 	
 }
 

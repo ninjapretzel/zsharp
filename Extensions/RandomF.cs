@@ -61,5 +61,19 @@ public static class RandomF {
 		return weights.Length-1;
 	}
 	
+	public static int WeightedChoose(List<float> weights) {
+		float total = 0;
+		int i;
+		for (i = 0; i < weights.Count; i++) { total += weights[i]; }
+		
+		float choose = value * total; 
+		float check = 0;
+		for (i = 0; i < weights.Count; i++) {
+			check += weights[i];
+			if (choose < check) { return i; }
+		}
+		return weights.Count-1;
+	}
+	
 	
 }

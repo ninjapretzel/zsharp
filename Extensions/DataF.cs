@@ -88,10 +88,10 @@ public static class DataF {
 	public static T Choose<T>(this List<T> list) { return list[list.RandomIndex()]; }
 	
 	//Choose an element from the list using weights
-	public static T Choose<T>(this List<T> list, float[] weights) {
-		int index = (int)Mathf.Clamp(RandomF.WeightedChoose(weights), 0, list.Count-1);
-		return list[index];
-	}
+	public static T Choose<T>(this List<T> list, List<float> weights) { return list[RandomF.WeightedChoose(weights)]; }
+	public static T Choose<T>(this List<T> list, float[] weights) { return list[RandomF.WeightedChoose(weights)]; }
+	
+	
 	
 	public static string ListString<T>(this List<T> list) { return list.ListString<T>(','); }
 	public static string ListString<T>(this List<T> list, char delim) {

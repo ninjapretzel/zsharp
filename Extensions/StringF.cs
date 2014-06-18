@@ -37,6 +37,13 @@ public static class StringF {
 		return s.Substring(0, lastIndex);
 	}
 	
+	//Returns the substring of a string from the last instance of a character.
+	public static string FromLast(this string s, char c) {
+		int lastIndex = s.LastIndexOf(c);
+		if (lastIndex == -1) { return s; }
+		return s.Substring(lastIndex+1);
+	}
+	
 	//Converts all backslashes in a path to forward slashes.
 	public static string ForwardSlashPath(this string path) {
 		return path.Replace('\\', '/');

@@ -30,6 +30,11 @@ public class Inventory : List<Item> {
 	public void Add(string name) { Add(name, 1); }
 	public void Add(string name, int qty) {
 		if (this == Item.database) { return; }
+		if (Item.database.Get(name) == null) {
+			Debug.Log("Tried to add " + name + " to Inventory. Item did not exist");
+			return;
+		}
+		
 		Item item = Item.database.Get(name).Clone();
 		
 		if (item.stacks) {
@@ -61,7 +66,12 @@ public class Inventory : List<Item> {
 	
 	public Item Get(string name) { return GetNamed(name); }
 	public Item GetNamed(string name) {
-		foreach (Item i in this) { if (i.name == name) { return i; } }
+		//Debug.Log("Searching <" + name + ">");
+		foreach (Item i in this) { 	
+			//Debug.Log("Checking <" + i.name + ">");
+			if (i.name.Equals(name)) { return i; } 
+		}
+		//Debug.Log("Not Found");
 		return null;
 	}
 	
@@ -168,6 +178,8 @@ public class Item : IComparable<Item> {
 	public int count { 
 		get { 
 			if (!stacks) { properties["count"] = 1; }
+			//if (!properties.ContainsKey("count") || properties["count"] <= 0) { properties["count"] = 1; }
+			
 			return (int)properties["count"]; 
 		}
 		
@@ -228,6 +240,7 @@ public class Item : IComparable<Item> {
 		properties = new Table();
 		strings = new StringMap();
 		
+		count = 1;
 		
 		name = "Crystalized Error";
 		desc = "Somewhere, something went wrong";
@@ -242,6 +255,8 @@ public class Item : IComparable<Item> {
 		properties = new Table();
 		strings = new StringMap();
 		color = Color.white;
+		
+		count = 1;
 		
 		name = "Crystalized Error";
 		desc = "Somewhere, something went wrong";
