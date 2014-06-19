@@ -71,6 +71,12 @@ public static class StringF {
 		return ss;
 	}
 	
+	public static string MinSubstring(this string str, int length) { return str.MinSubstring(length, (char)0x00); }
+	public static string MinSubstring(this string str, int length, char concat) {
+		if (str.Length <= length) { return str; }
+		return str.Substring(0, length) + ((concat != (char)0x00) ? ""+concat : "");
+	}
+	
 	public static string RemoveAll(this string str, string s) { return str.Replace(s, ""); }
 	public static string RemoveAll(this string str, char c) { return str.Replace(""+c, ""); }
 	

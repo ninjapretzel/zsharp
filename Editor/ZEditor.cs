@@ -1,15 +1,51 @@
 ﻿#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
+public static class ZEditorExtensions {
+	
+	[MenuItem("GameObject/Create Other/Legacy Particle System")]
+	public static void LegacyParticle() {
+		
+		GameObject gob = new GameObject("Legacy Particle System");
+		gob.AddComponent("EllipsoidParticleEmitter");
+		gob.AddComponent<ParticleAnimator>();
+		gob.AddComponent<ParticleRenderer>();
+		
+		
+		
+	}
+	
+	
+	[MenuItem("SceneView/List All Members")]
+	public static void SceneViewListAllMembers() {
+		typeof(SceneView).ListAllMembers(false, false);
+	}
+	
+	
+	
+	
+}
+
+
 public class ZEditorWindow : EditorWindow {
 	
-	public float fieldWidth { get { return .6f * position.width; } }
-	public bool changed = false;
-	public bool checkChanges = false;
+	public virtual float fieldWidth { get { return .6f * position.width; } }
+	[System.NonSerialized] public bool changed = false;
+	[System.NonSerialized] public bool checkChanges = false;
 	
+	public float width { get { return position.width; } }
+	public float height { get { return position.height; } }
+	
+	
+	public Vector2 mousePosition {
+		get { 
+			return Event.current.mousePosition;
+		}
+	}
 	
 	public virtual Color changedColor { get { return new Color(1, .5f, .5f, 1); } }
 	public void SetChangedColor() { SetChangedColor(changed); }
@@ -51,6 +87,13 @@ public class ZEditorWindow : EditorWindow {
 	public static bool Button(Texture content, string style, params GUILayoutOption[] options) { return GUILayout.Button(content, style, options); }
 	public static bool Button(GUIContent content, string style, params GUILayoutOption[] options) { return GUILayout.Button(content, style, options); }
 	
+	public static bool Button(string content, Action action, params GUILayoutOption[] options) { if (Button(content, options)) { action(); return true; } return false; }
+	public static bool Button(Texture content, Action action, params GUILayoutOption[] options) { if (Button(content, options)) { action(); return true; } return false; }
+	public static bool Button(GUIContent content, Action action, params GUILayoutOption[] options) { if (Button(content, options)) { action(); return true; } return false; }
+	public static bool Button(string content, string style, Action action, params GUILayoutOption[] options) { if (Button(content, style, options)) { action(); return true; } return false; }
+	public static bool Button(Texture content, string style, Action action, params GUILayoutOption[] options) { if (Button(content, style, options)) { action(); return true; } return false; }
+	public static bool Button(GUIContent content, string style, Action action, params GUILayoutOption[] options) { if (Button(content, style, options)) { action(); return true; } return false; }
+	
 	public static bool RepeatButton(string content, params GUILayoutOption[] options) { return GUILayout.RepeatButton(content, options); }
 	public static bool RepeatButton(Texture content, params GUILayoutOption[] options) { return GUILayout.RepeatButton(content, options); }
 	public static bool RepeatButton(GUIContent content, params GUILayoutOption[] options) { return GUILayout.RepeatButton(content, options); }
@@ -65,6 +108,12 @@ public class ZEditorWindow : EditorWindow {
 	public static bool Toggle(bool v, Texture label, string style, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, style, options); } 
 	public static bool Toggle(bool v, GUIContent label, string style, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, style, options); } 
 	
+	public static bool ToggleButton(bool v, string label, bool addMarker = false, params GUILayoutOption[] options) { 
+		if (Button(label + (addMarker ? (v ? "[x]" : "[ ]") : ""), options)) { return !v; } return v; 
+	}
+	public static bool ToggleButton(bool v, string trueLabel, string falseLabel, params GUILayoutOption[] options) { 
+		if (Button(v ? trueLabel : falseLabel, options)) { return !v; } return v; 
+	}
 	public static float HorizontalSlider(float value, float left, float right, params GUILayoutOption[] options)
 	{ return GUILayout.HorizontalSlider(value, left, right, options); }
 	public static float HorizontalScrollbar(float value, float size, float left, float right, params GUILayoutOption[] options)
@@ -95,12 +144,12 @@ public class ZEditorWindow : EditorWindow {
 	public static void BeginArea(Rect area, string style) { GUILayout.BeginArea(area, style); }
 	public static void EndArea() { GUILayout.EndArea(); }
 	
-	public static void BeginVertical(params GUILayoutOption[] options) { EditorGUILayout.BeginVertical(options); }
-	public static void BeginVertical(string style, params GUILayoutOption[] options) { EditorGUILayout.BeginVertical(style, options); }
+	public static Rect BeginVertical(params GUILayoutOption[] options) { return EditorGUILayout.BeginVertical(options); }
+	public static Rect BeginVertical(string style, params GUILayoutOption[] options) { return EditorGUILayout.BeginVertical(style, options); }
 	public static void EndVertical() { EditorGUILayout.EndVertical(); }
 	
-	public static void BeginHorizontal(params GUILayoutOption[] options) { EditorGUILayout.BeginHorizontal(options); }
-	public static void BeginHorizontal(string style, params GUILayoutOption[] options) { EditorGUILayout.BeginHorizontal(style, options); }
+	public static Rect BeginHorizontal(params GUILayoutOption[] options) { return EditorGUILayout.BeginHorizontal(options); }
+	public static Rect BeginHorizontal(string style, params GUILayoutOption[] options) { return EditorGUILayout.BeginHorizontal(style, options); }
 	public static void EndHorizontal() { EditorGUILayout.EndHorizontal(); }
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -140,9 +189,26 @@ public class ZEditorWindow : EditorWindow {
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 	//Placement functions
 	
-	public static void FixedLabel(string content) { GUILayout.Label(content, ExpandWidth(false), ExpandHeight(false)); }
-	public static void FixedBox(string content) { GUILayout.Box(content, ExpandWidth(false), ExpandHeight(false)); }
-	public static bool FixedButton(string content) { return GUILayout.Button(content, ExpandWidth(false), ExpandHeight(false)); }
+	public static void FixedLabel(string content) { Label(content, ExpandWidth(false), ExpandHeight(false)); }
+	public static void FixedBox(string content) { Box(content, ExpandWidth(false), ExpandHeight(false)); }
+	public static bool FixedButton(string content) { return Button(content, ExpandWidth(false), ExpandHeight(false)); }
+	public static bool FixedButton(string content, Action action) { return Button(content, action, ExpandWidth(false), ExpandHeight(false)); }
+	
+	//////////////////////////////////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////
+	//Useful standard GUI calls
+	
+	public static bool BlankButton(Rect area) {
+		GUISkin skin = GUI.skin;
+		GUI.skin = Resources.Load<GUISkin>("blank");
+		
+		bool retval = GUI.Button(area, "");
+		
+		GUI.skin = skin;
+		
+		return retval;
+	}
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,20 +222,21 @@ public class ZEditorWindow : EditorWindow {
 	public string TextField(string label, string text, float scale) {
 		string txt;
 		BeginHorizontal("box");
-			if (label != "") { Label(label); }
+			if (label != "") { Label(label, Width(fieldWidth * scale)); }
 			txt = EditorGUILayout.TextField(text, Width(fieldWidth * scale));
 			changed = changed || (checkChanges && (txt != text));
 		EndHorizontal();
 		return txt;
 	}
 	
-	public string TextArea(string label, string text) {
+	public string TextArea(string label, string text) { return TextArea(label, text, 1); }
+	public string TextArea(string label, string text, float scale) {
 		string txt;
-		BeginHorizontal("box");
+		BeginVertical("box", Width(fieldWidth * scale));
 			Label(label);
-			txt = EditorGUILayout.TextArea(text, Width(fieldWidth));
+			txt = EditorGUILayout.TextArea(text);
 			changed = changed || (checkChanges && (txt != text));
-		EndHorizontal();
+		EndVertical();
 		return txt;
 	}
 	

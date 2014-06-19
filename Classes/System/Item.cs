@@ -6,10 +6,15 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 
+
+
+
 public class Inventory : List<Item> {
 	
 	public Inventory() : base() { }
 	public Inventory(string s) : base() { LoadString(s); }
+	
+	
 	
 	
 	public new void Add(Item item) {
@@ -125,18 +130,73 @@ public class Inventory : List<Item> {
 	
 }
 
-
 [System.Serializable]
 public class Item : IComparable<Item> {
-	public Texture2D iconLoaded;
+
+	#region VARIABLES
+	//These store all information for a single Item
 	public Table stats;
 	public Table properties;
 	public StringMap strings;
 	
+	//Cached icon texture
+	public Texture2D iconLoaded;
+	
+	
 	public static Inventory database;
 	public static List<string> DEFAULT_STRINGS { get { return _DEFAULT_STRINGS; } }
 	static List<string> _DEFAULT_STRINGS;
+	#endregion
 	
+	#region ITEM_SORTS
+	public static class Sorts {
+		public static int NameA(Item a, Item b) { return a.name.CompareTo(b.name); }
+		public static int NameD(Item a, Item b) { return -a.name.CompareTo(b.name); }
+		
+		public static int TypeA(Item a, Item b) { return a.type.CompareTo(b.type); }
+		public static int TypeD(Item a, Item b) { return -a.type.CompareTo(b.type); }
+		
+		public static int RarityA(Item a, Item b) { return (int)(a.rarity - b.rarity); }
+		public static int RarityD(Item a, Item b) { return (int)-(a.rarity - b.rarity); }
+		
+		public static int Compare(Item a, Item b, params Func<Item, Item, int>[] compares) {
+			for (int i = 0; i < compares.Length; i++) {
+				int check = compares[i](a, b);
+				if (check != 0) { return check; }
+			}
+			return 0;
+		}
+		
+		public static int NameRarityA(Item a, Item b) { return Compare(a, b, NameA, RarityA, TypeA); }
+		public static int NameRarityD(Item a, Item b) { return Compare(a, b, NameD, RarityD, TypeD); }
+		public static int TypeRarityA(Item a, Item b) { return Compare(a, b, TypeA, RarityA, NameA); }
+		public static int TypeRarityD(Item a, Item b) { return Compare(a, b, TypeD, RarityD, NameD); }
+		public static int RarityTypeA(Item a, Item b) { return Compare(a, b, RarityA, TypeA, NameA); }
+		public static int RarityTypeD(Item a, Item b) { return Compare(a, b, RarityD, TypeD, NameD); }
+		
+		//Locked items Come first
+		//Equipments come next
+		//Items are sorted by 'type'
+		//Items are then compared by rarity
+		//Lastly, items are compared by name.	
+		public static int Default(Item a, Item b) {
+			if (a.locked == b.locked) {
+				if (a.equip == b.equip) {
+					if (a.type == b.type) {
+						if (a.rarity == b.rarity) {
+							if (a.name == b.name) {
+							
+								return 0;
+						
+							} else { return a.name.CompareTo(b.name); }
+						} else { return (int)(a.rarity - b.rarity); }
+					} else { return a.type.CompareTo(b.type); }
+				} else { return (a.equip ? -1 : 1); }
+			} else { return (a.locked ? -1 : 1); }
+		}
+		
+	}
+	#endregion
 	
 	static Item() {
 		database = new Inventory();
@@ -161,6 +221,7 @@ public class Item : IComparable<Item> {
 		}
 	}
 	
+	#region BASIC PROPERTIES
 	public string name { get { return strings["name"]; } set { strings["name"] = value; } }
 	public string desc { get { return strings["desc"]; } set { strings["desc"] = value; } }
 	public string type { get { return strings["type"]; } set { strings["type"] = value; } }
@@ -211,7 +272,9 @@ public class Item : IComparable<Item> {
 	
 	public float blendAmount { get { return properties["blendAmount"]; } set { properties["blendAmount"] = value.Clamp01(); } }
 	//public float xxxx { get { return properties["xxxx"]; } set { properties["xxxx"] = value; } }
+	#endregion
 	
+	#region COLOR_STUFF
 	public Color rarityColor { get { return RarityColor(rarity); } }
 	public static Color RarityColor(float v) { return RarityColor(v, 10, 0); }
 	public static Color RarityColor(float v, float s) { return RarityColor(v, s, 0); }
@@ -233,8 +296,9 @@ public class Item : IComparable<Item> {
 		else if (v+o < s * 14) { return new Color(1.0f, 1.0f, 0.0f); }
 		return new Color(1.0f, 1.0f, .75f);
 	}
+	#endregion
 	
-	
+	#region CONSTRUCTORS_AND_LOADING
 	public Item() {
 		stats = new Table();
 		properties = new Table();
@@ -268,40 +332,14 @@ public class Item : IComparable<Item> {
 		LoadFromString(str);
 	}
 	
-	public Item Clone() {
-		Item clone = new Item();
-		clone.name = name;
-		clone.baseName = baseName;
-		clone.desc = desc;
-		clone.type = type;
-		clone.iconName = iconName;
-		clone.stats = stats.Clone();
-		clone.properties = properties.Clone();
-		clone.strings = strings.Clone();
-		
-		return clone;
+	public Item(Item other) {
+		stats = other.stats.Clone();
+		properties = other.properties.Clone();
+		strings = other.strings.Clone();
 	}
 	
-	public static int Compare(Item a, Item b) {
-		if (a.type == b.type) {
-			if (a.rarity == b.rarity) { 
-				return a.name.CompareTo(b.name);
-			} else { return (int)(a.rarity - b.rarity); }
-		} else { return a.type.CompareTo(b.type); }
-	}
-	
-	public int CompareTo(Item other) { return Compare(this, other); }
-	
-	
-	public override string ToString() { return ToString('|'); }
-	public string ToString(char delim) {
-		StringBuilder str = new StringBuilder("");
-		str.Append(strings.ToString('`') + delim);
-		str.Append(stats.ToLine(',') + delim);
-		str.Append(properties.ToLine(',') + delim);
-		return str.ToString();
-	}
-	
+	//Creates a deep clone of an item.
+	public Item Clone() { return new Item(this); }
 	
 	
 	public static Item FromString(string s) { return FromString(s, '|'); }
@@ -324,6 +362,26 @@ public class Item : IComparable<Item> {
 		properties =	content[2].ParseTable(',');
 		
 	}
+	#endregion
+	
+	
+	#region ICOMPARABLE
+	public static int Compare(Item a, Item b) {
+		if (a.type == b.type) {
+			if (a.rarity == b.rarity) { 
+				return a.name.CompareTo(b.name);
+			} else { return (int)(a.rarity - b.rarity); }
+		} else { return a.type.CompareTo(b.type); }
+	}
+	
+	public int CompareTo(Item other) { return Compare(this, other); }
+	#endregion
+	
+	
+	
+	
+	
+	
 	
 	//Attempts to use the item on a target.
 	//Returns true if successful, and false if unsucessful.
@@ -348,6 +406,15 @@ public class Item : IComparable<Item> {
 		return false;
 	}
 	
+	#region SAVE_AND_LOAD
+	public override string ToString() { return ToString('|'); }
+	public string ToString(char delim) {
+		StringBuilder str = new StringBuilder("");
+		str.Append(strings.ToString('`') + delim);
+		str.Append(stats.ToLine(',') + delim);
+		str.Append(properties.ToLine(',') + delim);
+		return str.ToString();
+	}
 	
 	public void Save(string key) { PlayerPrefs.SetString(key, ToString()); }
 	
@@ -356,6 +423,7 @@ public class Item : IComparable<Item> {
 			LoadFromString(PlayerPrefs.GetString(key));
 		}
 	}
+	#endregion
 	
 	
 }

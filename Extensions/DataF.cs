@@ -134,10 +134,18 @@ public static class DataF {
 	}
 	
 	//Swap two elements
-	public static void Swap<T>(this List<T> list, int a, int b) {
+	public static void QSwap<T>(this List<T> list, int a, int b) {
 		T temp = list[b];
 		list[b] = list[a];
 		list[a] = temp;
+	}
+	
+	public static void Swap<T>(this List<T> list, int a, int b) {
+		if (a >= 0 && b >= 0 && a < list.Count && b < list.Count) {
+			T temp = list[b];
+			list[b] = list[a];
+			list[a] = temp;
+		}
 	}
 	
 	//Generate a new list which has all instances of 'toRemove' removed from it.

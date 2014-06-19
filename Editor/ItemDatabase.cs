@@ -1,38 +1,44 @@
 ﻿#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
-using System.Collections;
-using System.Collections.Generic;
 using System;
 using System.IO;
-
-
+using System.Collections;
+using System.Collections.Generic;
 
 public class ItemDatabase : ZEditorWindow {
 	
 	public static string path { get { return Application.dataPath + "/Data/Resources/"; } } 
 	public static string target { get { return path + "Items.csv"; } }
 	
-	private Table equipSlots;
+	[System.NonSerialized] private Table equipSlots;
 	
-	private List<Item> items;
+	[System.NonSerialized] private List<Item> items;
 	
-	private List<OptionEntry> stats;
-	private StringMap strings;
-	private int numOptions;
+	[System.NonSerialized] private List<OptionEntry> stats;
+	[System.NonSerialized] private StringMap strings;
+	[System.NonSerialized] private int numOptions;
 	
-	private int removeAt = -1;
-	private int moveUp = -1;
-	private int moveDown = -1;
+	[System.NonSerialized] private int removeAt = -1;
+	[System.NonSerialized] private int moveUp = -1;
+	[System.NonSerialized] private int moveDown = -1;
 	
-	private Vector4 selectScroll;
-	private Vector2 editScroll;
+	[System.NonSerialized] private Vector4 selectScroll;
+	[System.NonSerialized] private Vector2 editScroll;
 	
-	private int selection;
-	private Item editing;
+	[System.NonSerialized] private int selection;
+	[System.NonSerialized] private Item editing;
 	
-	private bool listChanged = false;
-	public new float fieldWidth { get { return .6f * position.width; } }
+	[System.NonSerialized] private bool listChanged = false;
+	[System.NonSerialized] private Vector2 listScroll = Vector2.zero;
+	
+	
+	[System.NonSerialized] private bool searchMode = false;
+	[System.NonSerialized] private string searchString = "";
+	
+	public override float fieldWidth { get { return .33f * position.width; } }
+	
+	public Color selectedColor { get { return new Color(.5f, .5f, 1); } }
 	
 	//private int numStringOptions;
 	
@@ -85,110 +91,191 @@ public class ItemDatabase : ZEditorWindow {
 	
 	
 	void OnGUI() {
-		//GUISkin blankSkin = Resources.Load("blank", typeof(GUISkin)) as GUISkin;
-		//Color lastColor = GUI.color;
-		//GUISkin lastSkin = GUI.skin;
 		checkChanges = false;
-		string[] ss = new string[items.Count];
-		for (int i = 0; i < ss.Length; i++) { ss[i] = items[i].name; }
-		
-		Rect selectArea = new Rect(5, 5, 200, position.height-100);
-		Rect single = new Rect(0, 0, 180, 20);
-		int lastSelection = selection;
-		selectScroll = GUIF.EditorSelectionArea(selectArea, selectScroll, single, ss, true);
-		int selectAction = (int)selectScroll.w;
-		
-		if (selectAction == 1) { listChanged = true; items.Insert(selection, items[selection].Clone()); }
-		if (selectAction == -1) { listChanged = true; items.RemoveAt(selection); selection = (int)selection.Clamp(0, items.Count); }
-		selection = (int)selectScroll.z.Clamp(0, items.Count-1);
-		
-		
-		if (selection != lastSelection) {
-			Unfocus();
-			LoadSelection();
-		}
-		
-		
-		Rect infoArea = new Rect(0, selectArea.yMax, selectArea.width + 10, position.height - selectArea.yMax);
-		GUI.Box(infoArea, "");
-		
-		Rect line = infoArea.Top(.25f);
-		GUI.Label(line, "Number of items: " + items.Count);
-		
-		line = line.MoveDown();
-		GUI.color = (changed || listChanged) ? Color.red : Color.white;
-		
-		if (GUI.Button(line, "Apply and Save")) {
-			ApplySelection();
-			WriteDatabase();
-			Unfocus();
-		}
-		
-		GUI.color = listChanged ? Color.red : Color.white;
-		line = line.MoveDown();
-		if (GUI.Button(line, "Save Database")) {
-			WriteDatabase();
-			Unfocus();
-		}
-		
-		line = line.MoveDown();
-		GUI.color = Color.white;
-		if (GUI.Button(line.Left(.5f), "Add Item")) {
-			if (items.Count > 0) { items.Add(items.LastElement().Clone()); }
-			else { items.Add(new Item()); }
-			Unfocus();
-		}
-		
-		if (GUI.Button(line.Right(.5f), "Remove Item")) {
-			if (items.Count >= 1) { items.RemoveAt(items.Count-1); }
-		}
-		
-		
-		//Rect editArea = new Rect(210, 0, position.width - 210, position.height);
-		//Rect editView = new Rect(0, 0, editArea.width-10, position.height * 2);
-		checkChanges = true;
-		BeginHorizontal();
-			Space(210);
+		BeginHorizontal("box"); {
+			ListScrollArea();
 			
-			BeginVertical("box");
+			EditSelection();
 			
-				editScroll = BeginScrollView(editScroll);
+			
+		} EndHorizontal();
+		
+		
+	}
+	
+	
+	void Sort(Comparison<Item> sortFunc) {
+		Item item = items[selection];
+		listChanged = true;
+		
+		items.Sort(sortFunc);
+		
+		selection = items.IndexOf(item);
+		
+	}
+	
+	void ListScrollArea() {
+	
+		
+		BeginVertical("box"); {
+		
+			BeginHorizontal("box"); {
+				FixedLabel("Sort:");
 				
-					BeginVertical("box");
+				FixedLabel("Name");
+				if (FixedButton("/\\")) { Sort(Item.Sorts.NameRarityA); }
+				if (FixedButton("\\/")) { Sort(Item.Sorts.NameRarityD); }
+				
+				FixedLabel("Type");
+				if (FixedButton("/\\")) { Sort(Item.Sorts.TypeRarityA); }
+				if (FixedButton("\\/")) { Sort(Item.Sorts.TypeRarityD); }
+				
+				FixedLabel("Rarity");
+				if (FixedButton("/\\")) { Sort(Item.Sorts.RarityTypeA); }
+				if (FixedButton("\\/")) { Sort(Item.Sorts.RarityTypeD); }
+				
+				
+			} EndHorizontal();
+			
+			/* NOT IMPLEMENTED YET
+			BeginHorizontal("box"); {
+				FixedLabel("Search:");
+				searchMode = ToggleButton(searchMode, "Name", "Type", Width(65));
+				
+				
+			} EndHorizontal();
+			//*/
+			
+			listScroll = BeginScrollView(listScroll, false, true, Width(350), Height(height - 100) ); {
+				
+				int lastSelection = selection;
+				
+				BeginVertical("box"); {
 					
-						BasicSettingsBox();
+					for (int i = 0; i < items.Count; i++) {
+						Item item = items[i];
+						
+						if (selection == i) {
+							GUI.color = selectedColor;
+						} else {
+							GUI.color = Color.white;
+						}
+						
+						Rect area = BeginVertical("button"); {
 							
-						PropertiesBox();
+							BeginHorizontal("box"); {
+								Box(""+i, Width(35));
+								Box("[" + item.name.MinSubstring(10, '-') + "]", Width(100));
+								
+								FlexibleSpace();
+								Box("[" + item.type + "]", Width(100));
+								FlexibleSpace();
+								
+								GUI.color = item.rarityColor;
+								Box("" + item.rarity, Width(40));
+								GUI.color = Color.white;
+								
+							} EndHorizontal();
+							
+							BeginHorizontal(); {
+								if (FixedButton("-")) { listChanged = true; items.RemoveAt(i); }
+								if (FixedButton("D")) { listChanged = true; items.Insert(i, items[i].Clone()); }
+								
+								if (FixedButton("\\/")) { listChanged = true; items.Swap(i, i+1); }
+								if (FixedButton("/\\")) { listChanged = true; items.Swap(i, i-1); }
+							} EndHorizontal();
+							
+							
+							
+							if (BlankButton(area)) { selection = i; }
+							
+						} EndHorizontal();
 						
-						
-						
-						StatsBox();
-						
-					EndVertical();
+					}
 					
-				EndScrollView();
+				} EndVertical();
 				
-				Space(10);
-				GUI.color = changed ? Color.red : Color.white;
-
-				if (Button("Apply And Save")) {
-					ApplySelection();
-					WriteDatabase();
+				if (selection != lastSelection) {
 					Unfocus();
+					LoadSelection();
 				}
 				
-				if (Button("Apply Item")) {
-					listChanged = changed || listChanged;
-					ApplySelection();
-					Unfocus();
-				}
+				lastSelection = selection;
+				
+				//Draw controls at the bottom
 				
 				
-				GUI.color = Color.white;
 				
-			EndVertical();
-		EndHorizontal();
+			} EndScrollView();
+			
+			if (Button("Revert")) {
+				Init();
+				Unfocus();
+			}
+			
+			SetChangedColor(listChanged);
+			if (Button("Save")) {
+				WriteDatabase();
+				Unfocus();
+			}
+			
+			SetChangedColor();
+			if (Button("Apply and Save")) {
+				ApplySelection();
+				WriteDatabase();
+				Unfocus();
+			}
+			
+			
+			GUI.color = Color.white;
+			
+		} EndVertical();
 		
+	}
+	
+	
+	
+	
+	
+	void EditSelection() {
+		checkChanges = true;
+		BeginVertical("box"); {
+	
+			editScroll = BeginScrollView(editScroll); {
+			
+				BeginVertical("box"); {
+					
+					BasicSettingsBox();
+						
+					PropertiesBox();
+					
+					
+					
+					StatsBox();
+					
+				} EndVertical();
+				
+			} EndScrollView();
+			
+			Space(10);
+			GUI.color = changed ? Color.red : Color.white;
+
+			if (Button("Apply And Save")) {
+				ApplySelection();
+				WriteDatabase();
+				Unfocus();
+			}
+			
+			if (Button("Apply Item")) {
+				listChanged = changed || listChanged;
+				ApplySelection();
+				Unfocus();
+			}
+			
+			
+			GUI.color = Color.white;
+			
+		} EndVertical();
 	}
 	
 	
@@ -199,7 +286,7 @@ public class ItemDatabase : ZEditorWindow {
 		BeginVertical("box"); {
 		
 			Label("Basic Settings");
-			strings["name"] = TextField("Name", strings["name"]);
+			strings["name"] = TextField("Name", strings["name"], .5f);
 			BeginHorizontal(); {
 				Space(150);
 				if (Button("\\/ Set \\/", Width(150))) {
@@ -208,13 +295,13 @@ public class ItemDatabase : ZEditorWindow {
 				}
 			} EndHorizontal();
 			
-			strings["baseName"] = TextField("Base Name", strings["baseName"]);
-			strings["type"] = TextField("Type", strings["type"]);
+			strings["baseName"] = TextField("Base Name", strings["baseName"], .5f);
+			strings["type"] = TextField("Type", strings["type"], .5f);
 			strings["desc"] = TextArea("Description", strings["desc"]);
 			
-			BeginHorizontal("box"); {
+			BeginHorizontal("box", ExpandWidth(false)); {
 				Label("Icon", Width(50));
-				BeginVertical(Width(400)); {
+				BeginVertical(Width(200)); {
 					//string lastIconName = strings["iconName"];
 					strings["iconName"] = TextField("Icon Name", strings["iconName"], .3f);
 					//if (lastIconName != strings["iconName"]) { editing.ReloadIcon(); }
@@ -236,6 +323,7 @@ public class ItemDatabase : ZEditorWindow {
 				} EndVertical();
 				
 				
+				
 				Texture2D icon = Resources.Load<Texture2D>(strings["iconName"]);
 				GUI.color = editing.color;
 				if (icon != null) {
@@ -243,7 +331,7 @@ public class ItemDatabase : ZEditorWindow {
 					iconStyle.fixedHeight = 64;
 					iconStyle.fixedWidth = 64;
 					
-					GUILayout.Label(icon, iconStyle);
+					GUILayout.Label(icon, iconStyle, ExpandWidth(false));
 				} else {
 					Label("Icon\nNot\nFound", Width(64));
 				}
@@ -260,9 +348,10 @@ public class ItemDatabase : ZEditorWindow {
 	void PropertiesBox() {
 		Color lastColor = GUI.color;
 		
-		BeginVertical("box"); {
-			Label("Properties");
+		BeginVertical("box", ExpandWidth(false)); {
+			FixedLabel("Properties");
 			
+			//Stack Settings
 			BeginHorizontal("box"); {
 				BeginHorizontal("box", ExpandWidth(false)); {
 					editing.stacks = ToggleField(editing.stacks, "Stacks");
@@ -272,6 +361,7 @@ public class ItemDatabase : ZEditorWindow {
 				
 			} EndHorizontal();
 			
+			//Equipment Settings
 			BeginHorizontal("box"); {
 				BeginHorizontal("box"); { 
 					
@@ -302,7 +392,7 @@ public class ItemDatabase : ZEditorWindow {
 			} EndHorizontal();
 			
 			if (equipSlots != null) {
-				BeginHorizontal(); {
+				BeginHorizontal(ExpandWidth(false)); {
 					Space(250);
 					FixedLabel("Slot: ");
 					Space(5);
@@ -321,11 +411,11 @@ public class ItemDatabase : ZEditorWindow {
 			
 			
 			BeginHorizontal(); {
-				editing.value = FloatField("Value", editing.value, .2f);
+				editing.value = FloatField("Value", editing.value, .3f);
 				GUI.color = editing.rarityColor;
-				editing.rarity = FloatField("Rarity", editing.rarity, .2f);
+				editing.rarity = FloatField("Rarity", editing.rarity, .3f);
 				GUI.color = lastColor;
-				editing.quality = FloatField("Quality", editing.quality, .2f);
+				editing.quality = FloatField("Quality", editing.quality, .3f);
 			} EndHorizontal();
 			
 			
@@ -457,8 +547,8 @@ public class ItemDatabase : ZEditorWindow {
 			if (Button("\\/", Width(20))) { moveDown = i; }
 			
 			
-			o.name = TextField(o.name);
-			o.value = EditorGUILayout.FloatField(o.value);
+			o.name = TextField(o.name, Width(200));
+			o.value = EditorGUILayout.FloatField(o.value, Width(200));
 			
 			changed = changed || (!o.Equals(temp));
 		EndHorizontal();

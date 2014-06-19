@@ -18,7 +18,7 @@ public static class ReflectionF {
 		else if (t == typeof(System.Object)) { return "Object"; }
 		else if (t == typeof(UnityEngine.Object)) { return "UnityEngine.Object"; }
 		else if (t == typeof(Event)) { return "Event"; }
-		return t.ToString().FromLast('.');
+		return t.ToString().FromLast('.').Replace('+', '.');
 	}
 	
 	public static bool IsInherited(this MemberInfo info) { return info.DeclaringType != info.ReflectedType; }
