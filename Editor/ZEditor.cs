@@ -39,7 +39,14 @@ public class ZEditorWindow : EditorWindow {
 	
 	public float width { get { return position.width; } }
 	public float height { get { return position.height; } }
+	public bool hasFocus { 
+		get { 
+			EditorWindow win = this as EditorWindow;
+			return EditorWindow.focusedWindow == win;
+		}
+	}
 	
+	public bool KeyPress(KeyCode keyCode) { return hasFocus && Event.current.type == EventType.KeyDown && Event.current.keyCode == keyCode; }
 	
 	public Vector2 mousePosition {
 		get { 

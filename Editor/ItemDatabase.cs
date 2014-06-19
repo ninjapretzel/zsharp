@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEditor;
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -14,6 +15,7 @@ public class ItemDatabase : ZEditorWindow {
 	[System.NonSerialized] private Table equipSlots;
 	
 	[System.NonSerialized] private List<Item> items;
+	[System.NonSerialized] private List<Item> visibleList;
 	
 	[System.NonSerialized] private List<OptionEntry> stats;
 	[System.NonSerialized] private StringMap strings;
@@ -33,8 +35,16 @@ public class ItemDatabase : ZEditorWindow {
 	[System.NonSerialized] private Vector2 listScroll = Vector2.zero;
 	
 	
-	[System.NonSerialized] private bool searchMode = false;
+	[System.NonSerialized] private bool searchMode = NAME;
 	[System.NonSerialized] private string searchString = "";
+	
+	[System.NonSerialized] private bool ctrl = false;
+	
+	const bool NAME = true;
+	const bool TYPE = false;
+	
+	
+	
 	
 	public override float fieldWidth { get { return .33f * position.width; } }
 	
@@ -53,15 +63,10 @@ public class ItemDatabase : ZEditorWindow {
 	//
 	public ItemDatabase() : base() {
 		Init();
-		//main.items.Add(new Item());
-		LoadDatabase();
-		
-		if (items.Count == 0) { items.Add(new Item()); }
-		LoadSelection();
-		
-		
-		
 	}
+	
+	
+
 	
 	void Init() {
 		items = new List<Item>();
@@ -85,12 +90,26 @@ public class ItemDatabase : ZEditorWindow {
 			equipSlots = new Table();
 		}
 		
+		LoadDatabase();
 		
+		if (items.Count == 0) { items.Add(new Item()); }
+		LoadSelection();
+		
+		
+		visibleList = items;
 		
 	}
 	
 	
 	void OnGUI() {
+		if (KeyPress(KeyCode.F1)) {
+			Unfocus();
+			ApplySelection();
+			WriteDatabase();
+			
+		}
+		
+		
 		checkChanges = false;
 		BeginHorizontal("box"); {
 			ListScrollArea();
@@ -99,6 +118,8 @@ public class ItemDatabase : ZEditorWindow {
 			
 			
 		} EndHorizontal();
+		
+		
 		
 		
 	}
@@ -116,10 +137,14 @@ public class ItemDatabase : ZEditorWindow {
 	
 	void ListScrollArea() {
 	
+		if (visibleList != items) {
+			GUI.color = Color.yellow;
+		}
 		
-		BeginVertical("box"); {
-		
-			BeginHorizontal("box"); {
+		BeginVertical("box", Width(350)); {
+			
+			GUI.color = Color.white;
+			BeginHorizontal("box", Width(350)); {
 				FixedLabel("Sort:");
 				
 				FixedLabel("Name");
@@ -137,60 +162,97 @@ public class ItemDatabase : ZEditorWindow {
 				
 			} EndHorizontal();
 			
-			/* NOT IMPLEMENTED YET
-			BeginHorizontal("box"); {
+			
+			BeginHorizontal("box", Width(350)); {
 				FixedLabel("Search:");
+				bool lastSearchMode = searchMode;
 				searchMode = ToggleButton(searchMode, "Name", "Type", Width(65));
 				
+				if (lastSearchMode != searchMode && searchString != "") {
+					UpdateVisibleList();
+				}
+				
+				string lastSearchString = searchString;
+				searchString = TextField(searchString);
+				
+				if (KeyPress(KeyCode.Escape)) {
+					searchString = "";
+					Unfocus();
+					Event.current.Use();
+				}
+				
+				if (lastSearchString != searchString) {
+					
+					if (searchString != "") {
+						UpdateVisibleList();
+					} else {
+						visibleList = items;
+					}
+					
+				}
 				
 			} EndHorizontal();
-			//*/
 			
-			listScroll = BeginScrollView(listScroll, false, true, Width(350), Height(height - 100) ); {
+			
+			
+			listScroll = BeginScrollView(listScroll, false, true, Width(350), Height(height - 140) ); {
 				
 				int lastSelection = selection;
 				
+				if (visibleList != items) {
+					GUI.color = Color.yellow;
+				}
+				
 				BeginVertical("box"); {
 					
-					for (int i = 0; i < items.Count; i++) {
-						Item item = items[i];
+					if (visibleList.Count == 0) {
+						Label(items.Count + " Items searched.");
+						Label("No Items Found!");
+						Label("Change your search string or mode");
 						
-						if (selection == i) {
-							GUI.color = selectedColor;
-						} else {
-							GUI.color = Color.white;
-						}
-						
-						Rect area = BeginVertical("button"); {
+					} else {
+						for (int i = 0; i < visibleList.Count; i++) {
+							Item item = visibleList[i];
+							int index = items.IndexOf(item);
 							
-							BeginHorizontal("box"); {
-								Box(""+i, Width(35));
-								Box("[" + item.name.MinSubstring(10, '-') + "]", Width(100));
-								
-								FlexibleSpace();
-								Box("[" + item.type + "]", Width(100));
-								FlexibleSpace();
-								
-								GUI.color = item.rarityColor;
-								Box("" + item.rarity, Width(40));
+							if (items[selection] == item) {
+								GUI.color = selectedColor;
+							} else {
 								GUI.color = Color.white;
+							}
+							if (i % 2 == 1) { GUI.color = GUI.color.Blend(Color.black, .2f); }
+							
+							Rect area = BeginVertical("button"); {
+								
+								BeginHorizontal("box"); {
+									Box(""+index, Width(35));
+									Box("[" + item.name.MinSubstring(10, '-') + "]", Width(100));
+									
+									FlexibleSpace();
+									Box("[" + item.type + "]", Width(100));
+									FlexibleSpace();
+									
+									GUI.color = item.rarityColor;
+									Box("" + item.rarity, Width(40));
+									GUI.color = Color.white;
+									
+								} EndHorizontal();
+								
+								BeginHorizontal(); {
+									if (FixedButton("-")) { listChanged = true; items.RemoveAt(index); }
+									if (FixedButton("D")) { listChanged = true; items.Insert(index, items[index].Clone()); }
+									
+									if (FixedButton("\\/")) { listChanged = true; items.Swap(index, index+1); }
+									if (FixedButton("/\\")) { listChanged = true; items.Swap(index, index-1); }
+								} EndHorizontal();
+								
+								
+								
+								if (BlankButton(area)) { selection = index; }
 								
 							} EndHorizontal();
 							
-							BeginHorizontal(); {
-								if (FixedButton("-")) { listChanged = true; items.RemoveAt(i); }
-								if (FixedButton("D")) { listChanged = true; items.Insert(i, items[i].Clone()); }
-								
-								if (FixedButton("\\/")) { listChanged = true; items.Swap(i, i+1); }
-								if (FixedButton("/\\")) { listChanged = true; items.Swap(i, i-1); }
-							} EndHorizontal();
-							
-							
-							
-							if (BlankButton(area)) { selection = i; }
-							
-						} EndHorizontal();
-						
+						}
 					}
 					
 				} EndVertical();
@@ -208,6 +270,8 @@ public class ItemDatabase : ZEditorWindow {
 				
 			} EndScrollView();
 			
+			
+			GUI.color = Color.white;
 			if (Button("Revert")) {
 				Init();
 				Unfocus();
@@ -232,7 +296,6 @@ public class ItemDatabase : ZEditorWindow {
 		} EndVertical();
 		
 	}
-	
 	
 	
 	
@@ -536,6 +599,17 @@ public class ItemDatabase : ZEditorWindow {
 		}
 		EndHorizontal();
 	}
+	
+	void UpdateVisibleList() {
+		if (searchMode == NAME) {
+			visibleList = items.Where(i => i.name.Contains(searchString)).ToList();
+		
+		} else {
+			visibleList = items.Where(i => i.type.Contains(searchString)).ToList();
+		
+		}
+	}
+	
 	
 	void DrawOption(int i) {
 		OptionEntry o = stats[i];
