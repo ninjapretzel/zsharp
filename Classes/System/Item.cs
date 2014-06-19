@@ -18,6 +18,12 @@ public class Inventory : List<Item> {
 	
 	
 	public new void Add(Item item) {
+		if (Item.database == this) {
+			List<Item> list = (List<Item>)this;
+			list.Add(item);
+			return;
+		}
+		
 		if (item.stacks) {
 			Item check = Get(item.name);
 			if (check != null) {
@@ -40,8 +46,8 @@ public class Inventory : List<Item> {
 			return;
 		}
 		
-		Item item = Item.database.Get(name).Clone();
 		
+		Item item = Item.database.Get(name).Clone();
 		if (item.stacks) {
 			Item check = Get(item.name);
 			//Debug.Log(check);
@@ -60,6 +66,7 @@ public class Inventory : List<Item> {
 			
 		} else {
 			for (int i = 0; i < qty; i++) {
+				item.count = 1;
 				Add(item);
 			
 			}

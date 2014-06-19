@@ -16,37 +16,24 @@ public static class UnityF {
 		return m;
 	}
 	
-	public static void TryDeactivate(this Component c) {
+	public static void TrySetActive(this Component c, bool activate) {
 		if (c != null) {
 			if (c.GetType().IsSubclassOf(typeof(Behaviour))) {
-				(c as Behaviour).enabled = true;
+				(c as Behaviour).enabled = activate;
 			}
 			
 			if (c.GetType().IsSubclassOf(typeof(Renderer))) {
-				(c as Renderer).enabled = true;
+				(c as Renderer).enabled = activate;
 			}
 			
 			if (c.GetType().IsSubclassOf(typeof(Collider))) {
-				(c as Collider).enabled = true;
+				(c as Collider).enabled = activate;
 			}
 		}
 	}
 	
-	public static void TryActivate(this Component c) {
-		if (c != null) {
-			if (c.GetType().IsSubclassOf(typeof(Behaviour))) {
-				(c as Behaviour).enabled = true;
-			}
-			
-			if (c.GetType().IsSubclassOf(typeof(Renderer))) {
-				(c as Renderer).enabled = true;
-			}
-			
-			if (c.GetType().IsSubclassOf(typeof(Collider))) {
-				(c as Collider).enabled = true;
-			}
-		}
-	}
+	public static void TryDeactivate(this Component c) { c.TrySetActive(false); }
+	public static void TryActivate(this Component c) { c.TrySetActive(true); }
 	
 	public static GameObject Duplicate(this Component c) { 
 		GameObject g = (GameObject)GameObject.Instantiate(c.gameObject, c.transform.position, c.transform.rotation);
