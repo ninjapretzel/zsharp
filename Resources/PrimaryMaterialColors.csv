@@ -1,0 +1,6 @@
+VertexLit:_Emission
+Transparent/VertexLit:_Emission
+Transparent/Cutout/VertexLit:_Emission
+EmissiveDetail:_Emission
+Diffuse Rimlit:_Emission,_RimColor
+Bumped Diffuse Rimlit:_Emission,_RimColor

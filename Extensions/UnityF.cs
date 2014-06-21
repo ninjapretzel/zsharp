@@ -35,14 +35,16 @@ public static class UnityF {
 	public static void TryDeactivate(this Component c) { c.TrySetActive(false); }
 	public static void TryActivate(this Component c) { c.TrySetActive(true); }
 	
-	public static GameObject Duplicate(this Component c) { 
-		GameObject g = (GameObject)GameObject.Instantiate(c.gameObject, c.transform.position, c.transform.rotation);
+	public static GameObject Duplicate(this GameObject c) { 
+		GameObject g = (GameObject)GameObject.Instantiate(c, c.transform.position, c.transform.rotation);
 		g.transform.parent = c.transform.parent;
 		return g;
 	}
-	public static T DuplicateAs<T>(this Component c) where T : Component { 
-		return c.Duplicate().GetComponent<T>() as T;
+	public static T DuplicateAs<T>(this T c) where T : Component { return c.Duplicate<T>(); }
+	public static T Duplicate<T>(this T c) where T : Component { 
+		return c.gameObject.Duplicate().GetComponent<T>() as T;
 	}
+
 	
 	public static void RemoveFromWorld(this Component c) {
 		GameObject.Destroy(c.gameObject);

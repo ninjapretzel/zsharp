@@ -79,6 +79,19 @@ public static class DataF {
 	public static void Append<T>(this List<T> list, List<T> add) { foreach (T o in add) { list.Add(o); } }
 	public static void Append<T>(this List<T> list, T[] add) { foreach (T o in add) { list.Add(o); } }
 	
+	public static int IndexOf<T>(this List<T> list, Func<T, bool> search) {
+		for (int i = 0; i < list.Count; i++) {
+			if (search(list[i])) { return i; }
+		}
+		return -1;
+	}
+	
+	public static T Find<T>(this IEnumerable<T> list, Func<T, bool> search) {
+		foreach (T t in list) { 
+			if (search(t)) { return t; } 
+		}
+		return default(T);
+	}
 	
 	
 	//Get a random valid index

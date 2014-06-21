@@ -16,7 +16,6 @@ public static class ZEditorExtensions {
 		gob.AddComponent<ParticleRenderer>();
 		
 		
-		
 	}
 	
 	
@@ -45,6 +44,8 @@ public class ZEditorWindow : EditorWindow {
 			return EditorWindow.focusedWindow == win;
 		}
 	}
+	public bool isPlaying { get { return EditorApplication.isPlaying; } }
+	public bool isPlayingOrWillChangePlaymode { get { return EditorApplication.isPlayingOrWillChangePlaymode; } }
 	
 	public bool KeyPress(KeyCode keyCode) { return hasFocus && Event.current.type == EventType.KeyDown && Event.current.keyCode == keyCode; }
 	
@@ -115,9 +116,12 @@ public class ZEditorWindow : EditorWindow {
 	public static bool Toggle(bool v, Texture label, string style, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, style, options); } 
 	public static bool Toggle(bool v, GUIContent label, string style, params GUILayoutOption[] options) { return GUILayout.Toggle(v, label, style, options); } 
 	
+	public static bool FixedToggleButton(bool v, string label, bool addMarker) { return ToggleButton(v, label, addMarker, ExpandWidth(false)); }
 	public static bool ToggleButton(bool v, string label, bool addMarker = false, params GUILayoutOption[] options) { 
 		if (Button(label + (addMarker ? (v ? "[x]" : "[ ]") : ""), options)) { return !v; } return v; 
 	}
+	
+	public static bool FixedToggleButton(bool v, string trueLabel, string falseLabel) { return ToggleButton(v, trueLabel, falseLabel, ExpandWidth(false)); }
 	public static bool ToggleButton(bool v, string trueLabel, string falseLabel, params GUILayoutOption[] options) { 
 		if (Button(v ? trueLabel : falseLabel, options)) { return !v; } return v; 
 	}

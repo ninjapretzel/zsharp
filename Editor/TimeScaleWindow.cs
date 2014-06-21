@@ -8,9 +8,9 @@ using System.Collections.Generic;
 
 public class TimeScaleWindow : ZEditorWindow {
 	
-	[System.NonSerialized] private float lastTimeScale;
-	[System.NonSerialized] private float timeScale;
-	[System.NonSerialized] private bool wasPlaying;
+	private float lastTimeScale;
+	private float timeScale;
+	private bool wasPlaying;
 	[System.NonSerialized] private int frame;
 	
 	[System.NonSerialized] private static float snapTolerance = .075f;
@@ -25,8 +25,8 @@ public class TimeScaleWindow : ZEditorWindow {
 	}
 	
 	public TimeScaleWindow() : base() {
-		maxSize = new Vector2(200, 55);
-		minSize = maxSize;
+		maxSize = new Vector2(1600, 55);
+		minSize = new Vector2(200, 55);
 		timeScale = 1;
 		lastTimeScale = 1;
 		frame = 0;
@@ -46,6 +46,7 @@ public class TimeScaleWindow : ZEditorWindow {
 		if (EditorApplication.isPlaying) {
 			Time.timeScale = timeScale;
 		}
+		
 		wasPlaying = EditorApplication.isPlaying;
 		
 		if (++frame % 50 == 0) { Repaint(); }
@@ -60,6 +61,7 @@ public class TimeScaleWindow : ZEditorWindow {
 			BeginHorizontal("box"); {
 				Label("Time Scale: ");
 				timeScale = FloatField(timeScale);
+				if (Button("Reset")) { timeScale = 1; }
 			} EndHorizontal();
 			
 			float beforeSlider = timeScale;

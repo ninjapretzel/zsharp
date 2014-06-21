@@ -28,17 +28,18 @@ public class ItemDatabase : ZEditorWindow {
 	[System.NonSerialized] private Vector4 selectScroll;
 	[System.NonSerialized] private Vector2 editScroll;
 	
-	[System.NonSerialized] private int selection;
 	[System.NonSerialized] private Item editing;
 	
 	[System.NonSerialized] private bool listChanged = false;
-	[System.NonSerialized] private Vector2 listScroll = Vector2.zero;
+	[System.NonSerialized] private bool justRecompiledOrCreated = true;
+	
+
 	
 	
-	[System.NonSerialized] private bool searchMode = NAME;
-	[System.NonSerialized] private string searchString = "";
-	
-	[System.NonSerialized] private bool ctrl = false;
+	private int selection;
+	private Vector2 listScroll = Vector2.zero;
+	private bool searchMode = NAME;
+	private string searchString = "";
 	
 	const bool NAME = true;
 	const bool TYPE = false;
@@ -49,6 +50,8 @@ public class ItemDatabase : ZEditorWindow {
 	public override float fieldWidth { get { return .33f * position.width; } }
 	
 	public Color selectedColor { get { return new Color(.5f, .5f, 1); } }
+	
+	bool wasPlaying = false;
 	
 	//private int numStringOptions;
 	
@@ -93,15 +96,40 @@ public class ItemDatabase : ZEditorWindow {
 		LoadDatabase();
 		
 		if (items.Count == 0) { items.Add(new Item()); }
+		
 		LoadSelection();
 		
+		justRecompiledOrCreated = true;
 		
-		visibleList = items;
+		//autoRepaintOnSceneChange = true;
+	}
+	
+	void Update() {
+		//if (EditorApplication.isPlaying && frame++ % 10 == 0) { Repaint(); }
+		
+		if (justRecompiledOrCreated) {
+			UpdateVisibleList();
+			LoadSelection();
+			Repaint();
+			justRecompiledOrCreated = false;
+		}
+		//*/
+		
+		if (wasPlaying && !isPlaying) { Repaint(); }
+		if (!wasPlaying && isPlaying) { Repaint(); }
+		wasPlaying = isPlaying;
+		
+		selection = (int)selection.Clamp(0, items.Count-1);
 		
 	}
 	
 	
 	void OnGUI() {
+		if (EditorApplication.isPlaying) {
+			PlayModeWarning();
+			return;
+		}
+		
 		if (KeyPress(KeyCode.F1)) {
 			Unfocus();
 			ApplySelection();
@@ -121,7 +149,6 @@ public class ItemDatabase : ZEditorWindow {
 		
 		
 		
-		
 	}
 	
 	
@@ -131,12 +158,17 @@ public class ItemDatabase : ZEditorWindow {
 		
 		items.Sort(sortFunc);
 		
-		selection = items.IndexOf(item);
+		selection = items.IndexOf(_item => _item.name == item.name);
 		
 	}
 	
 	void ListScrollArea() {
 	
+		if (visibleList == null) { 
+			UpdateVisibleList(); 
+		}
+		
+		
 		if (visibleList != items) {
 			GUI.color = Color.yellow;
 		}
@@ -183,11 +215,7 @@ public class ItemDatabase : ZEditorWindow {
 				
 				if (lastSearchString != searchString) {
 					
-					if (searchString != "") {
-						UpdateVisibleList();
-					} else {
-						visibleList = items;
-					}
+					UpdateVisibleList();
 					
 				}
 				
@@ -213,7 +241,8 @@ public class ItemDatabase : ZEditorWindow {
 					} else {
 						for (int i = 0; i < visibleList.Count; i++) {
 							Item item = visibleList[i];
-							int index = items.IndexOf(item);
+							//int index = items.IndexOf(item);
+							int index = items.IndexOf(_item => _item.name == item.name);
 							
 							if (items[selection] == item) {
 								GUI.color = selectedColor;
@@ -248,7 +277,10 @@ public class ItemDatabase : ZEditorWindow {
 								
 								
 								
-								if (BlankButton(area)) { selection = index; }
+								if (BlankButton(area)) { 
+									selection = index; 
+									LoadSelection();
+								}
 								
 							} EndHorizontal();
 							
@@ -323,7 +355,7 @@ public class ItemDatabase : ZEditorWindow {
 			Space(10);
 			GUI.color = changed ? Color.red : Color.white;
 
-			if (Button("Apply And Save")) {
+			if (Button("Apply and Save")) {
 				ApplySelection();
 				WriteDatabase();
 				Unfocus();
@@ -566,16 +598,23 @@ public class ItemDatabase : ZEditorWindow {
 			WriteDatabase();
 		}
 		listChanged = false;
+		
 	}
 	
 	void ApplySelection() {
+		//int visibleIndex = visibleList.IndexOf(editing);
+		
 		editing.stats = stats.ToTable();
 		editing.strings = strings.Clone();
 		
-		items[selection] = editing;
+		items[selection] = editing.Clone();
+		
+		//visibleList[visibleIndex] = items[selection];
 		
 		editing = items[selection].Clone();
 		changed = false;
+		
+		UpdateVisibleList();
 	}
 	
 	void LoadSelection() {
@@ -601,7 +640,10 @@ public class ItemDatabase : ZEditorWindow {
 	}
 	
 	void UpdateVisibleList() {
-		if (searchMode == NAME) {
+		if (searchString == "") { 
+			visibleList = items; 
+			
+		} else if (searchMode == NAME) {
 			visibleList = items.Where(i => i.name.Contains(searchString)).ToList();
 		
 		} else {
@@ -610,6 +652,25 @@ public class ItemDatabase : ZEditorWindow {
 		}
 	}
 	
+	
+	void PlayModeWarning() {
+		GUI.color = Color.red;
+			
+		BeginHorizontal("box"); {
+			
+			GUI.color = Color.gray;
+			BeginVertical("box", Width(350)); {
+				Label("STOP THE GAME BEFORE EDITING");
+				FlexibleSpace();
+			} EndVertical();
+			
+			BeginVertical("box"); {
+				Label("STOP THE GAME BEFORE EDITING");
+				FlexibleSpace();
+			} EndVertical();
+			
+		} EndHorizontal();
+	}
 	
 	void DrawOption(int i) {
 		OptionEntry o = stats[i];
