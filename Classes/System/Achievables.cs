@@ -7,7 +7,6 @@ using System.Collections.Generic;
 
 //This is the delegate type to create.
 public delegate Achievable AchievableAction(string args);
-public delegate void AchievableEarnedCallback(bool success);
 
 [System.Serializable]
 public class Achievable {
@@ -24,7 +23,8 @@ public class Achievable {
 	//Is this achievable visible to the users?
 	public bool visible = true;
 	
-	public AchievableEarnedCallback earnedCallback;
+	
+	public System.Action<bool> earnedCallback;
 	
 	//Was this achievable JUST earned?
 	public bool justEarned { 
@@ -46,18 +46,6 @@ public class Achievable {
 	//Helper function for inside Register()
 	public void Register(string name, AchievableAction action) { Achievables.AddEvent(name, action); }
 	
-	public void OnEarnedResponse(bool success) {
-		if (success) { 
-			if (earnedCallback != null) {
-				earnedCallback(success); 
-			}
-			
-		} else {
-			unlocked = false;
-			Debug.Log("Achievable " + id + " earned, but sending failed");
-		}
-	}
-	
 	public void SaveData() { 
 		Save();
 		PlayerPrefs.SetInt(id + "_unlocked", unlocked ? 0 : 1);
@@ -67,6 +55,8 @@ public class Achievable {
 		Load();
 		unlocked = (PlayerPrefs.GetInt(id + "_unlocked") == 1);
 	}
+	
+	
 	
 	
 	//This can be overridden if one doesn't want the default behaviour of immediately registering the achievable.
@@ -195,6 +185,11 @@ public static class Achievables {
 	
 	public static Dictionary<string, Achievable> achievables;
 	public static Dictionary<string, AchievableAction> events;
+	public static System.Action<string, System.Action<bool>> sendFunc = DummySend;
+	
+	public static void DummySend(string id, System.Action<bool> callback) {
+		Debug.Log("Sent Achievable <id:" + id + "> to achievable hell");
+	}
 	
 	public static void Register(Achievable achievable) {
 		achievable.Register();
@@ -220,7 +215,7 @@ public static class Achievables {
 				Achievable achievable = action(args);
 				
 				if (achievable.justEarned) {
-					//TBD: Send achievement earned message to API
+					sendFunc(achievable.id, achievable.earnedCallback);
 					Debug.Log("Achievable Earned " + achievable.display + "!");
 				}
 				
