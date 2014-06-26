@@ -247,7 +247,7 @@ public static class InputWrapper {
 				#if UNITY_EDITOR
 				if(j == 2 && (Input.GetJoystickNames()[i] == "XBOX 360 For Windows (Controller)" || Input.GetJoystickNames()[i] == "Controller (Xbox 360 Wireless Receiver for Windows)")) { continue; }
 				#elif UNITY_ANDROID
-				if(j == 2 && Input.GetJoystickNames()[i] == "Microsoft X-Box 360 pad") { continue; }
+				// XBox 360 controllers work properly on Android as of Unity 4.5.
 				#endif
 				string axis = "Joystick"+(i+1)+"Axis"+j;
 				if(Input.GetAxisRaw(axis) > axisDownMagnitude) {
