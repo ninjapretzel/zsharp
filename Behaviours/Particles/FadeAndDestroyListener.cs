@@ -18,7 +18,7 @@ public class FadeAndDestroyListener : MonoBehaviour {
 	}
 	
 	private void FadeDestroyFake(FakeParticleEmitter emitter) {
-		Debug.Log("FadeAndDestroy called on " + emitter.transform.name);
+		//Debug.Log("FadeAndDestroy called on " + emitter.transform.name);
 		
 		emitter.emit = false;
 		emitter.autodestruct = true;
@@ -26,14 +26,13 @@ public class FadeAndDestroyListener : MonoBehaviour {
 	}
 	
 	private void FadeDestroyLegacy(Transform t) {
-		Debug.Log("FadeAndDestroy called on " + t.name);
+		//Debug.Log("FadeAndDestroy called on " + t.name);
 		ParticleEmitter emitter = t.GetComponent<ParticleEmitter>();
 		ParticleAnimator animator = t.GetComponent<ParticleAnimator>();
 		
 		
 		if (emitter) { emitter.emit = false; }
 		if (animator) { animator.autodestruct = true; }
-		
 		t.parent = null;
 		
 		

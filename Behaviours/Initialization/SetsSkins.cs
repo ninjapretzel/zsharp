@@ -4,8 +4,7 @@ using System.Collections.Generic;
 
 public class SetsSkins : MonoBehaviour {
 	public GUISkinInfo[] skins;
-	public FontSet[] fonts;
-
+	
 	int lastWidth = 0;
 	
 	void Awake() { 
@@ -85,25 +84,12 @@ public static class GUISkins {
 public class GUISkinInfo {
 	public string name;
 	public GUISkin skin;
-	public Font small;
-	public Font medium;
-	public Font large;
-	public Font huge;
 	
-	public const float smallThreshold = 801;
-	public const float mediumThreshold = 1281;
-	public const float largeThreshold = 1601;
 	
 	public void Add() { GUISkins.Add(name, skin); }
 	
-	public void SetFont(Font f) { skin.font = f; }
-	
-	
 	public void Update() {
-		if (Screen.width < smallThreshold) { skin.font = small; }
-		else if (Screen.width < mediumThreshold) { skin.font = medium; }
-		else if (Screen.width < largeThreshold) { skin.font = large; }
-		else { skin.font = huge; }
+		
 	}
 	
 }

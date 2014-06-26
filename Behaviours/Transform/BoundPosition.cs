@@ -30,4 +30,32 @@ public class BoundPosition : MonoBehaviour {
 		if (doLocal) { transform.localPosition = newPos; }
 		else { transform.position = newPos; }
 	}
+	
+	void OnDrawGizmosSelected() {
+		Vector3 center = bounds.center;
+		Vector3 extents = bounds.extents;
+		
+		if (doLocal) {
+			center += transform.parent.position;
+			extents = Vector3.Scale(extents, transform.parent.lossyScale);
+		}
+		
+		Gizmos.color = new Color(1, 0, 0, 1);
+		Gizmos.DrawWireCube(center, extents * 2f);
+		
+	}
+	
+	void OnDrawGizmos() {
+		Vector3 center = bounds.center;
+		Vector3 extents = bounds.extents;
+		
+		if (doLocal) {
+			center += transform.parent.position;
+			extents = Vector3.Scale(extents, transform.parent.lossyScale);
+		}
+		
+		Gizmos.color = new Color(1, 0, 0, .4f);
+		Gizmos.DrawWireCube(center, extents * 2f);
+		
+	}
 }

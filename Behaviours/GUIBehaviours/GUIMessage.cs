@@ -76,7 +76,7 @@ public class GUIMessage : MonoBehaviour {
 		skin = Resources.Load<GUISkin>("MSG");
 		
 		if (skin == null) { 
-			Debug.Log("Message skin override not found.");
+			Debug.Log("Message skin override <Resources/MSG.GUISkin> not found.");
 			skin = Resources.Load<GUISkin>("message");
 		}
 		
