@@ -37,12 +37,6 @@ public class Achievable {
 	//Property to wrap Earned() function.
 	public bool earned { get { return Earned(); } }
 	
-	//Constructor
-	//Calls an overridable 
-	public Achievable() {
-		Init();
-	}
-	
 	//Helper function for inside Register()
 	public void Register(string name, AchievableAction action) { Achievables.AddEvent(name, action); }
 	
@@ -56,12 +50,6 @@ public class Achievable {
 		unlocked = (PlayerPrefs.GetInt(id + "_unlocked") == 1);
 	}
 	
-	
-	
-	
-	//This can be overridden if one doesn't want the default behaviour of immediately registering the achievable.
-	//This is useful if you want to provide extra constructors.
-	public virtual void Init() { Achievables.Register(this); }
 	
 	//Override this function with the proper logic for unlocking the achievable.
 	public virtual bool Earned() { return false; }
@@ -89,7 +77,6 @@ public class ExampleAchievableA : Achievable {
 	//This is where we add the delegates to the list in achievables
 	//Only works on this one class
 	public override void Register() {
-		id = "triggerfinger";
 		display = "Trigger Finger";
 		
 		Register("Trigger", Triggered);
@@ -115,7 +102,6 @@ public class ExampleAchievableB : Achievable {
 	
 	//This is where we add the delegates to the list in achievables
 	public override void Register() {
-		id = "sirpoopypants";
 		display = "Sir Poopy Pants";
 		
 		//call Trigger on "Poop" or "Trigger"
@@ -148,11 +134,8 @@ public class ExampleAchievableC : Achievable {
 	
 	public ExampleAchievableC(int index) {
 		i = index;
-		id = "exampleC_id" + i;
-		Achievables.Register(this);
+		display = "poopcheck x" + i;
 	}
-	
-	public override void Init() { }
 	
 	public override bool Earned() { 
 		return poopCount >= i;
@@ -160,7 +143,6 @@ public class ExampleAchievableC : Achievable {
 	
 	//This is where we add the delegates to the list in achievables
 	public override void Register() {
-		Debug.Log("C: " + id);
 		Register("Trigger"+i, Triggered);
 		
 	}
@@ -191,9 +173,10 @@ public static class Achievables {
 		Debug.Log("Sent Achievable <id:" + id + "> to achievable hell");
 	}
 	
-	public static void Register(Achievable achievable) {
+	public static void Register(string id, Achievable achievable) {
+		achievable.id = id;
 		achievable.Register();
-		achievables.Add(achievable.id, achievable);
+		achievables.Add(id, achievable);
 	}
 	
 	public static void AddEvent(string name, AchievableAction action) {
