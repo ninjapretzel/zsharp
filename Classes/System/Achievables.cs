@@ -24,7 +24,7 @@ public class Achievable {
 	public bool visible = true;
 	
 	
-	public System.Action<bool> earnedCallback;
+	public System.Action<bool> earnedCallback = DummyEarnedResponse;
 	
 	//Was this achievable JUST earned?
 	public bool justEarned { 
@@ -36,6 +36,17 @@ public class Achievable {
 	}
 	//Property to wrap Earned() function.
 	public bool earned { get { return Earned(); } }
+	
+	
+	public void DummyEarnedResponse(bool success) {}
+	public void OnEarnedResponse(bool success) {
+		if (!success) {
+			unlocked = false;
+		} else {
+			unlocked = true;
+		}
+		earnedCallback(success);
+	}	
 	
 	//Helper function for inside Register()
 	public void Register(string name, AchievableAction action) { Achievables.AddEvent(name, action); }
@@ -198,7 +209,7 @@ public static class Achievables {
 				Achievable achievable = action(args);
 				
 				if (achievable.justEarned) {
-					sendFunc(achievable.id, achievable.earnedCallback);
+					sendFunc(achievable.id, achievable.OnEarnedResponse);
 					Debug.Log("Achievable Earned " + achievable.display + "!");
 				}
 				
