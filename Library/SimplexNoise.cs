@@ -76,6 +76,17 @@ public class SimplexNoise {
 		perm = stdPerm;
 	}
 	
+	public SimplexNoise(SimplexNoise other) {
+		octaves = other.octaves;
+		persistence = other.persistence;
+		scale = other.scale;
+		octaveScale = other.octaveScale;
+		perm = other.perm;
+		
+	}
+	
+	public SimplexNoise Clone() { return new SimplexNoise(this); }
+	
 	public Texture2D GetSplatMap(Vector2 start, Vector2 end, int size) {
 		Texture2D splatmap = new Texture2D(size+1, size+1, TextureFormat.ARGB32, true);
 		
