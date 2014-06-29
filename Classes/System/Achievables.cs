@@ -38,7 +38,7 @@ public class Achievable {
 	public bool earned { get { return Earned(); } }
 	
 	
-	public void DummyEarnedResponse(bool success) {}
+	public static void DummyEarnedResponse(bool success) {}
 	public void OnEarnedResponse(bool success) {
 		if (!success) {
 			unlocked = false;
