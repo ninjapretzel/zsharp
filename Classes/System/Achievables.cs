@@ -202,7 +202,7 @@ public static class Achievables {
 	public static void Event(string name) { Event(name, ""); }
 	public static void Event(string name, string args) {
 		if (events.ContainsKey(name)) {
-			int i = 0;
+			//int i = 0;
 			
 			Debug.Log("Event " + name + " passed with args:\n" + args);
 			Delegate[] eventActions = events[name].GetInvocationList();
