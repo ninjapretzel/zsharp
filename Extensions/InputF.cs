@@ -38,8 +38,10 @@ public static class InputF {
 			if (t.phase == TouchPhase.Moved) {
 				Vector2 pos = t.position;
 				pos.y = Screen.height - pos.y;
-				if (area.Contains(t.position)) {
-					return v - t.deltaPosition;
+				if (area.Contains(pos)) {
+					Vector2 dpos = t.deltaPosition;
+					dpos.y *= -1;
+					return v - dpos;
 				}
 			}
 		}
