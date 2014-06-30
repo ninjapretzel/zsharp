@@ -6,22 +6,45 @@ public class Draggable : MonoBehaviour {
 	public bool dragging = false;
 	const float touchRadius = .1f;
 	public static Draggable selected;
-	
+	public LayerMask mask;
 	
 	// Use this for initialization
 	void Start() {
 		gameObject.layer = 8; //Change to a layer called draggable
+		//mask = mask | (1 << 8);
 	}
 	
 	// Update is called once per frame
 	void Update() {
+		gameObject.layer = 8;
 		if (Input.GetMouseButtonUp(0)) {
 			if (selected != null) {
 				selected.dragging = false;
 				selected = null;
 			}
+			if (selected == this) {
+				dragging = false;
+				selected = null;
+			}
 		}
 		
+		if (Input.GetMouseButtonDown(0)) {
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			RaycastHit rayhit;
+			if (Physics.Raycast(ray, out rayhit, 50, 1 << 8)) {
+				if (rayhit.collider == collider) {
+					dragging = true;
+					selected = this;
+				}
+			}
+			
+			
+		}
+		
+		
+		
+		
+			
 		if (selected == null || selected == this) {
 			UpdateTouchDrag();
 			
@@ -35,13 +58,13 @@ public class Draggable : MonoBehaviour {
 	}
 	
 	void OnMouseDown() {
-		dragging = true;
-		selected = this;
+		//dragging = true;
+		//selected = this;
 	}
 	
 	void OnMouseUp() {
-		dragging = false;
-		selected = null;
+		//dragging = false;
+		//selected = null;
 	}
 	
 	void UpdateTouchDrag() {
@@ -72,9 +95,9 @@ public class Draggable : MonoBehaviour {
 		//Debug.Log("Dragging");
 		Ray ray = Camera.main.ScreenPointToRay(pos);
 		RaycastHit rayhit;
-		int mask = 1 << 8 | 1 << 2 | 1 << 1 | 1 << 10;
-		mask = ~mask;
-		if (Physics.Raycast(ray, out rayhit, 50, mask)) {
+		//int mask = 1 << 8 | 1 << 2 | 1 << 1 | 1 << 10;
+		//mask = ~mask;
+		if (Physics.Raycast(ray, out rayhit, 50, mask.value)) {
 			//Debug.Log("Raycast hit" + rayhit.collider.gameObject.name);
 			transform.position = rayhit.point;
 		}

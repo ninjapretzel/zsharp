@@ -11,6 +11,10 @@ public class StickToSurfaceOnStart : MonoBehaviour {
 	
 	public bool waitForFixedUpdate = false;
 	
+	#if UNITY_EDITOR
+	public bool DO_IT_NOW = false;
+	#endif
+	
 	void Start() {
 		if (!waitForFixedUpdate) {
 			Stick();
@@ -22,6 +26,15 @@ public class StickToSurfaceOnStart : MonoBehaviour {
 		Stick();
 	}
 	
+	#if UNITY_EDITOR
+	void OnDrawGizmos() {
+		if (DO_IT_NOW) {
+			DO_IT_NOW = false;
+			Stick();
+		}
+		
+	}
+	#endif
 	void Stick() {
 		RaycastHit hit;
 		if (Physics.Raycast(transform.position, direction, out hit, maxDistance, layers)) {
@@ -34,8 +47,11 @@ public class StickToSurfaceOnStart : MonoBehaviour {
 					transform.up = hit.normal;
 				}
 			}
-		}	
-		Destroy(this);
+		}
+		
+		if (Application.isPlaying) {
+			Destroy(this);
+		}
 	}
 	
 	

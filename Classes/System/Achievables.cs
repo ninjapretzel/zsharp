@@ -203,9 +203,13 @@ public static class Achievables {
 	public static void Event(string name, string args) {
 		if (events.ContainsKey(name)) {
 			int i = 0;
+			
 			Debug.Log("Event " + name + " passed with args:\n" + args);
-			foreach (AchievableAction action in events[name].GetInvocationList()) {
-				Debug.Log("Calling action #" + ++i);
+			Delegate[] eventActions = events[name].GetInvocationList();
+			Debug.Log("Calling a total of " + eventActions.Length + " actions.");
+			
+			foreach (AchievableAction action in eventActions) {
+				//Debug.Log("Calling action #" + ++i);
 				Achievable achievable = action(args);
 				
 				if (achievable.justEarned) {
