@@ -225,6 +225,12 @@ public static class Achievables {
 		}
 	}
 	
+	public static void SendAllEarnedAchievables() {
+		foreach (string id in achievables.Keys) {
+			if (achievables[id].earned) { sendFunc(id, achievables[id].earnedCallback); }
+		}
+	}
+	
 	//Save/Load Functions
 	public static void Save() {
 		foreach (Achievable achievable in achievables.Values) {

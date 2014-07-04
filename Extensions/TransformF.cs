@@ -30,6 +30,15 @@ public static class TransformF {
 		
 	}
 	
+	public static Transform[] GetChildren(this Transform t) {
+		int num = t.childCount;
+		Transform[] list = new Transform[num];
+		for (int i = 0; i < num; i++) {
+			list[i] = t.GetChild(i);
+		}
+		return list;
+	}
+	
 	public static void FlattenRotationZ(this Component c) { c.transform.FlattenZ(); }
 	public static void FlattenZ(this Transform t) {
 		Quaternion q = t.rotation;
