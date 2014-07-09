@@ -15,6 +15,21 @@ public static class TransformF {
 		return dir.magnitude;
 	}
 	
+	public static void StretchFrom(this Transform t, Vector3 from, Vector3 to) { t.StretchFrom(from, to, 1); }
+	public static void StretchFrom(this Transform t, Vector3 from, Vector3 to, float scale) {
+		Vector3 center = (from + to) / 2f;
+		Vector3 dir = from - to;
+		float dist = dir.magnitude;
+		//angle = Mathf.Atan2(dir.z, dir.x) * Mathf.Rad2Deg;
+		
+		t.position = center;
+		t.forward = dir;
+		
+		Vector3 localScale = t.localScale;
+		localScale.z = dist * scale;
+		t.localScale = localScale;
+	}
+	
 	public static void SnapParent(this Component c, Component other) { c.transform.SnapParent(other.transform); }
 	public static void SnapParent(this Transform t, Transform o) {
 		Transform p = t.parent;
