@@ -241,8 +241,18 @@ public class ItemDatabase : ZEditorWindow {
 					} else {
 						for (int i = 0; i < visibleList.Count; i++) {
 							Item item = visibleList[i];
-							//int index = items.IndexOf(item);
-							int index = items.IndexOf(_item => _item.name == item.name);
+							int index = 0;
+							index = items.IndexOf(item);
+							
+							/* I forget why I had this...
+							if (searchString == "") {
+								index = items.IndexOf(item);
+							} else {
+								//A stupid way to search for items...
+								//But there was a reason I had it this way...
+								index = items.IndexOf(_item => _item.name == item.name);
+							}
+							//*/
 							
 							if (items[selection] == item) {
 								GUI.color = selectedColor;
@@ -285,6 +295,13 @@ public class ItemDatabase : ZEditorWindow {
 							} EndHorizontal();
 							
 						}
+						
+						
+					}
+					
+					if (Button("+")) {
+						items.Add(new Item());
+						listChanged = true;
 					}
 					
 				} EndVertical();
@@ -386,6 +403,7 @@ public class ItemDatabase : ZEditorWindow {
 				Space(150);
 				if (Button("\\/ Set \\/", Width(150))) {
 					Unfocus();
+					if (strings["baseName"] != strings["name"]) { changed = true; }
 					strings["baseName"] = strings["name"];
 				}
 			} EndHorizontal();

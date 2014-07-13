@@ -32,7 +32,6 @@ public class SortChildrenByName : MonoBehaviour {
 		
 		nameList.Sort();
 		
-		int num = root.childCount;
 		int i = 0;
 		foreach (string name in nameList) {
 			List<Transform> transforms = children[name];

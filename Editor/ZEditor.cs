@@ -18,12 +18,12 @@ public static class ZEditorExtensions {
 		
 	}
 	
-	
+	/*
 	[MenuItem("SceneView/List All Members")]
 	public static void SceneViewListAllMembers() {
 		typeof(SceneView).ListAllMembers(false, false);
 	}
-	
+	//*/
 	
 	
 	

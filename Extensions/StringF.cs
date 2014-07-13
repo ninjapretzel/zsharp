@@ -31,13 +31,28 @@ public static class StringF {
 		return ss.Replace(MAC_NEWLINE, UNIX_NEWLINE);
 	}
 	
+	//Returns the substring of a string up to the first instance of a character.
+	public static string UpToFirst(this string s, char c) {
+		int index = s.IndexOf(c);
+		if (index == -1) { return s; }
+		return s.Substring(0, index);
+	}
+	
 	//Returns the substring of a string up to the last instance of a character.
 	public static string UpToLast(this string s, char c) {
 		int lastIndex = s.LastIndexOf(c);
+		if (lastIndex == -1) { return s; }
 		return s.Substring(0, lastIndex);
 	}
 	
-	//Returns the substring of a string from the last instance of a character.
+	//Returns the substring of a string from the first instance of a character. (Not Inclusive)
+	public static string FromFirst(this string s, char c) {
+		int index = s.IndexOf(c);
+		if (index == -1) { return s; }
+		return s.Substring(index+1);
+	}
+	
+	//Returns the substring of a string from the last instance of a character. (Not Inclusive)
 	public static string FromLast(this string s, char c) {
 		int lastIndex = s.LastIndexOf(c);
 		if (lastIndex == -1) { return s; }

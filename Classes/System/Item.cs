@@ -319,6 +319,7 @@ public class Item : IComparable<Item> {
 		baseName = "";
 		iconName = "";
 		
+		color = Color.white;
 	}
 	
 	public Item(string str) {
