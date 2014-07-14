@@ -159,16 +159,16 @@ public class State<T> where T : Component {
 	public static void BeginArea(Rect area) { GUILayout.BeginArea(area); }
 	public static void EndArea() { GUILayout.EndArea(); }
 	
-	public static void BeginHorizontal() { GUILayout.BeginHorizontal(); }
-	public static void BeginHorizontal(string style) { GUILayout.BeginHorizontal(style); }
+	public static void BeginHorizontal(params GUILayoutOption[] options) { GUILayout.BeginHorizontal(options); }
+	public static void BeginHorizontal(string style, params GUILayoutOption[] options) { GUILayout.BeginHorizontal(style, options); }
 	public static void EndHorizontal() { GUILayout.EndHorizontal(); }
 	
-	public static void BeginVertical() { GUILayout.BeginVertical(); }
-	public static void BeginVertical(string style) { GUILayout.BeginVertical(style); }
+	public static void BeginVertical(params GUILayoutOption[] options) { GUILayout.BeginVertical(options); }
+	public static void BeginVertical(string style, params GUILayoutOption[] options) { GUILayout.BeginVertical(style, options); }
 	public static void EndVertical() { GUILayout.EndVertical(); }
 	
-	public static void BeginScrollView(Vector2 scroll, bool alwaysShowHor = false, bool alwaysShowVer = false, params GUILayoutOption[] options) { 
-		GUILayout.BeginScrollView(scroll, alwaysShowHor, alwaysShowVer, options);
+	public static Vector2 BeginScrollView(Vector2 scroll, bool alwaysShowHor = false, bool alwaysShowVer = false, params GUILayoutOption[] options) { 
+		return GUILayout.BeginScrollView(scroll, alwaysShowHor, alwaysShowVer, options);
 	}
 	public static void EndScrollView() { GUILayout.EndScrollView(); }
 	
