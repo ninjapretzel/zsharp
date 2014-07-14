@@ -6,6 +6,12 @@ using System;
 
 public static class VectorF {
 	
+	public static int Hash(this Vector2 v) {
+		int x = v.x.GetHashCode();
+		int y = v.y.GetHashCode();
+		y = (y << 16) | ((y > 0 ? y : -y) >> 16);
+		return ~x ^ y;
+	}
 	
 	public static Vector2 BiggestDifferenceTo(this Vector2 v, Vector2 other) {
 		Vector2 diff = other - v;

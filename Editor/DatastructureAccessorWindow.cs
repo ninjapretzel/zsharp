@@ -13,6 +13,7 @@ public class DatastructureAccessorWindow : ZEditorWindow {
 	
 	[System.NonSerialized] List<string> list;
 	[System.NonSerialized] int timeout;
+	Vector2 scroll;
 	
 	[MenuItem ("Window/Accessors")]
 	public static void ShowWindow() {
@@ -25,12 +26,14 @@ public class DatastructureAccessorWindow : ZEditorWindow {
 		list = new List<string>();
 		if (!Directory.Exists(sourcePath)) {
 			Directory.CreateDirectory(sourcePath);
+			AssetDatabase.Refresh();
 		}
 		
 		if (!Directory.Exists(targetPath)) {
 			Directory.CreateDirectory(targetPath);
+			AssetDatabase.Refresh();
 		}
-		AssetDatabase.Refresh();
+		
 		
 		RefreshList();
 		
@@ -44,23 +47,29 @@ public class DatastructureAccessorWindow : ZEditorWindow {
 		
 	}
 	
-	void Convert() {
-		foreach (string filePath in list) {
-			if (File.Exists(filePath)) {
-				string name = filePath.FromLast('/').UpToFirst('.');
-				string content = File.ReadAllText(filePath);
-				Settings settings = new Settings(content);
-				
-				//Debug.Log(settings.ToString());
-				
-				StreamWriter sr = File.CreateText(targetPath + name + ".cs");
-				sr.Write(settings.ToString());
-				sr.Close();
-				
-				
-			}
-		}
+	void Build() {
+		foreach (string filePath in list) { Build(filePath); }
 		AssetDatabase.Refresh();
+	}
+	
+	void Build(string filePath) {
+		if (File.Exists(filePath)) {
+			
+			string name = filePath.FromLast('/').UpToFirst('.');
+			string content = File.ReadAllText(filePath);
+			Settings settings = new Settings(content);
+			
+			//Debug.Log(settings.ToString());
+			
+			StreamWriter sr = File.CreateText(targetPath + name + ".cs");
+			sr.Write(settings.ToString());
+			sr.Close();
+			
+			Debug.Log("wrote file " + name + ".cs");
+			
+		
+		}
+		
 	}
 	
 	
@@ -75,22 +84,26 @@ public class DatastructureAccessorWindow : ZEditorWindow {
 		
 		BeginVertical("box"); {
 			Label(list.Count + " File(s) Found");
-			if (Button("Convert")) {
-				Convert();
+			if (Button("Build All")) {
+				Build();
 			}
 			
-			foreach (string file in list) {
-				string name = file.FromLast('/');
-				BeginHorizontal("box"); {
-					FixedLabel(name);
-					FlexibleSpace();
-					FixedLabel("->");
-					FlexibleSpace();
-					FixedLabel(name.UpToFirst('.') + ".cs");
-					
-				} EndHorizontal();
-			}
-			
+			scroll = BeginScrollView(scroll, false, true); {
+				foreach (string file in list) {
+					string name = file.FromLast('/');
+					BeginHorizontal("box"); {
+						if (Button("Build")) {
+							Build(file);
+						}
+						FixedLabel(name);
+						FlexibleSpace();
+						FixedLabel("->");
+						FlexibleSpace();
+						FixedLabel(name.UpToFirst('.') + ".cs");
+						
+					} EndHorizontal();
+				}
+			} EndScrollView();
 			
 			
 		} EndVertical();

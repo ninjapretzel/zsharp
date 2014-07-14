@@ -12,6 +12,7 @@ public static class ScreenF {
 	public static float w { get { return width; } }
 	public static float h { get { return height; } } 
 	
+	public static float aspect { get { return width/height; } }
 	public static Rect all { get { return new Rect(0, 0, w, h); } }
 	
 	public static Vector2 TopLeft() { return all.TopLeft(); }

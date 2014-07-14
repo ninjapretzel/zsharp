@@ -83,6 +83,9 @@ public static class RectF {
 		}
 	}
 	
+	///Get a rectangle's aspect ration
+	public static float Aspect(this Rect r) { return r.width / r.height; }
+	///Resize a rect's width based on its existant height
 	public static Rect Aspect(this Rect r, float ratio) { return FromCenter(r.center, r.height * ratio, r.height); }
 	
 	public static Rect MoveLeft(this Rect r) { return r.MoveLeft(1); }

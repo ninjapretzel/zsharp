@@ -94,6 +94,8 @@ public class State<T> where T : Component {
 	
 	public virtual void Action(string a) { Debug.LogWarning("Missing override to Action(string a) in " + GetType()); }
 	
+	#region Virtuals
+	
 	public virtual void Enter() {}
 	public virtual void Exit() {}
 	
@@ -124,7 +126,66 @@ public class State<T> where T : Component {
 	public virtual void OnMouseDown() {}
 	public virtual void OnMouseUp() {}
 	public virtual void OnMouseUpAsButton() {}
-
+	
+	#endregion
+	
+	#region GUILayoutStuff
+	
+	public static void Label(string s, params GUILayoutOption[] options) { GUILayout.Label(s, options); }
+	public static void Label(Texture s, params GUILayoutOption[] options) { GUILayout.Label(s, options); }
+	public static void Label(GUIContent s, params GUILayoutOption[] options) { GUILayout.Label(s, options); }
+	public static void FixedLabel(string s) { GUILayout.Label(s, ExpandWidth(false)); }
+	public static void FixedLabel(Texture s) { GUILayout.Label(s, ExpandWidth(false)); }
+	public static void FixedLabel(GUIContent s) { GUILayout.Label(s, ExpandWidth(false)); }
+	
+	
+	public static void Box(string s, params GUILayoutOption[] options) { GUILayout.Box(s, options); }
+	public static void Box(Texture s, params GUILayoutOption[] options) { GUILayout.Box(s, options); }
+	public static void Box(GUIContent s, params GUILayoutOption[] options) { GUILayout.Box(s, options); }
+	public static void FixedBox(string s) { GUILayout.Box(s, ExpandWidth(false)); }
+	public static void FixedBox(Texture s) { GUILayout.Box(s, ExpandWidth(false)); }
+	public static void FixedBox(GUIContent s) { GUILayout.Box(s, ExpandWidth(false)); }
+	
+	public static bool Button(string s, params GUILayoutOption[] options) { return GUILayout.Button(s, options); }
+	public static bool Button(Texture s, params GUILayoutOption[] options) { return GUILayout.Button(s, options); }
+	public static bool Button(GUIContent s, params GUILayoutOption[] options) { return GUILayout.Button(s, options); }
+	
+	public static bool Toggle(bool val, string s, params GUILayoutOption[] options) { return GUILayout.Toggle(val, s, options); }
+	public static bool Toggle(bool val, Texture s, params GUILayoutOption[] options) { return GUILayout.Toggle(val, s, options); }
+	public static bool Toggle(bool val, GUIContent s, params GUILayoutOption[] options) { return GUILayout.Toggle(val, s, options); }
+	
+	public static string TextField(string text, params GUILayoutOption[] options) { return GUILayout.TextField(text, options); }
+	
+	public static void BeginArea(Rect area) { GUILayout.BeginArea(area); }
+	public static void EndArea() { GUILayout.EndArea(); }
+	
+	public static void BeginHorizontal() { GUILayout.BeginHorizontal(); }
+	public static void BeginHorizontal(string style) { GUILayout.BeginHorizontal(style); }
+	public static void EndHorizontal() { GUILayout.EndHorizontal(); }
+	
+	public static void BeginVertical() { GUILayout.BeginVertical(); }
+	public static void BeginVertical(string style) { GUILayout.BeginVertical(style); }
+	public static void EndVertical() { GUILayout.EndVertical(); }
+	
+	public static void BeginScrollView(Vector2 scroll, bool alwaysShowHor = false, bool alwaysShowVer = false, params GUILayoutOption[] options) { 
+		GUILayout.BeginScrollView(scroll, alwaysShowHor, alwaysShowVer, options);
+	}
+	public static void EndScrollView() { GUILayout.EndScrollView(); }
+	
+	public static void Space(float pixels) { GUILayout.Space(pixels); }
+	public static void FlexibleSpace() { GUILayout.FlexibleSpace(); }
+	
+	public static GUILayoutOption ExpandWidth(bool expand) { return GUILayout.ExpandWidth(expand); }
+	public static GUILayoutOption ExpandHeight(bool expand) { return GUILayout.ExpandHeight(expand); }
+	public static GUILayoutOption MaxHeight(float height) { return GUILayout.MaxHeight(height); }
+	public static GUILayoutOption MinHeight(float height) { return GUILayout.MinHeight(height); }
+	public static GUILayoutOption Height(float height) { return GUILayout.Height(height); }
+	public static GUILayoutOption MaxWidth(float width) { return GUILayout.MaxWidth(width); }
+	public static GUILayoutOption MinWidth(float width) { return GUILayout.MinWidth(width); }
+	public static GUILayoutOption Width(float width) { return GUILayout.Width(width); }
+	
+	#endregion
+	
 	///Depreciated functions
 	[Obsolete("No longer need to pass in the owner. Use Enter() ")] public virtual void Enter(T owner) {}
 	[Obsolete("No longer need to pass in the owner. Use Exit() ")] public virtual void Exit(T owner) {}

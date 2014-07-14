@@ -34,11 +34,13 @@ public class Slider {
 	public Rect slideOff { get { return slideOut; } }
 	
 	public float dampening = 5;
+	public float thresh = .04f;
 	
-	public bool done { get { return slideChange.magnitude < .04f; } }
+	public bool done { get { return slideChange.magnitude < thresh; } }
 	public Vector2 slideChange = Vector2.zero;
 	
-	//Constructor
+	//Constructors
+	public Slider() { baseArea = RectF.unit; } // unit = (0, 0, 1, 1)
 	public Slider(Rect area) { baseArea = area; }
 	//Normalized Factory
 	public static Slider Normalized(Rect area) {
