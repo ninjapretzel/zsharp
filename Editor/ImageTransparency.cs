@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿#if UNITY_EDITOR && !UNITY_WEBPLAYER
 using UnityEditor;
 using UnityEngine;
 using System.Collections;

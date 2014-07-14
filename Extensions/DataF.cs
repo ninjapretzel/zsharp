@@ -252,6 +252,7 @@ public static class DataF {
 		
 	}
 	
+	#if !UNITY_WEBPLAYER
 	public static void SaveToFile(this byte[] b, string path) {
 		Directory.CreateDirectory(path.PreviousDirectory());
 		
@@ -268,6 +269,7 @@ public static class DataF {
 		
 	}
 	
+	#endif
 	
 }
 

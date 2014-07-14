@@ -879,9 +879,11 @@ public class Console : MonoBehaviour {
 	}
 
 	public static void SaveConfigFile() {
+		#if !UNITY_WEBPLAYER
 		if(File.Exists(configPath)) {
 			File.Delete(configPath);
 		}
+		
 		StreamWriter sw = File.CreateText(configPath);
 		sw.WriteLine("autoexecPath \"" + autoexecPath + "\"");
 		foreach(string alias in aliases.Keys) {
@@ -892,6 +894,7 @@ public class Console : MonoBehaviour {
 		}
 		sw.Close();
 
+		#endif
 	}
 
 	public static void Quit() {

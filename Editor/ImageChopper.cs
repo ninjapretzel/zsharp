@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR
+﻿#if UNITY_EDITOR && !UNITY_WEBPLAYER
 using UnityEngine;
 using UnityEditor;
 using System.IO;

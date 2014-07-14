@@ -254,6 +254,7 @@ public class ControlBinder : EditorWindow {
 	}
 	
 	public void SaveDatabase(string file) {
+		#if !UNITY_WEBPLAYER
 		if(controls != null) {
 			if (File.Exists(file)) {
 				File.Delete(file);
@@ -271,6 +272,7 @@ public class ControlBinder : EditorWindow {
 			sw.Write(data);
 			sw.Close();
 		}
+		#endif
 	}
 	
 	public void CopyAll() {
