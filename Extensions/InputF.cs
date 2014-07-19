@@ -29,17 +29,17 @@ public static class InputF {
 			
 			return avg / Input.touches.Length;
 		}
+		
 	}
 	
 	public static Vector3 mouseDirection { get { return (mousePosition - new Vector3(Screen.width/2, Screen.height/2, 0)).normalized; } }
 	
-	public static Vector2 TouchScroll(this Vector2 v, Rect area) {
+	public static Vector2 TouchScroll(this Vector2 v, Rect area, float sensitivity = 1f) {
 		foreach (Touch t in Input.touches) {
 			if (t.phase == TouchPhase.Moved) {
-				Vector2 pos = t.position;
-				pos.y = Screen.height - pos.y;
+				Vector2 pos = t.ScreenPosition();
 				if (area.Contains(pos)) {
-					Vector2 dpos = t.deltaPosition;
+					Vector2 dpos = t.deltaPosition * sensitivity;
 					dpos.y *= -1;
 					return v - dpos;
 				}
@@ -48,11 +48,12 @@ public static class InputF {
 		return v;
 	}
 	
-	public static Vector2 TouchVelocity(Rect area) {
+	
+	public static Vector2 TouchVelocity(Rect area, float sensitivity = 1f) {
 		foreach (Touch t in Input.touches) {
 			if (t.phase == TouchPhase.Moved) {
-				if (area.Contains(t.position)) {
-					return t.deltaPosition;
+				if (area.Contains(t.ScreenPosition())) {
+					return t.deltaPosition * sensitivity;
 				}
 			}
 		}

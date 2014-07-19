@@ -34,7 +34,110 @@ public static class ColorF {
 	public static Color yellow(float f, float a) { return new Color(f, f, 0, a); }
 	public static Color purple(float f, float a) { return new Color(f, 0, f, a); }
 	public static Color cyan(float f, float a) { return new Color(0, f, f, a); }
-
+	
+	
+	public static Color HSV(float h, float s, float v, float a = 1) { return new Color(h, s, v, a).HSVtoRGB(); }
+	public static Color RandomHue(float s, float v, float a = 1) { return new Color(RandomF.Range(0, 1), s, v, a).HSVtoRGB(); }
+	
+	public static Color HSVLerp(Color a, Color b, float val) {
+		Color ahsv = a.RGBtoHSV();
+		Color bhsv = b.RGBtoHSV();
+		return Color.Lerp(ahsv, bhsv, val).HSVtoRGB();
+	}
+	
+	public static Color ShiftHue(this Color c, float shift) {
+		Color hsv = c.RGBtoHSV();
+		hsv.r = (hsv.r + shift) % 1f;
+		return hsv.HSVtoRGB();
+	}
+	
+	public static Color Saturate(this Color c, float saturation) {
+		Color hsv = c.RGBtoHSV();
+		hsv.g = Mathf.Clamp01(hsv.g + saturation);
+		return hsv.HSVtoRGB();
+	}
+	
+	//HSV colors are represented as
+	//R = H (0...1) for red corrosponds to (0...360) for hue
+	//G = S (0...1) for green corrosponds to (0...1) for saturation
+	//B = V (0...1) for blue corrosponds to (0...1) for value
+	//alpha channel value is maintained.
+	public static Color RGBtoHSV(this Color c) {
+		Color hsv = new Color(0, 0, 0, c.a);
+		
+		float max = Mathf.Max(c.r, c.g, c.b);
+		if (max <= 0) { return hsv; }
+		//Value
+		hsv.b = max;
+		
+		float r, g, b;
+		r = c.r;
+		g = c.g;
+		b = c.b;
+		float min = Mathf.Min(r, g, b);
+		float delta = max - min;
+		
+		//Saturation
+		hsv.g = delta/max;
+		
+		//Hue
+		float h;
+		if (r == max) {
+			h = (g - b) / delta;
+		} else if (g == max) {
+			h = 2 + (b - r) / delta;
+		} else {
+			h = 4 + (r - g) / delta;
+		}
+		
+		h /= 6f; // convert h (0...6) space to (0...1) space
+		if (h < 0) { h += 1; }
+		
+		hsv.r = h;
+		
+		
+		return hsv;
+	}
+	
+	public static Color HSVtoRGB(this Color c) {
+		int i;
+		
+		float a = c.a;
+		float h, s, v;
+		float f, p, q, t;
+		h = c.r;
+		s = c.g;
+		v = c.b;
+		
+		if (s == 0) {
+			return new Color(v, v, v, a);
+		}
+		
+		//convert h from (0...1) space to (0...6) space
+		h *= 6f;
+		i = (int)Mathf.Floor(h);
+		f = h - i;
+		p = v * (1 - s);
+		q = v * (1 - s * f);
+		t = v * (1 - s * (1 - f) );
+		
+		if (i == 0) {
+			return new Color(v, t, p, a);
+		} else if (i == 1) {
+			return new Color(q, v, p, a);
+		} else if (i == 2) {
+			return new Color(p, v, t, a);
+		} else if (i == 3) {
+			return new Color(p, q, v, a);
+		} else if (i == 4) {
+			return new Color(t, p, v, a);
+		} 
+		
+		return new Color(v, p, q, a);
+		
+	}
+	
+	
 	
 	public static Color Blend(this Color a, Color b) { return Color.Lerp(a, b, .5f); }
 	public static Color Blend(this Color a, Color b, float f) { return Color.Lerp(a, b, f); }

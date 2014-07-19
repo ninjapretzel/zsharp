@@ -6,6 +6,14 @@ using System;
 
 public static class VectorF {
 	
+	
+	//returns a Vector2 at a 45 degree angle rotated by 90 degrees i times.
+	public static Vector2 SpinVector2(int i) {
+		float x = (i 	 % 4 <= 1) ? 1 : -1;
+		float y = ((1+i) % 2 == 1) ? 1 : -1;
+		return new Vector2(x, y);
+	}
+	
 	public static int Hash(this Vector2 v) {
 		int x = v.x.GetHashCode();
 		int y = v.y.GetHashCode();
@@ -58,6 +66,7 @@ public static class VectorF {
 	}
 	
 	public static Vector3 Abs(this Vector3 v) { return new Vector3(v.x.Abs(), v.y.Abs(), v.z.Abs()); }
+	public static Vector3 Sign(this Vector3 v) { return new Vector3(v.x.Sign(), v.y.Sign(), v.z.Sign()); }
 	public static Vector3 Floor(this Vector3 v) { return new Vector3(v.x.Floor(), v.y.Floor(), v.z.Floor()); }
 	
 	public static Vector3 TLerp(this Vector3 v, float t) { return v.TLerp(Vector3.zero, t); }

@@ -23,6 +23,13 @@ public class Oscillator {
 		maxTime = time;
 	}
 	
+	public Oscillator(float min, float max, float time, float start) {
+		minVal = min;
+		maxVal = max;
+		maxTime = time;
+		curTime = start;
+	}
+	
 	
 	public float Update() {
 		if (up) {

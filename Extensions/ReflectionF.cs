@@ -6,7 +6,9 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 
+
 public static class ReflectionF {
+	//Get the 'code' nane of a type ('float' instead of 'System.Single')
 	public static string ShortName(this Type t) {
 		if (t == typeof(void)) { return "void"; }
 		else if (t == typeof(string)) { return "string"; }
@@ -20,6 +22,131 @@ public static class ReflectionF {
 		else if (t == typeof(Event)) { return "Event"; }
 		return t.ToString().FromLast('.').Replace('+', '.');
 	}
+	
+	//Does this object have a property called name
+	public static bool HasProperty(this System.Object obj, string name) { return obj.GetProperty(name) != null; }
+	//Get this object's property called name
+	public static PropertyInfo GetProperty(this System.Object obj, string name) { return obj.GetType().GetProperty(name); }
+	public static PropertyInfo GetProperty(this System.Object obj, string name, Type type) { return obj.GetType().GetProperty(name, type); }
+	public static PropertyInfo GetProperty(this System.Object obj, string name, BindingFlags flags) { return obj.GetType().GetProperty(name, flags); }
+	
+	//Does this object have a field called name
+	public static bool HasField(this System.Object obj, string name) { return obj.GetField(name) != null; }
+	//Get this object's field called name
+	public static FieldInfo GetField(this System.Object obj, string name) { return obj.GetType().GetField(name); }
+	public static FieldInfo GetField(this System.Object obj, string name, Type type) { return obj.GetType().GetField(name, type); }
+	public static FieldInfo GetField(this System.Object obj, string name, BindingFlags flags) { return obj.GetType().GetField(name, flags); }
+	
+	//Does this object have a method called name
+	public static bool HasMethod(this System.Object obj, string name) { return obj.GetMethod(name) != null; }
+	//Get this object's method called name
+	public static MethodInfo GetMethod(this System.Object obj, string name) { return obj.GetType().GetMethod(name); }
+	public static MethodInfo GetMethod(this System.Object obj, string name, Type type) { return obj.GetType().GetMethod(name, type); }
+	public static MethodInfo GetMethod(this System.Object obj, string name, BindingFlags flags) { return obj.GetType().GetMethod(name, flags); }
+	
+	//Set an object's Property or Field by the provided name to a value
+	public static bool SetObjectValue(this System.Object obj, string name, System.Object value) {
+		if (obj.GetField(name) != null) {
+			return obj.SetFieldValue(name, value);
+		} else if (obj.GetProperty(name) != null) {
+			return obj.SetPropertyValue(name, value);
+		}
+		
+		Debug.LogWarning("ReflectionF.SetObjectValue: No field or property named " + name + " exists on instance of " + obj.GetType().ShortName());
+		return false;
+	}
+	
+	//Get an object's Property or Field value by a provided name and type.
+	public static T GetObjectValue<T>(this System.Object obj, string name) {
+		if (obj.GetField(name) != null) {
+			return obj.GetFieldValue<T>(name);
+		} else if (obj.GetProperty(name) != null) {
+			return obj.GetPropertyValue<T>(name);
+		}
+		
+		Debug.LogWarning("ReflectionF.GetObjectValue: No field or property named " + name + " exists on instance of " + obj.GetType().ShortName());
+		return default(T);
+	}
+	
+	//Get an object's Property value by a provided name and type.
+	public static T GetPropertyValue<T>(this System.Object obj, string name) {
+		PropertyInfo prop = obj.GetProperty(name);
+		if (prop != null) {
+			MethodInfo method = prop.GetGetMethod();
+			if (method != null) {
+				if (prop.PropertyType.IsAssignableFrom(typeof(T))) {
+					return (T) method.Invoke(obj, null);
+				}
+				Debug.LogWarning("ReflectionF.GetPropertyValue: Property " + name + " on instance of " + obj.GetType().ShortName() + " does not match expected type.");
+				return default(T);
+			}
+			
+			Debug.LogWarning("ReflectionF.GetPropertyValue: Property " + name + " on instance of " + obj.GetType().ShortName() + " does not have get method.");
+			return default(T);
+		}
+		
+		Debug.LogWarning("ReflectionF.GetPropertyValue: Property " + name + " on instance of " + obj.GetType().ShortName() + " does not exist.");
+		return default(T);
+	}
+	
+	//Set an object's Property value by the provided name and type.
+	public static bool SetPropertyValue(this System.Object obj, string name, System.Object value) {
+		PropertyInfo prop = obj.GetProperty(name);
+		if (prop != null) {
+			MethodInfo method = prop.GetSetMethod();
+			if (method != null) {
+				if (prop.PropertyType.IsAssignableFrom(value.GetType())) {
+					method.Invoke(obj, new System.Object[] { value } );
+					
+					return true;
+				}
+				
+				//Debug.LogWarning("ReflectionF.SetPropertyValue: Cannot assign " + value + " to property " + name + " on instance of " + obj.GetType().ShortName());
+				Debug.LogWarning("ReflectionF>SetPropertyValue: Property " + name + " on instance of " + obj.GetType().ShortName() + " does not match expected type.");
+				return false;
+			}
+			
+			Debug.LogWarning("ReflectionF.SetPropertyValue: Property " + name + " on instance of " + obj.GetType().ShortName() + " does not have set method.");
+			return false;
+		}
+		
+		Debug.LogWarning("ReflectionF.SetPropertyValue: Property " + name + " on instance of " + obj.GetType().ShortName() + " does not exist.");
+		return false;
+	}
+	
+	//Get an object's Field value by a provided name and type.
+	public static T GetFieldValue<T>(this System.Object obj, string name) {
+		FieldInfo field = obj.GetField(name);
+		if (field != null) {
+			if (field.FieldType.IsAssignableFrom(typeof(T))) {
+				return (T) field.GetValue(obj);
+			}
+			
+			Debug.LogWarning("ReflectionF.GetFieldValue: Field " + name + " on instance of " + obj.GetType().ShortName() + " does not match expected type.");
+			return default(T);
+		}
+		
+		Debug.LogWarning("ReflectionF.GetFieldValue: Field " + name + " on instance of " + obj.GetType().ShortName() + " does not exist.");
+		return default(T);
+	}
+	
+	//Set an object's Property value by the provided name and type.
+	public static bool SetFieldValue(this System.Object obj, string name, System.Object value) {
+		FieldInfo field = obj.GetField(name);
+		if (field != null) {
+			if (field.FieldType.IsAssignableFrom(value.GetType())) {
+				field.SetValue(obj, value);
+				return true;
+			}
+			
+			Debug.LogWarning("ReflectionF.SetFieldValue: Field " + name + " on instance of " + obj.GetType().ShortName() + " does not match expected type.");
+			return true;
+		}
+		
+		Debug.LogWarning("ReflectionF.SetFieldValue: Field " + name + " on instance of " + obj.GetType().ShortName() + " does not exist.");
+		return false;
+	}
+	
 	
 	public static bool IsInherited(this MemberInfo info) { return info.DeclaringType != info.ReflectedType; }
 	public static bool IsPublic(this PropertyInfo info) {

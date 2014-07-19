@@ -342,13 +342,15 @@ public class Table : Dictionary<string, float> {
 	
 	public override string ToString() { return ToString(','); }
 	public string ToString(char delim) {
-		StringBuilder str = new StringBuilder("#Formatted Table as .csv:");
-		foreach (string key in Keys) {
-			str.Append("\n");
-			str.Append(key);
-			str.Append(delim);
-			str.Append(this[key]);
-		}
+		
+		//Save a little bit of space when saving tables to PlayerPrefs on webplayer
+		StringBuilder str = new StringBuilder(
+		#if !UNITY_WEBPLAYER
+		"#Formatted Table as .csv:"
+		#endif
+		);
+		
+		foreach (string key in Keys) { str.Append('\n' + key + delim + this[key]); }
 		return str.ToString();
 	}
 	
@@ -357,9 +359,7 @@ public class Table : Dictionary<string, float> {
 		StringBuilder str = new StringBuilder();
 		foreach (string key in Keys) {
 			if (str.Length > 0) { str.Append(delim); }
-			str.Append(key);
-			str.Append(delim);
-			str.Append(this[key]);
+			str.Append(key + delim + this[key]);
 		}
 		//Debug.Log("ToLine: [" + str.ToString() + "]");
 		return str.ToString();

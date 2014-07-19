@@ -30,6 +30,10 @@ public static class RandomF {
 		}
 	}
 	
+	public static Vector3 insideUnitSphere { get { return Random.insideUnitSphere; } }
+	public static Vector3 onUnitSphere { get { return Random.onUnitSphere; } }
+	public static Vector2 insideUnitCircle { get { return Random.insideUnitCircle; } }
+	public static Vector2 onUnitCircle { get { return Random.insideUnitCircle.normalized; } }
 	
 	public static int Range(int a, int b) { return (a + (int)((float)(b-a) * value)); }
 	public static float Range(float a, float b) { return (a + (b-a) * value); }

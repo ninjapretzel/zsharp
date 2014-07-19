@@ -134,21 +134,49 @@ public class State<T> where T : Component {
 	public static void Label(string s, params GUILayoutOption[] options) { GUILayout.Label(s, options); }
 	public static void Label(Texture s, params GUILayoutOption[] options) { GUILayout.Label(s, options); }
 	public static void Label(GUIContent s, params GUILayoutOption[] options) { GUILayout.Label(s, options); }
-	public static void FixedLabel(string s) { GUILayout.Label(s, ExpandWidth(false)); }
-	public static void FixedLabel(Texture s) { GUILayout.Label(s, ExpandWidth(false)); }
-	public static void FixedLabel(GUIContent s) { GUILayout.Label(s, ExpandWidth(false)); }
+	public static void FixedLabel(string s) { Label(s, ExpandWidth(false)); }
+	public static void FixedLabel(Texture s) { Label(s, ExpandWidth(false)); }
+	public static void FixedLabel(GUIContent s) { Label(s, ExpandWidth(false)); }
 	
+	public static void Label(Rect r, string s) { GUI.Label(r, s); }
+	public static void Label(Rect r, Texture s) { GUI.Label(r, s); }
+	public static void Label(Rect r, GUIContent s) { GUI.Label(r, s); }
+	
+	public static void IconLabel(Texture s, float size) { Label(s, ExpandWidth(false), ExpandHeight(false), MaxHeight(size), MaxWidth(size), MinHeight(size), MinWidth(size)); }
+			
 	
 	public static void Box(string s, params GUILayoutOption[] options) { GUILayout.Box(s, options); }
 	public static void Box(Texture s, params GUILayoutOption[] options) { GUILayout.Box(s, options); }
 	public static void Box(GUIContent s, params GUILayoutOption[] options) { GUILayout.Box(s, options); }
-	public static void FixedBox(string s) { GUILayout.Box(s, ExpandWidth(false)); }
-	public static void FixedBox(Texture s) { GUILayout.Box(s, ExpandWidth(false)); }
-	public static void FixedBox(GUIContent s) { GUILayout.Box(s, ExpandWidth(false)); }
+	public static void FixedBox(string s) { Box(s, ExpandWidth(false)); }
+	public static void FixedBox(Texture s) { Box(s, ExpandWidth(false)); }
+	public static void FixedBox(GUIContent s) { Box(s, ExpandWidth(false)); }
+	
+	public static void Box(Rect r, string s) { GUI.Box(r, s); }
+	public static void Box(Rect r, Texture s) { GUI.Box(r, s); }
+	public static void Box(Rect r, GUIContent s) { GUI.Box(r, s); }
 	
 	public static bool Button(string s, params GUILayoutOption[] options) { return GUILayout.Button(s, options); }
 	public static bool Button(Texture s, params GUILayoutOption[] options) { return GUILayout.Button(s, options); }
 	public static bool Button(GUIContent s, params GUILayoutOption[] options) { return GUILayout.Button(s, options); }
+	public static bool FixedButton(string s) { return Button(s, ExpandWidth(false)); }
+	
+	public static bool Button(Rect r, string s) { return GUI.Button(r, s); }
+	public static bool Button(Rect r, Texture s) { return GUI.Button(r, s); }
+	public static bool Button(Rect r, GUIContent s) { return GUI.Button(r, s); }
+	public static bool Button(Rect r, string s, string snd) { 
+		if (GUI.Button(r, s)) { SoundMaster.Play(snd); return true; }
+		else { return false; }
+	}
+	public static bool Button(Rect r, Texture s, string snd) { 
+		if (GUI.Button(r, s)) { SoundMaster.Play(snd); return true; }
+		else { return false; }
+	}
+	public static bool Button(Rect r, GUIContent s, string snd) { 
+		if (GUI.Button(r, s)) { SoundMaster.Play(snd); return true; }
+		else { return false; }
+	}
+	
 	
 	public static bool Toggle(bool val, string s, params GUILayoutOption[] options) { return GUILayout.Toggle(val, s, options); }
 	public static bool Toggle(bool val, Texture s, params GUILayoutOption[] options) { return GUILayout.Toggle(val, s, options); }
@@ -183,7 +211,6 @@ public class State<T> where T : Component {
 	public static GUILayoutOption MaxWidth(float width) { return GUILayout.MaxWidth(width); }
 	public static GUILayoutOption MinWidth(float width) { return GUILayout.MinWidth(width); }
 	public static GUILayoutOption Width(float width) { return GUILayout.Width(width); }
-	
 	#endregion
 	
 	///Depreciated functions
