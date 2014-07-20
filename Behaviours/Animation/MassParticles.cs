@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class MassParticles : MonoBehaviour {
 	
 	public ParticleMaker[] sources;
-	public bool atOrigin = false;
+	public bool worldSpace = false;
 	public bool alwaysVisible = false;
 	
 	
@@ -25,7 +25,7 @@ public class MassParticles : MonoBehaviour {
 		}
 		
 		
-		if (atOrigin) {
+		if (worldSpace) {
 			particleSystem.simulationSpace = ParticleSystemSimulationSpace.World;
 		} else {
 			particleSystem.simulationSpace = ParticleSystemSimulationSpace.Local;
