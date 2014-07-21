@@ -3,8 +3,9 @@ using System.Collections;
 
 public class Draggable : MonoBehaviour {
 	
+	const float touchRadius = .2f;
+	
 	public bool dragging = false;
-	const float touchRadius = .1f;
 	public static Draggable selected;
 	public LayerMask mask;
 	
@@ -17,7 +18,11 @@ public class Draggable : MonoBehaviour {
 	// Update is called once per frame
 	void Update() {
 		gameObject.layer = 8;
-		if (Input.GetMouseButtonUp(0)) {
+		
+		//if (Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer) {
+			
+		//} else {
+			if (Input.GetMouseButtonUp(0)) {
 			if (selected != null) {
 				selected.dragging = false;
 				selected = null;
@@ -40,6 +45,9 @@ public class Draggable : MonoBehaviour {
 			
 			
 		}
+		//}
+		
+		
 		
 		
 		
@@ -81,7 +89,7 @@ public class Draggable : MonoBehaviour {
 				
 				if ((tpos - screenpos).magnitude < touchRadius * Screen.width) {
 					//Debug.Log("Touched");
-					Debug.Log(screenpos + " " + t.position);
+					//Debug.Log(screenpos + " " + t.position);
 					if (t.phase == TouchPhase.Began) { dragging = true; selected = this; }
 					else if (t.phase == TouchPhase.Moved && dragging) { Drag(t.position); }
 					else if (t.phase == TouchPhase.Ended || t.phase == TouchPhase.Canceled) { dragging = false; selected = null; }
