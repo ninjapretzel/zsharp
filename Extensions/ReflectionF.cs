@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 
+//SVN test
 
 public static class ReflectionF {
 	//Get the 'code' nane of a type ('float' instead of 'System.Single')
