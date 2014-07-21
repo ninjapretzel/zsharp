@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Collections;
 using System.Collections.Generic;
 
-//SVN test
 
 public static class ReflectionF {
 	//Get the 'code' nane of a type ('float' instead of 'System.Single')
@@ -23,6 +22,8 @@ public static class ReflectionF {
 		else if (t == typeof(Event)) { return "Event"; }
 		return t.ToString().FromLast('.').Replace('+', '.');
 	}
+	public static bool CanCastTo(this Type t, Type target) { return target.IsAssignableFrom(t); }
+	
 	
 	//Does this object have a property called name
 	public static bool HasProperty(this System.Object obj, string name) { return obj.GetProperty(name) != null; }
@@ -40,6 +41,44 @@ public static class ReflectionF {
 	
 	//Does this object have a method called name
 	public static bool HasMethod(this System.Object obj, string name) { return obj.GetMethod(name) != null; }
+	public static bool HasAction(this System.Object obj, string name) { return obj.HasMethod<Void>(name); }
+	
+	public static bool HasMethod<T>(this System.Object obj, string name) {
+		MethodInfo info = obj.GetMethod(name);
+		if (info != null) {
+			return (info.ReturnType == typeof(T));
+		}
+		return false;
+	}
+	
+	//Less safe than CallAction(), but faster.
+	//Only use this when it is KNOWN that name exists, and the constructed params match the target method's signature.
+	public static void CallActionQ(this System.Object obj, string name, params System.Object[] parameters) { obj.GetMethod(name).Invoke(obj, parameters); }
+	
+	public static void CallAction(this System.Object obj, string name, params System.Object[] parameters) {
+		MethodInfo info = obj.GetMethod(name);
+		if (info != null) {
+			ParameterInfo[] signature = info.GetParameters();
+			if (signature.Length == parameters.Length) {
+				for (int i = 0; i < signature.Length; i++) {
+					if (!signature[i].ParameterType.IsAssignableFrom(parameters[i].GetType())) {
+						Debug.LogWarning("ReflectionF.CallAction: Function " +  name + " on instance of " + obj.GetType().ShortName() + " does not match given parameters.");
+						return;
+						
+					}
+				}
+				info.Invoke(obj, parameters);
+				
+			} else {
+				Debug.LogWarning("ReflectionF.CallAction: Function " +  name + " on instance of " + obj.GetType().ShortName() + " does not match given parameters.");
+				
+			}
+			
+		}
+	}
+	
+	
+	
 	//Get this object's method called name
 	public static MethodInfo GetMethod(this System.Object obj, string name) { return obj.GetType().GetMethod(name); }
 	public static MethodInfo GetMethod(this System.Object obj, string name, Type type) { return obj.GetType().GetMethod(name, type); }
