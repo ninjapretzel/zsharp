@@ -61,7 +61,7 @@ public static class ReflectionF {
 			ParameterInfo[] signature = info.GetParameters();
 			if (signature.Length == parameters.Length) {
 				for (int i = 0; i < signature.Length; i++) {
-					if (!signature[i].ParameterType.IsAssignableFrom(parameters[i].GetType())) {
+					if (!parameters[i].GetType().CanCastTo(signature[i].ParameterType)) {
 						Debug.LogWarning("ReflectionF.CallAction: Function " +  name + " on instance of " + obj.GetType().ShortName() + " does not match given parameters.");
 						return;
 						
