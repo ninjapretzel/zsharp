@@ -19,8 +19,6 @@ public class QuickPlayerSettings : EditorWindow {
 	private static BuildTargetGroup previousCurrentPlatform = EditorUserBuildSettings.selectedBuildTargetGroup;
 	private static bool debug = false;
 	private static bool previousDebug = false;
-	private static string iconPath = "";
-	private static string previousIconPath = "";
 	private static string saveAs = "Untitled Preset";
 	
 	[MenuItem ("Edit/Project Settings/Quick Player Settings")]
@@ -88,7 +86,6 @@ public class QuickPlayerSettings : EditorWindow {
 					GUILayout.Label("Additional settings", GUILayout.Width(position.width - 180));
 					currentPlatform = (BuildTargetGroup)EditorGUILayout.EnumPopup("Platform", currentPlatform);
 					debug = EditorGUILayout.Toggle("UNITY_DEBUG", debug);
-					iconPath = EditorGUILayout.TextField("Path to default icon", iconPath);
 				} EditorGUILayout.EndVertical();
 			} EditorGUILayout.EndVertical();
 		}
@@ -107,13 +104,11 @@ public class QuickPlayerSettings : EditorWindow {
 					PlayerSettings.SetScriptingDefineSymbolsForGroup(currentPlatform, PlayerSettings.GetScriptingDefineSymbolsForGroup(currentPlatform).Replace("UNITY_DEBUG", "").Replace(";;", ";"));
 				}
 			}
-			changed = true;
+			if(currentPreset >= 0) {
+				SavePreset(currentPreset);
+				changed = false;
+			}
 			previousDebug = debug;
-		}
-
-		if(iconPath != previousIconPath) {
-			changed = true;
-			previousIconPath = iconPath;
 		}
 
 		if(currentPlatform != previousCurrentPlatform) {
@@ -177,7 +172,6 @@ public class QuickPlayerSettings : EditorWindow {
 		debug = PlayerSettings.GetScriptingDefineSymbolsForGroup(currentPlatform).Contains("UNITY_DEBUG");
 		previousDebug = debug;
 		previousCurrentPlatform = currentPlatform;
-		previousIconPath = iconPath;
 		changed = false;
 		
 	}
@@ -191,9 +185,8 @@ public class QuickPlayerSettings : EditorWindow {
 				EditorUserBuildSettings.selectedBuildTargetGroup = currentPlatform;
 				break;
 			case "defaultIcon":
-				Texture2D icon = AssetDatabase.LoadAssetAtPath("Assets/" + val, typeof(Texture2D)) as Texture2D;
+				Texture2D icon = AssetDatabase.LoadAssetAtPath(val, typeof(Texture2D)) as Texture2D;
 				PlayerSettings.SetIconsForTargetGroup(BuildTargetGroup.Unknown, new Texture2D[] { icon });
-				iconPath = val;
 				break;
 			case "scriptingDefineSymbols":
 				PlayerSettings.SetScriptingDefineSymbolsForGroup(currentPlatform, val);
@@ -413,7 +406,7 @@ public class QuickPlayerSettings : EditorWindow {
 	public static string CurrentSettingsAsCSV() {
 		#region shared
 		string output = "Platform," + currentPlatform + "\n";
-		output += "defaultIcon," + iconPath + "\n";
+		output += "defaultIcon," + AssetDatabase.GetAssetPath(PlayerSettings.GetIconsForTargetGroup(BuildTargetGroup.Unknown)[0]) + "\n";
 		output += "scriptingDefineSymbols," + PlayerSettings.GetScriptingDefineSymbolsForGroup(currentPlatform) + "\n";
 		output += "companyName," + PlayerSettings.companyName + "\n";
 		output += "productName," + PlayerSettings.productName + "\n";
