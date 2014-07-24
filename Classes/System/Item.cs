@@ -104,9 +104,39 @@ public class Inventory : List<Item> {
 		
 	}
 	
+	
+	
 	public void Load(string key) {
 		Clear();
 		LoadString(PlayerPrefs.GetString(key));
+		
+	}
+	
+	public void SaveCounts(string key) {
+		PlayerPrefs.SetString(key, CountsString());
+		
+		
+	}
+	
+	public void LoadCounts(string key) {
+		string str = PlayerPrefs.GetString(key);
+		string[] lines = str.Split('\n');
+		
+		for (int i = 0; i < lines.Length; i++) {
+			if (lines[i].Length <= 2) { continue; }
+			if (lines[i][0] == '#') { continue; }
+			string[] content = lines[i].Split(',');
+			string name = content[0];
+			int num = content[1].ParseInt();
+			
+			
+			Item item = Get(name);
+			if (item != null) { item.count = num; }
+			else { Add(name, num); }
+			
+		}
+		
+		
 		
 	}
 	
@@ -120,6 +150,18 @@ public class Inventory : List<Item> {
 		}
 		
 		
+	}
+	
+	public string CountsString() {
+		StringBuilder str = new StringBuilder("");
+		
+		for (int i = 0; i < Count; i++) {
+			str.Append(this[i].name + "," +  this[i].count);
+			if (i < Count-1) { str.Append("\n"); }
+		}
+		
+		
+		return str.ToString();
 	}
 	
 	public override string ToString() {

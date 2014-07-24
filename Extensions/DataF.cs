@@ -93,6 +93,10 @@ public static class DataF {
 		return default(T);
 	}
 	
+	public static List<T> SortChain<T>(this List<T> list, Comparison<T> comparison) {
+		list.Sort(comparison);
+		return list;
+	}
 	
 	//Get a random valid index
 	public static int RandomIndex<T>(this List<T> list) { return (int)(RandomF.value * list.Count); }
