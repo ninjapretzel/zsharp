@@ -143,7 +143,7 @@ public class State<T> where T : Component {
 	public static void Label(Rect r, GUIContent s) { GUI.Label(r, s); }
 	
 	public static void IconLabel(Texture s, float size) { Label(s, ExpandWidth(false), ExpandHeight(false), MaxHeight(size), MaxWidth(size), MinHeight(size), MinWidth(size)); }
-			
+	
 	
 	public static void Box(string s, params GUILayoutOption[] options) { GUILayout.Box(s, options); }
 	public static void Box(Texture s, params GUILayoutOption[] options) { GUILayout.Box(s, options); }
@@ -183,6 +183,14 @@ public class State<T> where T : Component {
 	public static bool Toggle(bool val, GUIContent s, params GUILayoutOption[] options) { return GUILayout.Toggle(val, s, options); }
 	
 	public static string TextField(string text, params GUILayoutOption[] options) { return GUILayout.TextField(text, options); }
+	
+	public static float HorizontalSlider(float val, float left, float right, params GUILayoutOption[] options) {
+		return GUILayout.HorizontalSlider(val, left, right, options);
+	}
+	
+	public static float VerticalSlider(float val, float top, float bottom, params GUILayoutOption[] options) {
+		return GUILayout.VerticalSlider(val, top, bottom, options);
+	}
 	
 	public static void BeginArea(Rect area) { GUILayout.BeginArea(area); }
 	public static void EndArea() { GUILayout.EndArea(); }

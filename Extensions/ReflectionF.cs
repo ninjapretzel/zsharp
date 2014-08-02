@@ -22,7 +22,7 @@ public static class ReflectionF {
 		else if (t == typeof(Event)) { return "Event"; }
 		return t.ToString().FromLast('.').Replace('+', '.');
 	}
-	public static bool CanCastTo(this Type t, Type target) { return target.IsAssignableFrom(t); }
+	public static bool CanCastTo(this System.Object o, Type target) { return target.IsAssignableFrom(o.GetType()); }
 	
 	
 	//Does this object have a property called name
@@ -61,7 +61,7 @@ public static class ReflectionF {
 			ParameterInfo[] signature = info.GetParameters();
 			if (signature.Length == parameters.Length) {
 				for (int i = 0; i < signature.Length; i++) {
-					if (!parameters[i].GetType().CanCastTo(signature[i].ParameterType)) {
+					if (!parameters[i].CanCastTo(signature[i].ParameterType)) {
 						Debug.LogWarning("ReflectionF.CallAction: Function " +  name + " on instance of " + obj.GetType().ShortName() + " does not match given parameters.");
 						return;
 						
@@ -74,7 +74,10 @@ public static class ReflectionF {
 				
 			}
 			
+		} else {
+			Debug.LogWarning("ReflectionF.CallAction: Function " + name + " on instance of " + obj.GetType().ShortName() + " does not exist.");
 		}
+		
 	}
 	
 	

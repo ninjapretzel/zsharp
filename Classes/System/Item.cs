@@ -15,7 +15,9 @@ public class Inventory : List<Item> {
 	public Inventory(string s) : base() { LoadString(s); }
 	
 	
-	
+	public void Add(Inventory other) {
+		foreach (Item item in other) { Add(item); }
+	}
 	
 	public new void Add(Item item) {
 		if (Item.database == this) {
@@ -25,7 +27,7 @@ public class Inventory : List<Item> {
 		}
 		
 		if (item.stacks) {
-			Item check = Get(item.name);
+			Item check = Get(item.id);
 			if (check != null) {
 				check.count += item.count;
 			} else {
@@ -38,24 +40,26 @@ public class Inventory : List<Item> {
 		}
 	}
 	
-	public void Add(string name) { Add(name, 1); }
-	public void Add(string name, int qty) {
+	
+	
+	public void Add(string id) { Add(id, 1); }
+	public void Add(string id, int qty) {
 		if (this == Item.database) { return; }
-		if (Item.database.Get(name) == null) {
-			Debug.Log("Tried to add " + name + " to Inventory. Item did not exist");
+		if (ItemDatabase.Get(id) == null) {
+			Debug.Log("Tried to add " + id + " to Inventory. Item did not exist");
 			return;
 		}
 		
 		
-		Item item = Item.database.Get(name).Clone();
+		Item item = ItemDatabase.Get(id).Clone();
 		if (item.stacks) {
-			Item check = Get(item.name);
+			Item check = Get(item.id);
 			//Debug.Log(check);
 			if (check != null) {
 				if (check.stacks) {
 					check.count += qty;
 				} else {
-					Debug.LogWarning("Something went wrong, there are two items with the same name that are different. One stacks, the other doesnt.");
+					Debug.LogWarning("Something went wrong, there are two items with the same id that are different. One stacks, the other doesnt.");
 				}
 			} else {
 				item.count = qty;
@@ -76,14 +80,17 @@ public class Inventory : List<Item> {
 	}
 	
 	
-	public Item Get(string name) { return GetNamed(name); }
+	public Item Get(string id) {
+		foreach (Item i in this) {
+			if (i.id.Equals(id)) { return i; }
+		}
+		return null;
+	}
+	
 	public Item GetNamed(string name) {
-		//Debug.Log("Searching <" + name + ">");
 		foreach (Item i in this) { 	
-			//Debug.Log("Checking <" + i.name + ">");
 			if (i.name.Equals(name)) { return i; } 
 		}
-		//Debug.Log("Not Found");
 		return null;
 	}
 	
@@ -126,13 +133,13 @@ public class Inventory : List<Item> {
 			if (lines[i].Length <= 2) { continue; }
 			if (lines[i][0] == '#') { continue; }
 			string[] content = lines[i].Split(',');
-			string name = content[0];
+			string id = content[0];
 			int num = content[1].ParseInt();
 			
 			
-			Item item = Get(name);
+			Item item = Get(id);
 			if (item != null) { item.count = num; }
-			else { Add(name, num); }
+			else { Add(id, num); }
 			
 		}
 		
@@ -156,7 +163,7 @@ public class Inventory : List<Item> {
 		StringBuilder str = new StringBuilder("");
 		
 		for (int i = 0; i < Count; i++) {
-			str.Append(this[i].name + "," +  this[i].count);
+			str.Append(this[i].id + "," +  this[i].count);
 			if (i < Count-1) { str.Append("\n"); }
 		}
 		
@@ -179,6 +186,28 @@ public class Inventory : List<Item> {
 	
 }
 
+public static class ItemDatabase {
+	
+	
+	public static Item Get(string id) { 
+		//Item item = Item.databaseIDMap[id];
+		Item item;
+		if (Item.databaseIDMap.ContainsKey(id)) { item = Item.databaseIDMap[id]; }
+		else if (Item.databaseNameMap.ContainsKey(id)) { item = Item.databaseNameMap[id]; }
+		else { return null; }
+		return item.Clone(); 
+	}
+	
+	public static bool Has(string id) { 
+		return Item.databaseIDMap.ContainsKey(id) || Item.databaseNameMap.ContainsKey(id);
+	}
+	
+	public static IEnumerable<Item> SelectType(string type) { return Where(i => i.type == type); }
+	public static IEnumerable<Item> Where(Func<Item, bool> func) { return Item.database.Where(func); }
+	
+	
+}
+
 [System.Serializable]
 public class Item : IComparable<Item> {
 
@@ -193,12 +222,17 @@ public class Item : IComparable<Item> {
 	
 	
 	public static Inventory database;
+	public static Dictionary<string, Item> databaseIDMap;
+	public static Dictionary<string, Item> databaseNameMap;
 	public static List<string> DEFAULT_STRINGS { get { return _DEFAULT_STRINGS; } }
 	static List<string> _DEFAULT_STRINGS;
 	#endregion
 	
 	#region ITEM_SORTS
 	public static class Sorts {
+		public static int IDA(Item a, Item b) { return a.id.CompareTo(b.id); }
+		public static int IDD(Item a, Item b) { return -a.id.CompareTo(b.id); }
+		
 		public static int NameA(Item a, Item b) { return a.name.CompareTo(b.name); }
 		public static int NameD(Item a, Item b) { return -a.name.CompareTo(b.name); }
 		
@@ -222,6 +256,8 @@ public class Item : IComparable<Item> {
 		public static int TypeRarityD(Item a, Item b) { return Compare(a, b, TypeD, RarityD, NameD); }
 		public static int RarityTypeA(Item a, Item b) { return Compare(a, b, RarityA, TypeA, NameA); }
 		public static int RarityTypeD(Item a, Item b) { return Compare(a, b, RarityD, TypeD, NameD); }
+		public static int IDTypeA(Item a, Item b) { return Compare(a, b, IDA, TypeA, RarityA); }
+		public static int IDTypeD(Item a, Item b) { return Compare(a, b, IDD, TypeD, RarityD); }
 		
 		//Locked items Come first
 		//Equipments come next
@@ -249,14 +285,22 @@ public class Item : IComparable<Item> {
 	
 	static Item() {
 		database = new Inventory();
+		databaseIDMap = new Dictionary<string, Item>();
+		databaseNameMap = new Dictionary<string, Item>();
+		
+		string[] defaultStrings = { "id", "name", "desc", "type", "baseName", "iconName" };
+		_DEFAULT_STRINGS = defaultStrings.ToList();
+		
 		TextAsset file = Resources.Load("Items", typeof(TextAsset)) as TextAsset;
 		if (file != null) {
 			database = new Inventory(file.text);
-			
+			foreach (Item item in database) {
+				databaseIDMap.Add(item.id, item);
+				databaseNameMap.Add(item.name, item);
+			}
 		}
 		
-		string[] defaultStrings = { "name", "desc", "type", "baseName", "iconName" };
-		_DEFAULT_STRINGS = defaultStrings.ToList();
+		
 		
 	}
 	
@@ -271,6 +315,7 @@ public class Item : IComparable<Item> {
 	}
 	
 	#region BASIC PROPERTIES
+	public string id { get { return strings["id"]; } set { strings["id"] = value; } }
 	public string name { get { return strings["name"]; } set { strings["name"] = value; } }
 	public string desc { get { return strings["desc"]; } set { strings["desc"] = value; } }
 	public string type { get { return strings["type"]; } set { strings["type"] = value; } }
@@ -355,6 +400,7 @@ public class Item : IComparable<Item> {
 		
 		count = 1;
 		
+		id = "";
 		name = "Crystalized Error";
 		desc = "Somewhere, something went wrong";
 		type = "Loot";
@@ -372,6 +418,7 @@ public class Item : IComparable<Item> {
 		
 		count = 1;
 		
+		id = "";
 		name = "Crystalized Error";
 		desc = "Somewhere, something went wrong";
 		type = "Loot";
@@ -380,6 +427,8 @@ public class Item : IComparable<Item> {
 		color = Color.white;
 		
 		LoadFromString(str);
+		
+		
 	}
 	
 	public Item(Item other) {
@@ -411,6 +460,9 @@ public class Item : IComparable<Item> {
 		stats = 		content[1].ParseTable(',');
 		properties =	content[2].ParseTable(',');
 		
+		//v1.0.1
+		if (id == "") { id = name; }
+		
 	}
 	#endregion
 	
@@ -419,7 +471,7 @@ public class Item : IComparable<Item> {
 	public static int Compare(Item a, Item b) {
 		if (a.type == b.type) {
 			if (a.rarity == b.rarity) { 
-				return a.name.CompareTo(b.name);
+				return a.id.CompareTo(b.id);
 			} else { return (int)(a.rarity - b.rarity); }
 		} else { return a.type.CompareTo(b.type); }
 	}

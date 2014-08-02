@@ -25,6 +25,7 @@ public class FancyBar : Bar {
 	public Color fancyColorA = Color.clear;
 	public Color fancyColorB = Color.clear;
 	public int offset = 0;
+	public float speed = 1;
 	
 	public FancyBar(Texture2D front, Texture2D back, Color mainColor) {
 		frontGraphic = front;
@@ -39,7 +40,7 @@ public class FancyBar : Bar {
 		//Debug.Log("fancy draw");
 		DrawNormal(area, fill);
 		
-		float time = Time.time * timeScale;
+		float time = Time.time * timeScale * speed;
 		float sinTime = Mathf.Sin(time * sinTimeScale);
 		//float pad = Screen.height * .002f;
 		

@@ -36,6 +36,18 @@ public static class DataF {
 		return chosen;
 	}
 	
+	public static List<T> TrimToLength<T>(this List<T> list, int length) {
+		List<T> l = new List<T>();
+		for (int i = 0; i < length; i++) {
+			l.Add(list[i]);
+		}
+		return l;
+	}
+	
+	public static void AddAll<T>(this List<T> list, IEnumerable<T> stuff) {
+		foreach (T t in stuff) { list.Add(t); }
+	}
+	
 	public static float ToFloat(this byte[] b, int i) { return BitConverter.ToSingle(b, i); }
 	public static int ToInt(this byte[] b, int i) { return BitConverter.ToInt32(b, i); }
 	
@@ -108,6 +120,11 @@ public static class DataF {
 	public static T Choose<T>(this List<T> list, List<float> weights) { return list[RandomF.WeightedChoose(weights)]; }
 	public static T Choose<T>(this List<T> list, float[] weights) { return list[RandomF.WeightedChoose(weights)]; }
 	
+	public static T Choose<T>(this Dictionary<T, float> table) {
+		List<float> weights = table.Values.ToList();
+		List<T> list = table.Keys.ToList();
+		return list.Choose(weights);
+	}
 	
 	
 	public static string ListString<T>(this List<T> list) { return list.ListString<T>(','); }
@@ -132,6 +149,34 @@ public static class DataF {
 			int index = stuff.RandomIndex();
 			chosen.Add(stuff[index]);
 			stuff.RemoveAt(index);
+		}
+		
+		return chosen;
+	}
+	
+	
+	
+	public static List<T> Choose<T>(this Dictionary<T, float> table, int num) {
+		List<float> weights = table.Values.ToList();
+		List<T> list = table.Keys.ToList();
+		return list.Choose(weights, num);
+	}
+	public static List<T> Choose<T>(this List<T> list, List<float> weights, int num) {
+		//Debug.Log(list.Count + " : " + weights.Count + " : " + num);
+		if (num >= list.Count) { return list.Shuffled(); }
+		
+		List<T> stuff = list.Clone();
+		List<float> weightsCopy = weights.Clone();
+		
+		List<T> chosen = new List<T>();
+		
+		for (int i = 0; i < num; i++) {
+			int index = RandomF.WeightedChoose(weightsCopy);
+			//Debug.Log(index);
+			
+			chosen.Add(stuff[index]);
+			stuff.RemoveAt(index);
+			weightsCopy.RemoveAt(index);
 		}
 		
 		return chosen;

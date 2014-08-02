@@ -77,6 +77,7 @@ public class SoundMaster : MonoBehaviour {
 		if (audioSettings == null) { return null; }
 		AudioSource source = Instantiate(audioSettings, pos, Quaternion.identity) as AudioSource;
 		source.clip = sc;
+		source.volume = Settings.soundVolume;
 		source.Play();
 		return source;
 	}

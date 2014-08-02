@@ -62,17 +62,17 @@ public class Table : Dictionary<string, float> {
 	public Table(TextAsset textAsset, char separator) : base() { LoadCSV(textAsset.text, separator); }
 	public Table(Dictionary<string, float> source) : base() { 
 		//Debug.Log("Cloning table with " + source.Count + " elements");
-		foreach (string s in source.Keys) { 
+		foreach (var pair in source) { 
 			//Debug.Log(s);
-			this.Add(s, source[s]);
+			this.Add(pair.Key, pair.Value);
 			//this[s] = source[s];
 		}
 	}
 	public Table(Table source) : base() { 
 		//Debug.Log("Cloning table with " + source.Count + " elements");
-		foreach (string s in source.Keys) { 
+		foreach (var pair in source) { 
 			//Debug.Log(s);
-			this.Add(s, source[s]);
+			this.Add(pair.Key, pair.Value);
 			//this[s] = source[s];
 		}
 	}
@@ -94,6 +94,12 @@ public class Table : Dictionary<string, float> {
 	
 	public void LoadLine(string line) { LoadLine(line, ','); }
 	public void LoadLine(string line, char separator) {
+		if (line.IndexOf('\n') != -1) {
+			Debug.Log("Table.LoadLine passed in a multi-line string. Loading it as a normal CSV.");
+			LoadCSV(line);
+			return;
+		}
+		
 		Clear();
 		string[] content = line.Split(separator);
 		if (line.Length == 0) { 
@@ -149,8 +155,7 @@ public class Table : Dictionary<string, float> {
 		
 		set {
 			Dictionary<string, float> goy = this;
-			if (goy.ContainsKey(key)) { goy[key] = value; }
-			else { goy.Add(key, value); }
+			goy[key] = value;
 		}
 	}
 	#endregion
@@ -163,21 +168,21 @@ public class Table : Dictionary<string, float> {
 	public static Table operator +(float a, Table b) { return b + a; }
 	public static Table operator +(Table a, float b) {
 		Table c = new Table();
-		foreach (string key in a.Keys) { c[key] = a[key] + b; }
+		foreach (var pair in a) { c[pair.Key] = pair.Value + b; }
 		return c;
 	}
 	
 	public static Table operator -(float a, Table b) { return b - a; }
 	public static Table operator -(Table a, float b) {
 		Table c = new Table();
-		foreach (string key in a.Keys) { c[key] = a[key] - b; }
+		foreach (var pair in a) { c[pair.Key] = pair.Value - b; }
 		return c;
 	}
 	
 	public static Table operator *(float a, Table b) { return b * a; }
 	public static Table operator *(Table a, float b) {
 		Table c = new Table();
-		foreach (string key in a.Keys) { c[key] = a[key] * b; }
+		foreach (var pair in a) { c[pair.Key] = pair.Value * b; }
 		return c;
 	}
 	
@@ -185,36 +190,36 @@ public class Table : Dictionary<string, float> {
 	public static Table operator /(Table a, float b) {
 		if (b == 0) { Debug.LogWarning("Trying to divide table by zero..."); return a; }
 		Table c = new Table();
-		foreach (string key in a.Keys) { c[key] = a[key] / b; }
+		foreach (var pair in a) { c[pair.Key] = pair.Value / b; }
 		return c;
 	}
 	
 	public static Table operator +(Table a, Table b) {
 		Table c = new Table();
-		foreach (string key in a.Keys) { c[key] += a[key]; }
-		foreach (string key in b.Keys) { c[key] += b[key]; }
+		foreach (var pair in a) { c[pair.Key] += pair.Value; }
+		foreach (var pair in b) { c[pair.Key] += pair.Value; }
 		return c;
 	}
 	
 	public static Table operator -(Table a, Table b) {
 		Table c = new Table();
-		foreach (string key in a.Keys) { c[key] += a[key]; }
-		foreach (string key in b.Keys) { c[key] -= b[key]; }
+		foreach (var pair in a) { c[pair.Key] += pair.Value; }
+		foreach (var pair in b) { c[pair.Key] -= pair.Value; }
 		return c;
 	}
 	
 	public static Table operator *(Table a, Table b) {
 		Table c = new Table();
-		foreach (string key in b.Keys) { 
-			if (a.ContainsKey(key)) { c[key] = a[key] * b[key]; }
+		foreach (var pair in b) { 
+			if (a.ContainsKey(pair.Key)) { c[pair.Key] = a[pair.Key] * pair.Value; }
 		}
 		return c;
 	}
 	
 	public static Table operator /(Table a, Table b) {
 		Table c = new Table();
-		foreach (string key in b.Keys) { 
-			if (a.ContainsKey(key)) { c[key] = a[key] / b[key]; }
+		foreach (var pair in b) {
+			if (a.ContainsKey(pair.Key)) { c[pair.Key] = a[pair.Key] / pair.Value; }
 		}
 		return c;
 	}
@@ -224,29 +229,29 @@ public class Table : Dictionary<string, float> {
 	public void Add(float f, string s) { this[s] = f; }
 	public void Add(string s) { this[s] = 0; }
 	
-	public void Add(float f) { foreach (string s in Keys) { this[s] += f; } }
-	public void Add(Table t) { foreach (string s in t.Keys) { this[s] += t[s]; } }
+	public void Add(float f) { foreach (var pair in this) { this[pair.Key] = pair.Value + f; } }
+	public void Add(Table t) { foreach (var pair in t) { this[pair.Key] += pair.Value; } }
 	
-	public void Subtract(float f) { foreach (string s in Keys) { this[s] -= f; } }
-	public void Subtract(Table t) { foreach (string s in t.Keys) { this[s] -= t[s]; } }
+	public void Subtract(float f) { foreach (var pair in this) { this[pair.Key] = pair.Value - f; } }
+	public void Subtract(Table t) { foreach (var pair in t) { this[pair.Key] -= pair.Value; } }
 	
-	public void AddRandomly(float f) { foreach (string s in Keys) { this[s] += f * RandomF.value; } }
-	public void AddRandomly(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * RandomF.value; } }
+	public void AddRandomly(float f) { foreach (var pair in this) { this[pair.Key] = pair.Value + f * RandomF.value; } }
+	public void AddRandomly(Table t) { foreach (var pair in t) { this[pair.Key] += pair.Value * RandomF.value; } }
 	
-	public void AddRandomNormal(float f) { foreach (string s in Keys) { this[s] += f * RandomF.normal; } }
-	public void AddRandomNormal(Table t) { foreach (string s in t.Keys) { this[s] += t[s] * RandomF.normal; } }
+	public void AddRandomNormal(float f) { foreach (var pair in this) { this[pair.Key] = pair.Value + f * RandomF.normal; } }
+	public void AddRandomNormal(Table t) { foreach (var pair in t) { this[pair.Key] += pair.Value * RandomF.normal; } }
 
-	public void Multiply(float f) { foreach (string s in Keys) { this[s] *= f; } }
+	public void Multiply(float f) { foreach (var pair in this) { this[pair.Key] = pair.Value * f; } }
 	public void Multiply(Table t) { 
-		foreach (string s in Keys) {
-			if (t.ContainsKey(s)) { this[s] *= t[s]; }
+		foreach (var pair in t) {
+			if (ContainsKey(pair.Key)) { this[pair.Key] *= pair.Value; }
 		}
 	}
 	
-	public void Divide(float f) { foreach (string s in Keys) { this[s] /= f; } }
+	public void Divide(float f) { foreach (var pair in this) { this[pair.Key] = pair.Value / f; } }
 	public void Divide(Table t) { 
-		foreach (string s in Keys) {
-			if (t.ContainsKey(s) && t[s] != 0) { this[s] /= t[s]; }
+		foreach (var pair in t) {
+			if (ContainsKey(pair.Key) && pair.Value != 0) { this[pair.Key] /= pair.Value; }
 		}
 	}
 	
@@ -267,6 +272,8 @@ public class Table : Dictionary<string, float> {
 	//////////////////////////////////////////////////////////////////////////////////////
 	//Support for containing certain data types
 	#region
+	
+	//Get a collection containing only the keys for 'fields', (float/Vector/Color/etc)
 	public Set<string> FieldKeys {
 		get {
 			Set<string> ukeys = new Set<string>();
@@ -330,9 +337,9 @@ public class Table : Dictionary<string, float> {
 		List<float> weights = new List<float>(Count);
 		
 		int i = 0;
-		foreach (string s in Keys) {
-			names.Add(s);
-			weights.Add(this[s]);
+		foreach (var pair in this) {
+			names.Add(pair.Key);
+			weights.Add(pair.Value);
 			i++;
 		}
 		
@@ -350,16 +357,16 @@ public class Table : Dictionary<string, float> {
 		#endif
 		);
 		
-		foreach (string key in Keys) { str.Append('\n' + key + delim + this[key]); }
+		foreach (var pair in this) { str.Append('\n' + pair.Key + delim + pair.Value); }
 		return str.ToString();
 	}
 	
 	public string ToLine() { return ToLine(','); }
 	public string ToLine(char delim) {
 		StringBuilder str = new StringBuilder();
-		foreach (string key in Keys) {
+		foreach (var pair in this) {
 			if (str.Length > 0) { str.Append(delim); }
-			str.Append(key + delim + this[key]);
+			str.Append(pair.Key + delim + pair.Value);
 		}
 		//Debug.Log("ToLine: [" + str.ToString() + "]");
 		return str.ToString();
@@ -368,41 +375,54 @@ public class Table : Dictionary<string, float> {
 	
 	public float Sum() {
 		float f = 0;
-		foreach (string key in Keys) { f += this[key]; }
+		foreach (var pair in this) { f += pair.Value; }
 		return f;
 	}
 	
 	//Gets the first key that matches value
 	public string GetKey(float value) {
-		foreach (string key in Keys) {
-			if (this[key] == value) { return key; }
+		foreach (var pair in this) {
+			if (pair.Value == value) { return pair.Key; }
 		}
 		return "";
 	}
 	
 	public void Set(Table t) {
-		foreach (string s in t.Keys) { this[s] = t[s]; }
+		foreach (var pair in t) { this[pair.Key] = pair.Value; }
 	}
 	
 	public void Save(string name) {
+		PlayerPrefs.SetString(name, ToLine());
+		
+		/*
+		#if UNITY_WEBPLAYER
+		#else
 		PlayerPrefs.SetString(name, ToString());
+		#endif
+		*/
 	}
 	
 	public void Load(string name) {
 		string str = PlayerPrefs.GetString(name);
-		if (str.Length > "#Formatted Table as .csv:".Length) {
+		LoadLine(str);
+		/*
+		#if UNITY_WEBPLAYER
+		#else
+		if (str.Length > 2) {
 			LoadCSV(str);
 		} else {
 			Debug.Log("Unable to load Table from CSV from player pref: " + name + "\nLoaded:\n" + str);
 		}
+		#endif
+		*/
 	}
 	
 	public void SaveToPlayerPrefs(string name) {
 		int i = 0;
 		PlayerPrefs.SetInt(name + "_count", Count);
-		foreach (string k in Keys) { 
-			PlayerPrefs.SetString(name + "_" + i + "_key", k);
-			PlayerPrefs.SetFloat(name + "_" + i + "_float", this[k]);
+		foreach (var pair in this) { 
+			PlayerPrefs.SetString(name + "_" + i + "_key", pair.Key);
+			PlayerPrefs.SetFloat(name + "_" + i + "_float", pair.Value);
 			i++;
 		}
 	}

@@ -62,14 +62,6 @@ public static class FloatF {
 		return highest;
 	}
 	
-	public static string Commify(this float f) { return ((int)f).Commify(); }
-	public static string Commify(this float f, int places) {
-		string s = ((int)f).Commify();
-		float fract = f.Fract();
-		if (fract > 0) { s += "." + fract.Format(places).FromLast('.'); }
-		return s;
-	}
-	
 	//Return if the number is NAN
 	public static bool IsNAN(this float f) { return float.IsNaN(f); }
 	public static bool IsNaN(this float f) { return float.IsNaN(f); }

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-public class ItemDatabase : ZEditorWindow {
+public class ItemEditorWindow : ZEditorWindow {
 	
 	public static string path { get { return Application.dataPath + "/Data/Resources/"; } } 
 	public static string target { get { return path + "Items.csv"; } }
@@ -44,7 +44,7 @@ public class ItemDatabase : ZEditorWindow {
 	const bool NAME = true;
 	const bool TYPE = false;
 	
-	
+	bool forceRepaint = false;
 	
 	
 	public override float fieldWidth { get { return .33f * position.width; } }
@@ -57,14 +57,14 @@ public class ItemDatabase : ZEditorWindow {
 	
 	[MenuItem ("Window/Item Database")]
 	static void ShowWindow() {
-		EditorWindow.GetWindow(typeof(ItemDatabase));
+		EditorWindow.GetWindow(typeof(ItemEditorWindow));
 		
 		
 		
 	}
 	
 	//
-	public ItemDatabase() : base() {
+	public ItemEditorWindow() : base() {
 		Init();
 	}
 	
@@ -107,6 +107,11 @@ public class ItemDatabase : ZEditorWindow {
 	void Update() {
 		//if (EditorApplication.isPlaying && frame++ % 10 == 0) { Repaint(); }
 		
+		if (forceRepaint) {
+			forceRepaint = false;
+			Repaint();
+		}
+		
 		if (justRecompiledOrCreated) {
 			UpdateVisibleList();
 			LoadSelection();
@@ -134,7 +139,7 @@ public class ItemDatabase : ZEditorWindow {
 			Unfocus();
 			ApplySelection();
 			WriteDatabase();
-			
+			forceRepaint = true;
 		}
 		
 		
@@ -176,23 +181,31 @@ public class ItemDatabase : ZEditorWindow {
 		BeginVertical("box", Width(350)); {
 			
 			GUI.color = Color.white;
-			BeginHorizontal("box", Width(350)); {
+			BeginVertical("box", Width(350)); {
+				
 				FixedLabel("Sort:");
 				
-				FixedLabel("Name");
-				if (FixedButton("/\\")) { Sort(Item.Sorts.NameRarityA); }
-				if (FixedButton("\\/")) { Sort(Item.Sorts.NameRarityD); }
+				BeginHorizontal(); {
+					
+					FixedLabel("Name");
+					if (FixedButton("/\\")) { Sort(Item.Sorts.NameRarityA); }
+					if (FixedButton("\\/")) { Sort(Item.Sorts.NameRarityD); }
+					
+					FixedLabel("Type");
+					if (FixedButton("/\\")) { Sort(Item.Sorts.TypeRarityA); }
+					if (FixedButton("\\/")) { Sort(Item.Sorts.TypeRarityD); }
+					
+					FixedLabel("Rarity");
+					if (FixedButton("/\\")) { Sort(Item.Sorts.RarityTypeA); }
+					if (FixedButton("\\/")) { Sort(Item.Sorts.RarityTypeD); }
+					
+					FixedLabel("ID");
+					if (FixedButton("/\\")) { Sort(Item.Sorts.IDTypeA); }
+					if (FixedButton("\\/")) { Sort(Item.Sorts.IDTypeD); }
+					
+				} EndHorizontal();
 				
-				FixedLabel("Type");
-				if (FixedButton("/\\")) { Sort(Item.Sorts.TypeRarityA); }
-				if (FixedButton("\\/")) { Sort(Item.Sorts.TypeRarityD); }
-				
-				FixedLabel("Rarity");
-				if (FixedButton("/\\")) { Sort(Item.Sorts.RarityTypeA); }
-				if (FixedButton("\\/")) { Sort(Item.Sorts.RarityTypeD); }
-				
-				
-			} EndHorizontal();
+			} EndVertical();
 			
 			
 			BeginHorizontal("box", Width(350)); {
@@ -223,7 +236,7 @@ public class ItemDatabase : ZEditorWindow {
 			
 			
 			
-			listScroll = BeginScrollView(listScroll, false, true, Width(350), Height(height - 140) ); {
+			listScroll = BeginScrollView(listScroll, false, true, Width(350), Height(height - 160) ); {
 				
 				int lastSelection = selection;
 				
@@ -260,6 +273,7 @@ public class ItemDatabase : ZEditorWindow {
 								GUI.color = Color.white;
 							}
 							if (i % 2 == 1) { GUI.color = GUI.color.Blend(Color.black, .2f); }
+							Color backColor = GUI.color;
 							
 							Rect area = BeginVertical("button"); {
 								
@@ -271,8 +285,10 @@ public class ItemDatabase : ZEditorWindow {
 									Box("[" + item.type + "]", Width(100));
 									FlexibleSpace();
 									
+									
 									GUI.color = item.rarityColor;
 									Box("" + item.rarity, Width(40));
+									
 									GUI.color = Color.white;
 									
 								} EndHorizontal();
@@ -283,6 +299,10 @@ public class ItemDatabase : ZEditorWindow {
 									
 									if (FixedButton("\\/")) { listChanged = true; items.Swap(index, index+1); }
 									if (FixedButton("/\\")) { listChanged = true; items.Swap(index, index-1); }
+									
+									GUI.color = backColor;
+									
+									Box("ID: [" + item.id.MinSubstring(25, '-') + "]");
 								} EndHorizontal();
 								
 								
@@ -299,6 +319,7 @@ public class ItemDatabase : ZEditorWindow {
 						
 					}
 					
+					GUI.color = Color.white;
 					if (Button("+")) {
 						items.Add(new Item());
 						listChanged = true;
@@ -326,18 +347,19 @@ public class ItemDatabase : ZEditorWindow {
 				Unfocus();
 			}
 			
-			SetChangedColor(listChanged);
-			if (Button("Save")) {
-				WriteDatabase();
-				Unfocus();
-			}
-			
 			SetChangedColor();
 			if (Button("Apply and Save")) {
 				ApplySelection();
 				WriteDatabase();
 				Unfocus();
 			}
+			
+			SetChangedColor(listChanged);
+			if (Button("Save")) {
+				WriteDatabase();
+				Unfocus();
+			}
+			
 			
 			
 			GUI.color = Color.white;
@@ -370,14 +392,15 @@ public class ItemDatabase : ZEditorWindow {
 			} EndScrollView();
 			
 			Space(10);
-			GUI.color = changed ? Color.red : Color.white;
-
+			SetChangedColor(listChanged);
 			if (Button("Apply and Save")) {
 				ApplySelection();
 				WriteDatabase();
 				Unfocus();
 			}
 			
+			
+			SetChangedColor();
 			if (Button("Apply Item")) {
 				listChanged = changed || listChanged;
 				ApplySelection();
@@ -398,6 +421,7 @@ public class ItemDatabase : ZEditorWindow {
 		BeginVertical("box"); {
 		
 			Label("Basic Settings");
+			strings["id"] = TextField("ID", strings["id"], .5f);
 			strings["name"] = TextField("Name", strings["name"], .5f);
 			BeginHorizontal(); {
 				Space(150);
@@ -732,16 +756,16 @@ public class ItemDatabase : ZEditorWindow {
 
 
 
-public static class ItemDatabaseUtils {
-	public static Table ToTable(this List<ItemDatabase.OptionEntry> list) {
+public static class ItemEditorWindowUtils {
+	public static Table ToTable(this List<ItemEditorWindow.OptionEntry> list) {
 		Table t = new Table();
-		foreach (ItemDatabase.OptionEntry o in list) { t[o.name] = o.value; }
+		foreach (ItemEditorWindow.OptionEntry o in list) { t[o.name] = o.value; }
 		return t;
 	}
 	
-	public static List<ItemDatabase.OptionEntry> ToListOfOptions(this Table t) {
-		List<ItemDatabase.OptionEntry> list = new List<ItemDatabase.OptionEntry>();
-		foreach (string s in t.Keys) { list.Add(new ItemDatabase.OptionEntry(s, t[s])); }
+	public static List<ItemEditorWindow.OptionEntry> ToListOfOptions(this Table t) {
+		List<ItemEditorWindow.OptionEntry> list = new List<ItemEditorWindow.OptionEntry>();
+		foreach (string s in t.Keys) { list.Add(new ItemEditorWindow.OptionEntry(s, t[s])); }
 		return list;
 	}
 }

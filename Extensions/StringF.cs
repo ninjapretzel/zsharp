@@ -107,10 +107,27 @@ public static class StringF {
 		}
 		return "" + ir + s;
 	}
-	
+	//Formats an int value so commas are inserted every 3 places.
+	public static string Commify(this int i) {
+		string str = "" + i;
+		int ind = str.Length;
+		ind -= 3;
+		while (ind > 0) {
+			str = str.Insert(ind, ",");
+			ind -= 3;
+		}
+		return str;
+	}
+	public static string Commify(this float f) { return ((int)f).Commify(); }
+	public static string Commify(this float f, int places) {
+		string s = ((int)f).Commify();
+		float fract = f.Fract();
+		if (places > 0 && fract > 0) { s += "." + fract.Format(places).FromLast('.'); }
+		return s;
+	}
 	
 	static string[] notations = { "", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc", "No"};
-	public static string ShortString(this float f) {
+	public static string ShortString(this float f, int places = 3) {
 		if (f.IsNAN()) { return "NaN"; }
 		
 		string notationValue = "";
@@ -124,10 +141,12 @@ public static class StringF {
 				val /= 1000f;
 				b++;
 			}
-			if (b >= notations.Length) { return "WAY TO HIGH"; }
+			if (b >= notations.Length) { return "WAY TOO HIGH"; }
 			else { notationValue = notations[b]; }
 			
 		}
+		
+		if (notationValue == "") { return f.Commify(places); }
 		return Mathf.Round(val * 1000f) / 1000f + notationValue;
 	}
 	
@@ -156,17 +175,7 @@ public static class StringF {
 		return s;
 	}
 	
-	//Formats an int value so commas are inserted every 3 places.
-	public static string Commify(this int i) {
-		string str = "" + i;
-		int ind = str.Length;
-		ind -= 3;
-		while (ind > 0) {
-			str = str.Insert(ind, ",");
-			ind -= 3;
-		}
-		return str;
-	}
+	
 	
 	//Parsing functions
 	public static float ParseFloat(this string s) { return float.Parse(s); }
