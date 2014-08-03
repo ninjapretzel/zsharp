@@ -11,6 +11,15 @@ Desks and tables are best buddies.
 public class Desk : Dictionary<string, Table> {
 	
 	
+	public Desk() : base() {} 
+	public Desk(string csv) : base() { LoadCSV(csv); }
+	public Desk(string csv, char separator) : base() { LoadCSV(csv, separator); }
+	public Desk(TextAsset textAsset) : base() { LoadCSV(textAsset.text); }
+	public Desk(TextAsset textAsset, char separator) : base() { LoadCSV(textAsset.text, separator); }
+	public Desk(Dictionary<string, Table> source) : base() {
+		foreach (var pair in source) { this.Add(pair.Key, pair.Value); }
+	}
+	
 	public Desk Clone() {
 		Desk d = new Desk();
 		foreach (string key in Keys) { d[key] = this[key]; }

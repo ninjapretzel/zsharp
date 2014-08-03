@@ -61,12 +61,7 @@ public class Table : Dictionary<string, float> {
 	public Table(TextAsset textAsset) : base() { LoadCSV(textAsset.text); }
 	public Table(TextAsset textAsset, char separator) : base() { LoadCSV(textAsset.text, separator); }
 	public Table(Dictionary<string, float> source) : base() { 
-		//Debug.Log("Cloning table with " + source.Count + " elements");
-		foreach (var pair in source) { 
-			//Debug.Log(s);
-			this.Add(pair.Key, pair.Value);
-			//this[s] = source[s];
-		}
+		foreach (var pair in source) { this.Add(pair.Key, pair.Value); }
 	}
 	public Table(Table source) : base() { 
 		//Debug.Log("Cloning table with " + source.Count + " elements");
