@@ -248,6 +248,8 @@ public static class ReflectionF {
 		
 		List<FieldInfo> fields = type.GetFields(flags).ToList();
 		
+		List<ConstructorInfo> constructors = type.GetConstructors(flags).ToList();
+		
 		List<PropertyInfo> properties = type.GetProperties(flags).ToList();
 		
 		List<MethodInfo> methods = type.GetMethods(flags).ToList();
@@ -326,6 +328,11 @@ public static class ReflectionF {
 			output.Append("\t" + info.Summary() + "\n");
 		}
 		
+		output.Append("\n\n\t//Constructors:----------------------------------------------\n");
+		foreach (ConstructorInfo info in constructors) {
+			output.Append("\t" + info.Summary() + "\n");
+		}
+		
 		
 		//Give summary of each method info
 		lastInheritedType = null;
@@ -393,6 +400,47 @@ public static class ReflectionF {
 		} else { return (info.IsInherited() ? 1 : -1); }
 	}
 	
+	public static string Summary(this ConstructorInfo info) {
+		StringBuilder str = new StringBuilder();
+		
+		if (info.IsPublic) {
+			str.Append("public ");
+		} else if (info.IsPrivate) {
+			str.Append("private ");
+		} 
+		
+		if (info.IsFamily) {
+			str.Append("protected ");
+		}
+		if (info.IsAssembly) {
+			str.Append("internal ");
+		}
+		
+		
+		str.Append(info.DeclaringType.Name + "(");
+		
+		ParameterInfo[] pinfos = info.GetParameters();
+		for (int i = 0; i < pinfos.Length; i++) {
+			ParameterInfo pinfo = pinfos[i];
+			
+			
+			if (pinfo.IsOut) { str.Append("out "); }
+			str.Append(pinfo.ParameterType.ShortName() + " " + pinfo.Name);
+			/*
+			//Unity's Mono does not have this functionality... :(
+			if (pinfo.HasDefaultValue) {
+				str.Append(" = " + pinfo.DefaultValue.ToString().RemoveAll("\n"));
+			}
+			//*///
+			
+			if (i < pinfos.Length-1) { str.Append(", "); }
+			
+		}
+		
+		str.Append(");");
+		
+		return str.ToString();
+	}
 	
 	public static string Summary(this MethodInfo info) {
 		StringBuilder str = new StringBuilder();
