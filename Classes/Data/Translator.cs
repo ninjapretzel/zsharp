@@ -15,6 +15,9 @@ public class Translator<A, B> {
 		
 	}
 	
+	public Dictionary<A, B> pairs { get { return atb; } }
+	
+	
 	//Accessors
 	//No this accessor, explicitness is necessary when using this class.
 	public B Get(A a) { return atb[a]; }
