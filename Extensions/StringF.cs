@@ -25,6 +25,12 @@ public static class StringF {
 		return str.ToString();
 	}
 	
+	public static byte[] GetBytes(this string s) {
+		byte[] bytes = new byte[s.Length * sizeof(char)];
+		System.Buffer.BlockCopy(s.ToCharArray(), 0, bytes, 0, bytes.Length);
+		return bytes;
+	}
+	
 	//Returns the given string with newline characters converted to the Unix standard
 	public static string ConvertNewlines(this string s) {
 		string ss = s.Replace(WINDOWS_NEWLINE, UNIX_NEWLINE);
