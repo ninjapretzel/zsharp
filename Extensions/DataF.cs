@@ -21,6 +21,20 @@ public static class DataF {
 		Debug.Log(str.ToString());
 	}
 	
+	//Thanks, William
+	public static int SimpleHash(this byte[] data) {
+		if (data != null) {
+			int res = data.Length * data.Length * 31337;
+			for (int i=0;i<data.Length;i++) {
+				res ^= (data[i] << ((i % 4) * 8));
+			}
+			return res;
+		} else {
+			return 0;
+		}
+	}
+	 
+	
 	public static List<int> Permutation(int max) { return Permutation(max, max); }
 	public static List<int> Permutation(int max, int length) {
 		List<int> nums = new List<int>(max);
