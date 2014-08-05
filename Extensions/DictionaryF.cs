@@ -47,8 +47,8 @@ public static class DictionaryF  {
 		string[] lines = csv.Split('\n');
 		
 		for (int i = 0; i < lines.Length; i++) {
-			if (lines[i][0] == '#') { continue; }
 			if (lines[i].Length == 0) { continue; }
+			if (lines[i][0] == '#') { continue; }
 			string[] content = lines[i].Split(delim);
 			for (int j = 0; j < content.Length; j += 2) {
 				d.Add(content[j], content[j+1]);
