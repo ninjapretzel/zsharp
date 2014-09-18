@@ -16,12 +16,14 @@ public class Kongregate : MonoBehaviour {
 		watcher = new GameObject("KongregateWatcher");
 		DontDestroyOnLoad(watcher);
 		watcher.AddComponent<Kongregate>();
-		
+
+#if UNITY_WEBPLAYER
 		Application.ExternalEval(
 			"if(typeof(kongregateUnitySupport) != 'undefined'){" +
 			"	kongregateUnitySupport.initAPI('KongregateWatcher', 'OnKongregateAPILoaded');" +
 			"};"
 		);
+#endif
 		
 	}
 	

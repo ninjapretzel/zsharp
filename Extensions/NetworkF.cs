@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if !UNITY_FLASH
+using UnityEngine;
 using System.Collections;
 
 public static class NetworkF {
@@ -16,3 +17,4 @@ public static class NetworkF {
 	}
 	
 }
+#endif

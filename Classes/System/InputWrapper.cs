@@ -224,6 +224,7 @@ public static class InputWrapper {
 					break;
 			}
 			// Short circuit the function based on how many joysticks are connected
+#if !UNITY_FLASH
 			if(kcode == KeyCode.Mouse6 && Input.GetJoystickNames().Length < 1) {
 				return KeyCode.None;
 			}
@@ -236,11 +237,13 @@ public static class InputWrapper {
 			if(kcode == KeyCode.Joystick3Button19 && Input.GetJoystickNames().Length < 4) {
 				return KeyCode.None;
 			}
+#endif
 		}
 		return KeyCode.None;
 	}
 	
 	public static string GetPressedAxis(bool mouseMovement = true) {
+#if !UNITY_FLASH
 		for(int i = 0; i < Input.GetJoystickNames().Length; i++) {
 			for(int j = 0; j < 10; j++) {
 				// Exclude broken, stuck, or useless axes here, by controller name
@@ -258,6 +261,7 @@ public static class InputWrapper {
 				}
 			}
 		}
+#endif
 		// For some reason, Unity detects touches on smartphone screens as mouse movement events. Ensure this doesn't become a problem.
 		if(Input.touches.Length == 0) {
 			if(mouseMovement) {

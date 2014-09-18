@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿#if !UNITY_FLASH
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -93,3 +94,4 @@ public class SpriteAnimator : MonoBehaviour {
 		}
 	}
 }
+#endif
